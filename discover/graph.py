@@ -1,6 +1,7 @@
 def load_people(relation_type):
     from .models import Person
     from django.utils.safestring import mark_safe
+    from . import db
 
     peeps = Person.objects.all()
 
@@ -17,10 +18,10 @@ def load_people(relation_type):
         human_dict[p.item_id] = p.itemlabel
         if relation_type=='occupation':
             relation_dict[p.occupation_id] = p.occupationlabel
-            e = {"from": p.item_id, "to": p.occupation_id}
+            e = {"from": p.item_id, "to": db.supply_val(p.occupation_id, 'string')}
         elif relation_type=='fieldofwork':
             relation_dict[p.fieldofwork_id] = p.fieldofworklabel
-            e = {"from": p.item_id, "to": p.fieldofwork_id}
+            e = {"from": p.item_id, "to": db.supply_val(p.fieldofwork_id, 'string')}
 
         edge_list.append(e)
 
@@ -34,5 +35,5 @@ def load_people(relation_type):
         obj2 = {"id": k, "label": v, "shape": "ellipse", "color": "#FF0000"}
         node_list.append(obj2)
 
-    results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list)}
+    results = {"nodes": mark_safe(node_list[100:350]), "edges": mark_safe(edge_list)}
     return results

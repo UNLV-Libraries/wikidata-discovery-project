@@ -1,6 +1,6 @@
 {% extends "discover/base.html" %}
 
-{% block header %}Information about People Referred to in Special Collections and Archives{% endblock %}
+{% block header2 %}Information about People Named in Special Collections and Archives{% endblock %}
 
 {% block main-content %}
     {% if people %}
@@ -12,7 +12,7 @@
             </tr>
             {% for p in people %}
                 <tr>
-                    <td><form><input type="checkbox" id="{{ p.item_id }}"></form></td>
+                    <td><a href="/discover/item/{{ p.item_id }}">details</a></td>
                     <td>{{ p.itemlabel }}</td>
                     <td>{{ p.itemdesc }}</td>
                 </tr>
@@ -24,25 +24,15 @@
 {% endblock %}
 
 {% block main-graph %}
-    <div id="vis-container"></div>
-    <script>
+    <script type="text/javascript">
         // initialize global variables.
         var inbound_nodes = {{ nodes }};
         var inbound_edges = {{ edges }};
         var edges;
         var nodes;
-        var allNodes;
-        var allEdges;
-        var nodeColors;
-        var originalNodes;
         var network;
         var container;
-        var options, data;
-        var filter = {
-          item : '',
-          property : '',
-          value : []
-        };
+        var options, the_data;
 
         // This method is responsible for drawing the graph, returns the drawn network
         function drawGraph() {
@@ -51,45 +41,12 @@
           // create objects for network
           nodes = new vis.DataSet(inbound_nodes);
           edges = new vis.DataSet(inbound_edges);
-          nodeColors = {};
-          allNodes = nodes.get({ returnType: "Object" });
-          for (nodeId in allNodes) {
-            nodeColors[nodeId] = allNodes[nodeId].color;
-          }
-          allEdges = edges.get({ returnType: "Object" });
-          // adding nodes and edges to the graph
-          data = {nodes: nodes, edges: edges};
-          var options = {
-            "configure": {
-            "enabled": false
-            },
-            "edges": {
-            "color": {
-            "inherit": true
-            },
-            "smooth": {
-            "enabled": true,
-            "type": "dynamic"
-            }
-            },
-            "interaction": {
-            "dragNodes": true,
-            "hideEdgesOnDrag": false,
-            "hideNodesOnDrag": false
-            },
-            "physics": {
-            "enabled": true,
-            "stabilization": {
-            "enabled": true,
-            "fit": true,
-            "iterations": 1000,
-            "onlyDynamicEdges": false,
-            "updateInterval": 50
-            }
-        }
-        };
 
-          network = new vis.Network(container, data, options);
+          // adding nodes and edges to the graph
+          the_data = {nodes: nodes, edges: edges};
+          var options = {};
+
+          network = new vis.Network(container, the_data, options);
           return network;
         }
         //drawGraph();

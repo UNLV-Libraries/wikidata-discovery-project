@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page for Learning Vis.js</title>
+
+    <script type='text/javascript' src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous">
+        </script>
+       <style>
+	        #vis-container {
+ 	           width: 100%;
+ 	           height: 500px;
+  	           background-color: #ffffff;
+  	           border: 1px solid lightgray;
+   	        position: relative;
+  	           float: left;
+  	       }
+    </style>
+</head>
+
+<body>
+<button onclick="drawGraph()">Draw it</button><br>
+<div id="vis-container"></div>
+
+<script type="text/javascript">
+	//let nodes_data = [{'id': 'Q107006300', 'label': 'Faye Todd', 'shape': 'circle', 'color': '#00BFFF'}, {'id': 'Q107064683', 'label': 'Claude Evans', 'shape': 'circle', 'color': '#00BFFF'}, {'id': 'Q112233', 'label': 'painter', 'shape': 'ellipse'}];
+	//let edges_data = [{'from': 'Q107006300', 'to': 'Q112233'}, {'from': 'Q107064683', 'to': 'Q112233'}];
+	let nodes_data = {{ nodes }};
+    let edges_data = {{ edges }};
+    let nodes;
+	let edges;
+	let allNodes;
+	let allEdges;
+	let network;
+	let container;
+	let the_data, the_options;
+
+
+	function drawGraph() {
+		nodes = new vis.DataSet(nodes_data);
+		edges = new vis.DataSet(edges_data);
+
+		// adding nodes and edges to the graph
+      the_data = {nodes: nodes, edges: edges};
+      the_options = {};
+      container = document.getElementById('vis-container');
+      network = new vis.Network(container, the_data, the_options);
+      return network;
+	}
+
+</script>
+</body>
+
+</html>

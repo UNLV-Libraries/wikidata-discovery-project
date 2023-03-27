@@ -1,0 +1,26 @@
+{% extends 'discover/base.html' %}
+
+{% block header2 %}Details about {{ item }}{% endblock %}
+
+<body>
+
+{% block main-content %}
+    {% if details %}
+          <table>
+              <tr>
+                  <td><strong>Category</strong></td>
+                  <td><strong>Value</strong></td>
+            </tr>
+            {% for d in details %}
+                <tr>
+                    <td>{{ d.prop_label }}</td>
+                    <td>{{ d.value_label }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No details for this selection.</p>
+    {% endif %}
+{% endblock %}
+</body>
+</html>

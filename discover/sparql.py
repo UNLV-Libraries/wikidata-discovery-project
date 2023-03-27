@@ -9,33 +9,42 @@ from . import db
 import re
 
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
-FILTER_KEYS = {"people": "on-wm-focus-list", "other": "some-other-bogus-value"}
+
+FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode"}
 
 def apply_filter(qry, filterval):
-    # insert wd entity value into query string
-    if filterval:
-        parts = re.split(r'~', qry)
-        l = parts[0]
-        r = parts[2]
-        return l + filterval + r
-    else:
-        return -1
 
-def get_wd_people():
+    # insert wd entity value into query string
+    parts = re.split(r'~', qry)
+    new_string = ''
+    for v in parts:
+        if v[:4] == 'filt':
+            new_string += filterval
+        else:
+            new_string += v
+
+    return new_string
+
+def build_wd_query(filterkey, supplied_qcode=None):
     # loads source query from database, applies filter and submits to Wikidata.
     # Returns JSON.
     try:
         # insert filter value into query string
-        q = WdQuery.objects.get(querytitle='people')
-        f = Filter.objects.get(name=FILTER_KEYS['people'])
-        qry = apply_filter(q.querytext, f.qcode)
+        q = WdQuery.objects.get(querytitle=filterkey)
+        f = Filter.objects.get(name=FILTER_KEYS[filterkey])
+        if f.qcode[:10] == '[variable]':
+            the_qcode = supplied_qcode
+        else:
+            the_qcode = f.qcode
+
+        qry = apply_filter(q.querytext, the_qcode)
 
         # execute query with SPARQLWrapper
-        people_json = run_wd_query(qry) #internal function
-        # print(people_json)
-        return people_json
+        return_json = run_wd_query(qry) #internal function
+        return return_json
     except:
-        db.log_exception(sys.exc_info(), 'sparql.get_wd_people')
+        db.log_exception(sys.exc_info(), 'sparql.build_wd_query')
+
 
 def run_wd_query(query):
     # takes query, either compiled for retrieved from disk, and submits to Wikidata.
