@@ -64,6 +64,8 @@
             text-align: center;
         }
 
+        {% block focus_color %}
+        {% endblock %}
         .site-menu a:hover {
             background-color: #9c1616;
         }
@@ -96,17 +98,16 @@
     <h2>{% block header2 %}Discovery Tool Introduction{% endblock %}</h2>
 	<nav class='site-menu'>
 		<ul>
-			<li><a href="/discover/home">Home</a></li>
-			<li><a href="/discover/people">People</a></li>
-			<li><a href="/discover/collections">Collections</a></li>
-			<li><a href="/discover/topics">Topics</a></li>
-			<li><a href="/discover/about">About</a></li>
+			<li id="home"><a href="/discover/home">Home</a></li>
+			<li id="people"><a href="/discover/people">People</a></li>
+			<li id="collections"><a href="/discover/collections">Collections</a></li>
+			<li id="topics"><a href="/discover/topics">Topics</a></li>
+			<li id="about"><a href="/discover/about">About</a></li>
 		</ul>
 	</nav>
 </header>
 
 <div class="wrapper">
-    <p><b>SEARCH:</b> {search string goes here...}</p><br>
     <main class="page-main">
         {% block main-content %}
 
@@ -117,7 +118,17 @@
         {% endblock %}
     </main>
     <aside class="page-side">
-        <button onclick="drawGraph()">Show Graph</button><br>
+        <button onclick="drawGraph()">Show Graph</button>
+
+        <label for="relations">Graph data by:</label>
+
+        <select name="relations" id="relations">
+            <option value="occupation">occupation</option>
+            <option value="fieldofwork">field of work</option>
+            <option value="placeofbirth">place of birth</option>
+            <option value="placeofburial">place of burial</option>
+            <option value=famtree">family tree </option>
+        </select><br>
         <button>Download Data set</button>
         {% block side-content %}{% endblock %}
     </aside>

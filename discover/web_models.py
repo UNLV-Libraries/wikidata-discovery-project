@@ -19,6 +19,15 @@ class Item:
     def __str__(self):
         return self.item_code
 
+class Subject:
+    item_code = ''
+    item_label = ''
+
+    def __init__(self, item_code):
+        self.item_code = item_code
+
+    def __str__(self):
+        return self.item_code
 
 def load_item_details(json_dict):
     # Binds only to the "item" query saved in discover_wdquery.
@@ -44,3 +53,25 @@ def get_item_details(qcode):
     from . import sparql
     the_json = sparql.build_wd_query('item', supplied_qcode=qcode)
     return load_item_details(the_json)
+
+def load_topics(json_dict):
+    import re
+    # TEMPORARY: loads all topics on the fly. Should be replaced by a
+    # conventional model structure.
+    topic_set = []
+    for r in json_dict["results"]["bindings"]:
+        #
+        subject_raw = r.get("subject", {}).get("value")
+        s = Subject(re.split(r'/', subject_raw).pop())
+        s.item_label = r.get("subjectLabel", {}).get("value")
+        topic_set.append(s)
+
+    return topic_set
+
+def get_topics():
+    # call stack for retrieving and transforming the wikidata
+    # into objects for views.item
+    from . import sparql
+
+    the_json = sparql.build_wd_query('topics')
+    return load_topics(the_json)

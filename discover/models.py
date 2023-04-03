@@ -28,6 +28,17 @@ class Person(models.Model):
         return self.item_id
 
 
+class Collection(models.Model):
+    item_id = models.CharField(max_length=20, db_index=True)
+    itemlabel = models.CharField(max_length=100, null=True)
+    itemdesc = models.CharField(max_length=500, null=True)
+    colltypelabel = models.CharField(max_length=30, null=True)
+    inventorynum = models.CharField(max_length=30, null=True)
+    describedat = models.URLField(max_length=500, null=True)
+
+    def __str__(self):
+        return self.item_id
+
 """Table for storing saved queries."""
 class WdQuery(models.Model):
     querytitle = models.CharField(max_length=30, primary_key=True)

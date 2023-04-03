@@ -1,5 +1,5 @@
 """
-This module handles all transactions with the database, at least for version 1 of the prototype.
+This module handles all CREATE/UPDATE/DELETE transactions with the database, at least for version 1 of the prototype.
 """
 import sys
 
@@ -58,7 +58,47 @@ def write_people(people_json):
         except TypeError:
             continue
         except:
-            log_exception(sys.exc_info(), "db.save_people")
+            log_exception(sys.exc_info(), "db.write_people")
+    return n
+
+def write_collections(collections_json):
+    # run the collections query in wikidata and write results to db.
+    from .models import Collection
+    import re
+    from django.utils.safestring import mark_safe
+
+    n = 0
+    for r in collections_json["results"]["bindings"]:
+        c = Collection()  #construct empty object
+        n += 1
+    #try:
+        item = r.get("item", {}).get("value")
+        item_id = re.split(r'/', item).pop()
+        c.item_id = item_id #must be there
+        c.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')[:99]
+        itemdesc = supply_val(r.get('itemDescription', {}).get('value'), 'string')
+        c.itemdesc = itemdesc
+        colltype = supply_val(r.get('colltypeLabel', {}).get('value'), 'string')
+        if colltype.__len__() <= 0:
+            pass
+        else:
+            c.colltypelabel = supply_val(r.get('colltypeLabel', {}).get('value'), 'string')
+        invnum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
+        if invnum.__len__() <= 0:
+            pass
+        else:
+            c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
+        da = supply_val(r.get('describedAt', {}).get('value'), 'string')
+        if da.__len__() <= 0:
+            pass
+        else:
+            c.describedat = mark_safe(supply_val(r.get('describedAt', {}).get('value'), 'string'))
+
+        c.save()
+    #except TypeError:
+        # log_exception(sys.exc_info(), "db.write_collections")
+    #except:
+        # log_exception(sys.exc_info(), "db.write_collections")
     return n
 
 def log_exception(e, proc: str):
@@ -98,3 +138,10 @@ def supply_val(val, the_type):
         elif the_type == 'numeric':
             return 0
 
+def fuzzy_filter_test(filterVal):
+    from django.db.models import Q
+    from .models import Person
+
+    peeps = Person.objects.all()
+    results = peeps.filter(Q(itemdesc__icontains=filterVal) | Q(itemlabel__icontains=filterVal))
+    print(results.distinct('item_id', 'itemlabel', 'itemdesc' ))

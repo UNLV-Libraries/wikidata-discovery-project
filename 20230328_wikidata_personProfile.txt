@@ -1,0 +1,82 @@
+#PEOPLE PROFILE--ABOUT UPDATED 2023-03-28
+SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel ?motherLabel ?fatherLabel ?siblingLabel ?spouceLabel ?childLabel ?relativeLabel ?oralHistory ?collection ?inventoryNum ?describedAt
+WHERE
+{
+ {
+  ?item wdt:P5008 wd:Q100202113 .
+  ?item wdt:P31 wd:Q5 .
+  ?item wdt:P735 ?givenName ; wdt:P734 ?familyName .
+
+  # ====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
+  OPTIONAL {?item wdt:P18 ?image }.
+  OPTIONAL {?item wdt:P19 ?placeOfBirth } . 
+  OPTIONAL {?item wdt:P20 ?placeOfDeath } .
+  OPTIONAL {?item wdt:P569 ?dateOfBirth } . 
+  OPTIONAL {?item wdt:P570 ?dateOfDeath } . 
+  OPTIONAL {?item wdt:P106 ?occupation } .
+  OPTIONAL {?item wdt:P101 ?fieldOfWork } . 
+
+  # ====  OPTIONAL FAMILY DATA ABOUT PERSON ====
+  OPTIONAL {?item wdt:P25 ?mother } .
+  OPTIONAL {?item wdt:P22 ?father } .
+  OPTIONAL {?item wdt:P3373 ?sibling } .
+  OPTIONAL {?item wdt:P26 ?spouce } .
+  OPTIONAL {?item wdt:P40 ?child } .
+  OPTIONAL {?item wdt:P1038 ?relative } .
+ }
+  UNION
+ {
+  ?item wdt:P31 ?instanceOf .
+  ?item p:P9600 ?oralHistoryAt .
+  ?oralHistoryAt ps:P9600 wd:Q73644758 .
+  OPTIONAL {?oralHistoryAt pq:P1810 ?oralHistory } .
+  OPTIONAL {?oralHistoryAt pq:P217 ?inventoryNum } .
+  OPTIONAL {?oralHistoryAt pq:P973 ?describedAt } .
+  FILTER (?instanceOf IN (wd:Q5 ))
+ 
+  # ====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
+  OPTIONAL {?item wdt:P18 ?image }.
+  OPTIONAL {?item wdt:P19 ?placeOfBirth } . 
+  OPTIONAL {?item wdt:P20 ?placeOfDeath } .
+  OPTIONAL {?item wdt:P569 ?dateOfBirth } . 
+  OPTIONAL {?item wdt:P570 ?dateOfDeath } . 
+  OPTIONAL {?item wdt:P106 ?occupation } .
+  OPTIONAL {?item wdt:P101 ?fieldOfWork } . 
+
+  # ====  OPTIONAL FAMILY DATA ABOUT PERSON ====
+  OPTIONAL {?item wdt:P25 ?mother } .
+  OPTIONAL {?item wdt:P22 ?father } .
+  OPTIONAL {?item wdt:P3373 ?sibling } .
+  OPTIONAL {?item wdt:P26 ?spouce } .
+  OPTIONAL {?item wdt:P40 ?child } .
+  OPTIONAL {?item wdt:P1038 ?relative } .
+ }
+  UNION
+ {
+  ?item wdt:P31 ?instanceOf . 
+  ?item p:P485 ?archivesAt .
+  ?archivesAt ps:P485 wd:Q73644758 .
+  OPTIONAL {?archivesAt pq:P1810 ?collection } .
+  OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
+  OPTIONAL {?archivesAt pq:P973 ?describedAt } .
+  FILTER (?instanceOf IN (wd:Q5 )) 
+  
+  # ====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
+  OPTIONAL {?item wdt:P18 ?image }.
+  OPTIONAL {?item wdt:P19 ?placeOfBirth } . 
+  OPTIONAL {?item wdt:P20 ?placeOfDeath } .
+  OPTIONAL {?item wdt:P569 ?dateOfBirth } . 
+  OPTIONAL {?item wdt:P570 ?dateOfDeath } . 
+  OPTIONAL {?item wdt:P106 ?occupation } .
+  OPTIONAL {?item wdt:P101 ?fieldOfWork } . 
+
+  # ====  OPTIONAL FAMILY DATA ABOUT PERSON ====
+  OPTIONAL {?item wdt:P25 ?mother } .
+  OPTIONAL {?item wdt:P22 ?father } .
+  OPTIONAL {?item wdt:P3373 ?sibling } .
+  OPTIONAL {?item wdt:P26 ?spouce } .
+  OPTIONAL {?item wdt:P40 ?child } .
+  OPTIONAL {?item wdt:P1038 ?relative } . 
+ }
+SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
+}

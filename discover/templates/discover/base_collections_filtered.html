@@ -1,26 +1,21 @@
-{% extends "discover/base.html" %}
+{% extends 'discover/base.html' %}
 
-{% block header2 %}Information about Collections at UNLV{% endblock %}
-{% block focus_color %}
-    .site-menu a {
-        .background-color: #9c1616;
-    }
-{% endblock %}
+{% block header2 %}Information about Collections at UNLV - Search Results{% endblock %}
+
 {% block main-content %}
     <form action="/discover/collections_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
-    </form>
-
-    {% if collections %}
+    </form><br>
+    {% if filtered_collections %}
           <table>
               <tr>
                   <td>DETAILS</td>
                   <td><strong>COLLECTION</strong></td>
                   <td><strong>ABOUT</strong></td>
             </tr>
-            {% for c in collections %}
+            {% for c in filtered_collections %}
                 <tr>
                     <td><a href="/discover/item/{{ c.item_id }}">details</a></td>
                     <td>{{ c.itemlabel }}</td>
@@ -29,7 +24,6 @@
             {% endfor %}
         </table>
     {% else %}
-        <p>No collection data found. Please contact your administrator.</p>
+        <p>No collections returned from your search.</p>
     {% endif %}
 {% endblock %}
-

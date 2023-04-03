@@ -10,7 +10,8 @@ import re
 
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
 
-FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode"}
+FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode", 'collections': 'filt-wm-focus-list',
+               'topics': 'filt-wm-focus-list'}
 
 def apply_filter(qry, filterval):
 
