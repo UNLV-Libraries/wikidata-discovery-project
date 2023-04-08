@@ -54,24 +54,24 @@ def get_item_details(qcode):
     the_json = sparql.build_wd_query('item', supplied_qcode=qcode)
     return load_item_details(the_json)
 
-def load_topics(json_dict):
+def load_subjects(json_dict):
     import re
     # TEMPORARY: loads all topics on the fly. Should be replaced by a
     # conventional model structure.
-    topic_set = []
+    subject_set = []
     for r in json_dict["results"]["bindings"]:
         #
         subject_raw = r.get("subject", {}).get("value")
         s = Subject(re.split(r'/', subject_raw).pop())
         s.item_label = r.get("subjectLabel", {}).get("value")
-        topic_set.append(s)
+        subject_set.append(s)
 
-    return topic_set
+    return subject_set
 
-def get_topics():
+def get_subjects():
     # call stack for retrieving and transforming the wikidata
     # into objects for views.item
     from . import sparql
 
-    the_json = sparql.build_wd_query('topics')
-    return load_topics(the_json)
+    the_json = sparql.build_wd_query('subjects')
+    return load_subjects(the_json)

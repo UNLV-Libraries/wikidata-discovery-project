@@ -122,7 +122,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # STATIC_ROOT = ''
-# STATICFILES_DIRS = ''
+STATICFILES_DIRS = [
+    '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
+    '/home/ed/node_modules/vis-network/standalone/umd/',
+    '/home/ed/node_modules/vis-network/dist/dist/',
+    '/home/ed/node_modules/underscore/'
+]
 
 STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',

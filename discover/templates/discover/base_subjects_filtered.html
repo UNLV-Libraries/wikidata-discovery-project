@@ -1,0 +1,46 @@
+{% extends 'discover/base.html' %}
+
+{% block header2 %}Subjects Search Results For: "{{ search_string }}"{% endblock %}
+{% block main-content %}
+    <form action="/discover/subjects_filtered/" method="post">
+    {% csrf_token %}
+        {{ search }}
+    <input type="submit" value="SEARCH">
+    </form><br>
+
+    <form action="/discover/collections_filtered/" method="post">
+        {% csrf_token %}
+        {{ restrict }}
+        <input type="submit" value="filter by selections">
+    </form>
+    {% if subjects %}
+          <table>
+              <tr>
+                  <td>FILTER</td>
+                  <td><strong>SUBJECT</strong></td>
+            </tr>
+            {% for s in subjects %}
+                <tr>
+                    <td> <form><input id="{{ s.subject_id }}" type="checkbox"
+                                      name="checkbox" onchange="handleCheck('{{ s.subject_id }}')"></form></td>
+                    <td>{{ s.subjectlabel }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Unable to retrieve subjects. Please contact your administrator.</p>
+    {% endif %}
+    <script type="text/javascript">
+        function handleCheck(subj_id) {
+            let s = document.getElementById(subj_id);
+            let t = document.getElementById('id_restrict_text')
+
+            if (s.checked) {
+                t.value += s.id + ',';
+            } else {
+                let oldtext = t.value;
+                t.value = oldtext.replace(subj_id + ',', '');
+            }
+        }
+    </script>
+{% endblock %}

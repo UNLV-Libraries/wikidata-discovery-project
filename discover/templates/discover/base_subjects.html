@@ -1,0 +1,27 @@
+{% extends 'discover/base.html' %}
+
+{% block header2 %}Subjects Used in Special Collections and Archives{% endblock %}
+{% block main-content %}
+    <form action="/discover/subjects_filtered/" method="post">
+    {% csrf_token %}
+        {{ search }}
+    <input type="submit" value="SEARCH">
+    </form><br>
+
+    {% if subjects %}
+          <table>
+              <tr>
+                  <td>FILTER</td>
+                  <td><strong>SUBJECT</strong></td>
+            </tr>
+            {% for s in subjects %}
+                <tr>
+                    <td><a href="/discover/collections_filtered/{{ s.subject_id }}">filter</a></td>
+                    <td>{{ s.subjectlabel }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>Unable to retrieve subjects. Please contact your administrator.</p>
+    {% endif %}
+{% endblock %}

@@ -1,29 +1,42 @@
-def load_people(relation_type):
-    from .models import Person
+def load_people(dataset, relation_type):
     from django.utils.safestring import mark_safe
     from . import db
+    import json
 
-    peeps = Person.objects.all()
-
+    peeps = dataset
     # prepare two lists to use in Javascript on template.
-    # get unique lists of humans and occupations.
+    # get unique lists of humans and occupations, and a JSON
+    # dict of properties by human for graph display.
     # note: assigning a dup to a dict discards the dup.
     human_dict = {}
     relation_dict = {}
+    props_dict = {}
+
     node_list = []
     edge_list = []
+    props_json = json.JSONEncoder
+    props_list = []
     # create dicts plus add edge data to edge_list
     for p in peeps:
         e = []
         human_dict[p.item_id] = p.itemlabel
+        props_dict[p.item_id] = {"itemlabel": p.itemlabel, "image": p.image, "dob": p.dob,
+                                 "placeofbirth": p.placeofbirthlabel, "dateofdeath": p.dateofdeath,
+                                 "placeofdeath": p.placeofdeathlabel}
         if relation_type=='occupation':
-            relation_dict[p.occupation_id] = p.occupationlabel
-            e = {"from": p.item_id, "to": db.supply_val(p.occupation_id, 'string')}
+            if p.occupation_id:
+                relation_dict[p.occupation_id] = p.occupationlabel
+                e = {"from": p.item_id, "to": db.supply_val(p.occupation_id, 'string')}
+            else:
+                pass
         elif relation_type=='fieldofwork':
-            relation_dict[p.fieldofwork_id] = p.fieldofworklabel
-            e = {"from": p.item_id, "to": db.supply_val(p.fieldofwork_id, 'string')}
-
-        edge_list.append(e)
+            if p.fieldofwork_id:
+                relation_dict[p.fieldofwork_id] = p.fieldofworklabel
+                e = {"from": p.item_id, "to": db.supply_val(p.fieldofwork_id, 'string')}
+            else:
+                pass
+        if not e.__len__() == 0:
+            edge_list.append(e)
 
     # add human nodes
     for k, v in human_dict.items():
@@ -35,5 +48,13 @@ def load_people(relation_type):
         obj2 = {"id": k, "label": v, "shape": "ellipse", "color": "#FF0000"}
         node_list.append(obj2)
 
-    results = {"nodes": mark_safe(node_list[100:350]), "edges": mark_safe(edge_list)}
+    # additional properties for humans
+    for k, v in props_dict.items():
+        obj3 = {"item_id": k, "itemprops": v}
+        props_list.append(obj3)
+
+    props_json = json.dumps(props_list, separators=(",", ":"))
+
+
+    results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list), 'properties': mark_safe(props_json)}
     return results

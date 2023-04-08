@@ -11,7 +11,7 @@ import re
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
 
 FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode", 'collections': 'filt-wm-focus-list',
-               'topics': 'filt-wm-focus-list'}
+               'subjects': 'filt-wm-focus-list'}
 
 def apply_filter(qry, filterval):
 
@@ -38,10 +38,10 @@ def build_wd_query(filterkey, supplied_qcode=None):
         else:
             the_qcode = f.qcode
 
-        qry = apply_filter(q.querytext, the_qcode)
+        qry = apply_filter(q.querytext, the_qcode) #used as private function
 
         # execute query with SPARQLWrapper
-        return_json = run_wd_query(qry) #internal function
+        return_json = run_wd_query(qry) #used internal function
         return return_json
     except:
         db.log_exception(sys.exc_info(), 'sparql.build_wd_query')

@@ -3,11 +3,20 @@ This module handles all CREATE/UPDATE/DELETE transactions with the database, at 
 """
 import sys
 
+def cache_people():
+    from . import sparql
+    people_json = sparql.build_wd_query('people')
+    write_people(people_json)
+
 def write_people(people_json):
-    # parse JSON and save to Person table
+    # internal function: parse JSON and save to Person table
     from .models import Person
     import re
     from django.utils.safestring import mark_safe
+
+    # Delete existing table records
+    Person.objects.all().delete()
+
     n = 0
 
     for r in people_json["results"]["bindings"]:
@@ -61,11 +70,18 @@ def write_people(people_json):
             log_exception(sys.exc_info(), "db.write_people")
     return n
 
+def cache_collections():
+    from . import sparql
+    coll_json = sparql.build_wd_query('collections')
+    write_collections(coll_json)
+
 def write_collections(collections_json):
-    # run the collections query in wikidata and write results to db.
+    # internal function: receive the collections query in wikidata and write results to db.
     from .models import Collection
     import re
     from django.utils.safestring import mark_safe
+    # Delete existing table records
+    Collection.objects.all().delete()
 
     n = 0
     for r in collections_json["results"]["bindings"]:
@@ -73,21 +89,31 @@ def write_collections(collections_json):
         n += 1
     #try:
         item = r.get("item", {}).get("value")
-        item_id = re.split(r'/', item).pop()
-        c.item_id = item_id #must be there
+        c.item_id = re.split(r'/', item).pop()
         c.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')[:99]
-        itemdesc = supply_val(r.get('itemDescription', {}).get('value'), 'string')
-        c.itemdesc = itemdesc
-        colltype = supply_val(r.get('colltypeLabel', {}).get('value'), 'string')
+        c.itemdesc  = supply_val(r.get('itemDescription', {}).get('value'), 'string')
+        subject = r.get('subject', {}).get('value')
+        c.subject_id = re.split(r'/', subject).pop()
+        c.subjectlabel = supply_val(r.get('subjectLabel', {}).get('value'), 'string')[:99]
+        donor = supply_val(r.get('donatedBy', {}).get('value'), 'string')
+        if donor.__len__() <= 0:
+            pass
+        else:
+            c.donatedby_id = re.split(r'/', donor).pop()
+            c.donatedbylabel = supply_val(r.get('donatedByLabel', {}).get('value'), 'string')[:99]
+
+        colltype = supply_val(r.get('instanceOf', {}).get('value'), 'string')
         if colltype.__len__() <= 0:
             pass
         else:
-            c.colltypelabel = supply_val(r.get('colltypeLabel', {}).get('value'), 'string')
+            c.colltypelabel = supply_val(r.get('instanceOfLabel', {}).get('value'), 'string')
+
         invnum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
         if invnum.__len__() <= 0:
             pass
         else:
             c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
+
         da = supply_val(r.get('describedAt', {}).get('value'), 'string')
         if da.__len__() <= 0:
             pass
@@ -100,6 +126,28 @@ def write_collections(collections_json):
     #except:
         # log_exception(sys.exc_info(), "db.write_collections")
     return n
+
+def cache_subjects():
+    from . import sparql
+    subject_json = sparql.build_wd_query('subjects')
+    write_subjects(subject_json)
+
+def write_subjects(json_dict):
+    from .models import Subject
+    import re
+
+    Subject.objects.all().delete()
+    n = 0
+
+    for r in json_dict["results"]["bindings"]:
+        s = Subject()
+
+        subject_raw = r.get("subject", {}).get("value")
+        s.subject_id = Subject(re.split(r'/', subject_raw).pop())
+        s.subjectlabel = r.get("subjectLabel", {}).get("value")
+
+        s.save()
+        n += 1
 
 def log_exception(e, proc: str):
     from .models import ErrorLog
@@ -138,10 +186,10 @@ def supply_val(val, the_type):
         elif the_type == 'numeric':
             return 0
 
-def fuzzy_filter_test(filterVal):
+def fuzzy_filter_test(filterval):
     from django.db.models import Q
     from .models import Person
 
     peeps = Person.objects.all()
-    results = peeps.filter(Q(itemdesc__icontains=filterVal) | Q(itemlabel__icontains=filterVal))
+    results = peeps.filter(Q(itemdesc__icontains=filterval) | Q(itemlabel__icontains=filterval))
     print(results.distinct('item_id', 'itemlabel', 'itemdesc' ))

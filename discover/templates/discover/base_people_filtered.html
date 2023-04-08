@@ -1,5 +1,20 @@
 {% extends 'discover/base.html' %}
 
+{% block head-script %}
+    <script type="text/javascript">
+        let tooltip_div;
+        let mouse_x, mouse_y;
+        window.onload = function () {
+            tooltip_div = document.getElementById('vis-tooltip');
+        }
+        //track mouse positions for tooltip
+        window.addEventListener('mousemove', function (event) {
+            mouse_x = event.clientX;
+            mouse_y = event.clientY;
+            //document.getElementById('mousey').innerText = 'x: ' + mouse_x + ' y: ' + mouse_y;
+        })
+    </script>
+{% endblock %}
 {% block header2 %}Information about People Named in Special Collections and Archives - Search Results{% endblock %}
 
 {% block main-content %}
@@ -7,8 +22,8 @@
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
-    </form><br>
-
+    </form>
+    <p>People Returned: <b>{{ num }}</b></p>
     {% if filtered_people %}
           <table>
               <tr>
@@ -30,34 +45,81 @@
 {% endblock %}
 
 {% block main-graph %}
+    <div id="property_data">{{ properties }}</div>
     <script type="text/javascript">
+        //const _ = require('underscore');
+        //const vis = require('vis-network');
         // initialize global variables.
-        var inbound_nodes = {{ nodes }};
-        var inbound_edges = {{ edges }};
-        var edges;
-        var nodes;
-        var network;
-        var container;
-        var options, the_data;
+        let inbound_nodes = {{ nodes }};
+        let inbound_edges = {{ edges }};
+        let my_edges;
+        let my_nodes;
+        let network;
+        let container;
+        let options, the_data;
 
         // This method is responsible for drawing the graph, returns the drawn network
         function drawGraph() {
-          var container = document.getElementById('vis-container');
-
+          let container = document.getElementById('vis-container');
           // create objects for network
-          nodes = new vis.DataSet(inbound_nodes);
-          edges = new vis.DataSet(inbound_edges);
+          my_nodes = new vis.DataSet(inbound_nodes);
+          my_edges = new vis.DataSet(inbound_edges);
 
           // adding nodes and edges to the graph
-          the_data = {nodes: nodes, edges: edges};
-          var options = {};
+          the_data = {nodes: my_nodes, edges: my_edges};
+          let options = {interaction:{hover:true}};
 
           network = new vis.Network(container, the_data, options);
+          initialize(network);
           return network;
         }
-        //drawGraph();
-        //window.onload = (event) => {
-        //  drawGraph();
-        //};
+        function initialize(net) {
+            net.on('selectNode', function (params) {
+                let s = document.getElementById('id_selected_text');
+                s.value = params['nodes'];
+            })
+
+            net.on('hoverNode', function (params) {
+                tooltip_div.innerText = showProperties(params['node']);
+                tooltip_div.style.left = mouse_x + 'px';
+                tooltip_div.style.top = mouse_y + 'px';
+                if (params['node'] !== "undefined") {
+                    tooltip_div.hidden = false;
+                }
+            })
+
+            net.on('blurNode', function () {
+                tooltip_div.hidden = true;
+            })
+
+        }
+        function showProperties(pitem_id) {
+            try {
+                let js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
+                let i_data = _.find(js_objects, function (o)
+                    {return o.item_id === pitem_id;
+                    }, 0);
+                //let dob = "date of birth: " + i_data.itemprops.get('dob');
+                //let pob = "place of birth: " + i_data.itemprops.get('placeofbirth');
+                //inner_vals = dob + '<br>' + pob + '<br>';
+                return JSON.stringify(i_data);
+            } catch (err) {
+                alert(err.message);
+            }
+        }
     </script>
+
+{% endblock %}
+{% block side-map %}
+    <div id="mousey"></div>
+    <div id="vis-tooltip"></div>
+    <div id="vis-container">
+
+    </div> {# used by inserted javascript as canvas #}
+    <form action="discover/people_filtered/" method="post">
+        {% csrf_token %}
+        {{ selected }}
+        <input type="submit" value="filter">
+   </form>
+
 {% endblock %}

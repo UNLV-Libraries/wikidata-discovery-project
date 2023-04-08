@@ -1,0 +1,8 @@
+{
+  "name": "wikidataDiscovery",
+  "version": "1.0.0",
+  "dependencies": {
+    "underscore": "^1.13.6",
+    "vis-network": "^9.1.6"
+  }
+}

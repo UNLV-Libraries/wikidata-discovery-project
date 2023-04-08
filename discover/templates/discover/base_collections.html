@@ -25,11 +25,12 @@
                     <td><a href="/discover/item/{{ c.item_id }}">details</a></td>
                     <td>{{ c.itemlabel }}</td>
                     <td>{{ c.itemdesc }}</td>
+                    <td>{{ c.colltypelabel }}</td>
                 </tr>
             {% endfor %}
         </table>
     {% else %}
-        <p>No collection data found. Please contact your administrator.</p>
+        <p>Collection information can't be retrieved. Please contact your administrator.</p>
     {% endif %}
 {% endblock %}
 
