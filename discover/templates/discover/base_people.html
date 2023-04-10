@@ -3,61 +3,18 @@
 {% block header2 %}Information about People Named in Special Collections and Archives{% endblock %}
 
     {% block main-content %}
-    <form action="/discover/people_filtered/" method="post">
-    {% csrf_token %}
-        {{ search }}
-    <input type="submit" value="SEARCH">
-    </form><br>
-    {% if people %}
-          <table>
-              <tr>
-                  <td>DETAILS</td>
-                  <td><strong>PERSON</strong></td>
-                  <td><strong>ABOUT</strong></td>
-            </tr>
-            {% for p in people %}
-                <tr>
-                    <td><a href="/discover/item/{{ p.item_id }}">details</a></td>
-                    <td>{{ p.itemlabel }}</td>
-                    <td>{{ p.itemdesc }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>No people were returned from your search.</p>
-    {% endif %}
-{% endblock %}
+        <form action="/discover/people_filtered/" method="post">
+        {% csrf_token %}
+            {{ search }}
+        <input type="submit" value="SEARCH">
+        </form><br>
+        <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
+            For example, type part or all of the name of a person you're looking for, or type a word or phrase
+            that describes a person or people.</i></p>
+    {% endblock %}
 
 {% block main-graph %}
-    <script type="text/javascript">
-        // initialize global variables.
-        //let inbound_nodes = {{ nodes }};
-        //let inbound_edges = {{ edges }};
-        let inbound_nodes = [{'id': 'Q460378', 'label': 'Shelley Berkley', 'shape': 'circle', 'color': '#00BFFF'}, {'id': 'Q4768438', 'label': 'Anne Martin', 'shape': 'circle', 'color': '#00BFFF'}];
-        let inbound_edges = [{'from': 'Q460378', 'to': 'Q4768438'}]
-        let my_edges;
-        let my_nodes;
-        let network;
-        let container;
-        let options, the_data;
 
-        // This method is responsible for drawing the graph, returns the drawn network
-        function drawGraph() {
-          let container = document.getElementById('vis-container');
-
-          // create objects for network
-          my_nodes = new vis.DataSet(inbound_nodes);
-          my_edges = new vis.DataSet(inbound_edges);
-
-          // adding nodes and edges to the graph
-          the_data = {nodes: my_nodes, edges: my_edges};
-          let options = {};
-
-          network = new vis.Network(container, the_data, options);
-          return network;
-        }
-
-    </script>
 {% endblock %}
 {% block side-map %}
     <div id="vis-container"></div> {# used by inserted javascript as canvas #}

@@ -28,23 +28,23 @@ def apply_filter(qry, filterval):
 
 def build_wd_query(filterkey, supplied_qcode=None):
     # loads source query from database, applies filter and submits to Wikidata.
-    # Returns JSON.
-    try:
-        # insert filter value into query string
-        q = WdQuery.objects.get(querytitle=filterkey)
-        f = Filter.objects.get(name=FILTER_KEYS[filterkey])
-        if f.qcode[:10] == '[variable]':
-            the_qcode = supplied_qcode
-        else:
-            the_qcode = f.qcode
+    # Returns JSON-like list of dictionaries
 
-        qry = apply_filter(q.querytext, the_qcode) #used as private function
+    # insert filter value into query string
+    q = WdQuery.objects.get(querytitle=filterkey)
+    f = Filter.objects.get(name=FILTER_KEYS[filterkey])
+    if f.qcode[:10] == '[variable]':
+        the_qcode = supplied_qcode
+    else:
+        the_qcode = f.qcode
 
-        # execute query with SPARQLWrapper
-        return_json = run_wd_query(qry) #used internal function
-        return return_json
-    except:
-        db.log_exception(sys.exc_info(), 'sparql.build_wd_query')
+    qry = apply_filter(q.querytext, the_qcode) #used as private function
+
+    # execute query with SPARQLWrapper
+    return_json = run_wd_query(qry) #used internal function
+    return return_json
+
+
 
 
 def run_wd_query(query):

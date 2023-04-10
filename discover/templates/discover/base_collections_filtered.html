@@ -15,16 +15,31 @@
                   <td>DETAILS</td>
                   <td><strong>COLLECTION</strong></td>
                   <td><strong>ABOUT</strong></td>
+                  <td><strong>COLLECTION TYPE</strong></td>
             </tr>
             {% for c in filtered_collections %}
                 <tr>
-                    <td><a href="/discover/item/{{ c.item_id }}">details</a></td>
+                    <td><a href="/discover/item/{{c.item_id}}">details</a></td>
                     <td>{{ c.itemlabel }}</td>
                     <td>{{ c.itemdesc }}</td>
+                    <td>{{ c.colltypelabel }}</td>
                 </tr>
             {% endfor %}
         </table>
     {% else %}
         <p>No collections returned from your search.</p>
     {% endif %}
+{% endblock %}
+{% block side-map %}
+    <button onclick="drawGraph()">Show Graph</button>
+    <div id="vis-tooltip"></div>
+    <div id="vis-container">
+    </div> {# used by inserted javascript as canvas #}
+    <div id="selection_label"></div>
+    <form action="/discover/people_filtered/" method="post">
+        {% csrf_token %}
+        {{ select }}
+        <input type="submit" value="filter">
+   </form>
+
 {% endblock %}

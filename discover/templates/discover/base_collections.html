@@ -11,26 +11,13 @@
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
-    </form>
+    </form><br>
+    <div id="errors"> {{ errors }}</div>
+    <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
+            For example, type part or all of the name of a collection you're looking for, or type a word or phrase
+            that describes a collection or collections.</i></p>
 
-    {% if collections %}
-          <table>
-              <tr>
-                  <td>DETAILS</td>
-                  <td><strong>COLLECTION</strong></td>
-                  <td><strong>ABOUT</strong></td>
-            </tr>
-            {% for c in collections %}
-                <tr>
-                    <td><a href="/discover/item/{{ c.item_id }}">details</a></td>
-                    <td>{{ c.itemlabel }}</td>
-                    <td>{{ c.itemdesc }}</td>
-                    <td>{{ c.colltypelabel }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>Collection information can't be retrieved. Please contact your administrator.</p>
-    {% endif %}
 {% endblock %}
-
+{% block side-map %}
+    <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+{% endblock %}

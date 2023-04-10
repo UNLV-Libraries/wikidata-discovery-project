@@ -1,13 +1,18 @@
 """
 This module handles all CREATE/UPDATE/DELETE transactions with the database, at least for version 1 of the prototype.
 """
-import sys
+import datetime
+import logging
+the_log = logging.getLogger(__name__)
 
 def cache_people():
     from . import sparql
-    people_json = sparql.build_wd_query('people')
-    write_people(people_json)
-
+    try:
+        people_json = sparql.build_wd_query('people')
+        write_people(people_json)
+    except BaseException as e:
+        dt = datetime.datetime.now()
+        the_log.error(str(dt) + ": " + str(e.args))
 def write_people(people_json):
     # internal function: parse JSON and save to Person table
     from .models import Person
@@ -66,14 +71,19 @@ def write_people(people_json):
             p.save()
         except TypeError:
             continue
-        except:
-            log_exception(sys.exc_info(), "db.write_people")
+        except BaseException as e:
+            dt = datetime.datetime.now()
+            the_log.error(str(dt) + ": " + str(e.args))
     return n
 
 def cache_collections():
     from . import sparql
-    coll_json = sparql.build_wd_query('collections')
-    write_collections(coll_json)
+    try:
+        coll_json = sparql.build_wd_query('collections')
+        write_collections(coll_json)
+    except BaseException as e:
+        dt = datetime.datetime.now()
+        the_log.error(str(dt) + ": " + str(e.args))
 
 def write_collections(collections_json):
     # internal function: receive the collections query in wikidata and write results to db.
@@ -129,8 +139,12 @@ def write_collections(collections_json):
 
 def cache_subjects():
     from . import sparql
-    subject_json = sparql.build_wd_query('subjects')
-    write_subjects(subject_json)
+    try:
+        subject_json = sparql.build_wd_query('subjects')
+        write_subjects(subject_json)
+    except BaseException as e:
+        dt = datetime.datetime.now()
+        the_log.error(str(dt) + ": " + str(e.args))
 
 def write_subjects(json_dict):
     from .models import Subject
@@ -149,27 +163,6 @@ def write_subjects(json_dict):
         s.save()
         n += 1
 
-def log_exception(e, proc: str):
-    from .models import ErrorLog
-    from datetime import datetime
-    processbit = 0
-    # create new log table object
-    el = ErrorLog()
-
-    # populate and save to table
-    el.errclasstype = e[0]
-    el.errvalue = e[1]
-    el.stacktrace = e[2]
-    el.procedure = proc
-    el.timestamp = datetime.now()
-    try:
-        el.save(force_insert=True)
-    except Exception as exc:
-        processbit = -1
-        raise RuntimeError("Exception logging failure.") from exc
-    finally:
-        print(e)
-        return processbit
 """
 Internal function to supply slug value when writing
 to a table from a ragged json array.
@@ -186,10 +179,4 @@ def supply_val(val, the_type):
         elif the_type == 'numeric':
             return 0
 
-def fuzzy_filter_test(filterval):
-    from django.db.models import Q
-    from .models import Person
 
-    peeps = Person.objects.all()
-    results = peeps.filter(Q(itemdesc__icontains=filterval) | Q(itemlabel__icontains=filterval))
-    print(results.distinct('item_id', 'itemlabel', 'itemdesc' ))

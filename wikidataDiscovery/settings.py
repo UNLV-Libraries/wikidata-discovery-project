@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'discover.apps.DiscoverConfig',
     'django.contrib.admin',
@@ -77,14 +77,12 @@ WSGI_APPLICATION = 'wikidataDiscovery.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'service': 'discover',
-            'passfile': '~/.pgpass',
-        },
+            'read_default_file': '/home/ed/PycharmProjects/wikidataDiscovery/my.cnf'
+        }
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -139,5 +137,30 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "issue.log",
+        },
+    },
+    "loggers": {
+        "discover.views": {
+          "handlers": ["file"],
+          "level": "ERROR",
+          "propagate": True,
+        },
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

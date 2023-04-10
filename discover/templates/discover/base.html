@@ -37,8 +37,7 @@
 <div class="wrapper">
     <main class="page-main">
         {% block main-content %}
-        <p style="color: dimgrey"><i>Use the search bar to type a word or phrase for the information you're looking for. For example,
-            if you're on the People tab, type part or all of the name of a person you're looking for.</i></p>
+
         {% endblock %}
 
         {% block main-graph %}
@@ -46,20 +45,11 @@
         {% endblock %}
     </main>
     <aside class="page-side">
-        <button onclick="drawGraph()">Show Graph</button>
-
         {% block side-content %}
-            <label for="relations">Graph data by:</label>
-            <select name="relations" id="relations">
-                <option value="occupation">occupation</option>
-                <option value="fieldofwork">field of work</option>
-                <option value="placeofbirth">place of birth</option>
-                <option value="placeofburial">place of burial</option>
-                <option value=famtree">family tree</option>
-            </select>
+
         {% endblock %}
         {% block side-map %}
-            {# <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+
         {% endblock %}
     </aside>
 </div>
