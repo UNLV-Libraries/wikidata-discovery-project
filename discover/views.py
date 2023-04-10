@@ -1,3 +1,5 @@
+import sys
+
 from django.shortcuts import render
 from . import graph
 from . import web_models
@@ -11,33 +13,54 @@ def home(request):
     return render(request, 'discover/base_home.html')
 
 def people(request):
-    from .forms import SearchForm
+    from .forms import SearchForm, NodeSelectForm
     peeps = Person.objects.all()
     distinctpeeps = peeps.order_by('itemlabel').distinct('item_id', 'itemlabel', 'itemdesc' )[:5]
     netobjs = graph.load_people(distinctpeeps, 'occupation')
     sform = SearchForm()
-    context = {'people': distinctpeeps, 'nodes': netobjs['nodes'], 'edges': netobjs['edges'], 'search': sform}
+    nsform = NodeSelectForm()
+    context = {'people': distinctpeeps, 'nodes': netobjs['nodes'], 'edges': netobjs['edges'],
+               'search': sform, 'select': nsform}
     return render(request, 'discover/base_people.html', context)
 
 def people_filtered(request):
     from .forms import SearchForm, NodeSelectForm
     from .models import Person
-    from django.db.models import Q
-    num = 0
-    return_form = SearchForm(request.POST)
-    selected = NodeSelectForm()
-    if return_form.is_valid():
-        peeps = Person.objects.all()
-        filtpeeps = peeps.filter(Q(itemdesc__icontains=return_form.cleaned_data['search_text']) |
-                                 Q(itemlabel__icontains=return_form.cleaned_data['search_text']))
-        num = filtpeeps.distinct('item_id', 'itemlabel', 'itemdesc').count()
+    from django.db.models import Q, QuerySet
+    errors = ''
+    try:
+        the_string = ''
+        filtpeeps = QuerySet()
+        num = 0
+        return_search_form = SearchForm(request.POST)
+        return_node_form = NodeSelectForm(request.POST)
+        nsform = NodeSelectForm()
         sform = SearchForm()
+        peeps = Person.objects.all()
+        if return_search_form.is_valid():
+            filtpeeps = peeps.filter(Q(itemdesc__icontains=return_search_form.cleaned_data['search_text']) |
+                                     Q(itemlabel__icontains=return_search_form.cleaned_data['search_text']))
+            num = filtpeeps.distinct('item_id', 'itemlabel', 'itemdesc').count()
+            the_string = return_search_form.cleaned_data['search_text']
+        elif return_node_form.is_valid():
+            the_string = return_node_form.cleaned_data['shape_label']
+            if return_node_form.cleaned_data['shape_type'] == 'ellipse':
+                filtpeeps = peeps.filter(occupation_id__exact=return_node_form.cleaned_data['selected_text'])
+                num = filtpeeps.distinct('item_id', 'itemlabel', 'itemdesc').count()
+            else:
+                filtpeeps = peeps.filter(item_id__exact=return_node_form.cleaned_data['selected_text'])
+                num = filtpeeps.distinct('item_id', 'itemlabel', 'itemdesc').count()
         netobjs = graph.load_people(filtpeeps, 'occupation')
         context = {'filtered_people': filtpeeps.distinct('item_id', 'itemlabel', 'itemdesc'), 'search': sform,
-                   'num': num, 'nodes': netobjs['nodes'], 'edges': netobjs['edges'], 'selected': selected,
-                   'properties': netobjs['properties']}
+                   'num': num, 'nodes': netobjs['nodes'], 'edges': netobjs['edges'], 'select': nsform,
+                   'properties': netobjs['properties'], 'string': the_string}
         return render(request, 'discover/base_people_filtered.html', context)
-
+    except BaseException as e:
+        for i in e.args:
+            errors += i
+        errors += sys.exc_info()
+        context = {'errors': errors}
+        return render(request, 'discover/base_people_filtered.html', context)
 def collections(request):
     from .forms import SearchForm
     colls = Collection.objects.all()
@@ -67,7 +90,7 @@ def collections_filtered(request):
                        'num': num}
     else:
         qcodes = return_rform.cleaned_data['restrict_text'].split(',')
-        qcodes.remove('') #remove empty member caused trailing comma
+        qcodes.remove('') #remove empty member that causes trailing comma
         the_string = qcodes
         n = 1
         for q in qcodes:
@@ -107,13 +130,6 @@ def subjects_filtered(request):
     else:
         return render(request, 'discover/base_subjects_filtered.html')
 
-def basic_vis(request):
-    # the_nodes = [{'id': 'Q107006300', 'label': 'Faye Todd', 'shape': 'circle', 'color': '#00BFFF'}, {'id': 'Q107064683', 'label': 'Claude Evans', 'shape': 'circle', 'color': '#00BFFF'}, {'id': 'Q112233', 'label': 'painter', 'shape': 'ellipse'}]
-    # the_edges = [{'from': 'Q107006300', 'to': 'Q112233'}, {'from': 'Q107064683', 'to': 'Q112233'}, {'from': 'Q107064683', 'to': ''}]
-    netobjs = graph.load_people('occupation')
-    context = {'nodes': netobjs['nodes'], 'edges': netobjs['edges']}
-    # context = {'nodes': mark_safe(the_nodes), 'edges': mark_safe(the_edges)}
-    return render(request, 'discover/basic_vis.html', context)
 
 def item(request, item_code):
     details = web_models.get_item_details(item_code)

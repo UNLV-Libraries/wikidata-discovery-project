@@ -21,8 +21,10 @@ def load_people(dataset, relation_type):
         e = []
         human_dict[p.item_id] = p.itemlabel
         props_dict[p.item_id] = {"itemlabel": p.itemlabel, "image": p.image, "dob": p.dob,
-                                 "placeofbirth": p.placeofbirthlabel, "dateofdeath": p.dateofdeath,
-                                 "placeofdeath": p.placeofdeathlabel}
+                                 "placeofbirth": p.placeofbirthlabel,
+                                 "dateofdeath": p.dateofdeath, "placeofdeath": p.placeofdeathlabel,
+                                 "mother": p.motherlabel, "father": p.fatherlabel, "spouse": p.spouselabel,
+                                 "child": p.childlabel, "relative": p.relativelabel}
         if relation_type=='occupation':
             if p.occupation_id:
                 relation_dict[p.occupation_id] = p.occupationlabel
@@ -36,7 +38,7 @@ def load_people(dataset, relation_type):
             else:
                 pass
         if not e.__len__() == 0:
-            edge_list.append(e)
+            edge_list.append(e)  # todo: change to dict to avoid occ. dupes in results
 
     # add human nodes
     for k, v in human_dict.items():
@@ -47,13 +49,13 @@ def load_people(dataset, relation_type):
     for k, v in relation_dict.items():
         obj2 = {"id": k, "label": v, "shape": "ellipse", "color": "#FF0000"}
         node_list.append(obj2)
-
+        props_list.append(obj2)  # add here to provide on-page data to access via javascript.
     # additional properties for humans
     for k, v in props_dict.items():
-        obj3 = {"item_id": k, "itemprops": v}
+        obj3 = {"id": k, "itemprops": v}
         props_list.append(obj3)
 
-    props_json = json.dumps(props_list, separators=(",", ":"))
+    props_json = json.dumps(props_list, separators=(",", ":")) # creates ragged json of relation & human nodes
 
 
     results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list), 'properties': mark_safe(props_json)}

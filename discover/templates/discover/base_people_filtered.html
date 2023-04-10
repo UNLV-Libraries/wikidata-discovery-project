@@ -4,8 +4,10 @@
     <script type="text/javascript">
         let tooltip_div;
         let mouse_x, mouse_y;
+        let js_objects;
         window.onload = function () {
             tooltip_div = document.getElementById('vis-tooltip');
+            js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
         }
         //track mouse positions for tooltip
         window.addEventListener('mousemove', function (event) {
@@ -15,7 +17,7 @@
         })
     </script>
 {% endblock %}
-{% block header2 %}Information about People Named in Special Collections and Archives - Search Results{% endblock %}
+{% block header2 %}Information about People - Search Results: "{{ string }}" {% endblock %}
 
 {% block main-content %}
     <form action="/discover/people_filtered/" method="post">
@@ -23,6 +25,7 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <div id="errors"> {{ errors }}</div>
     <p>People Returned: <b>{{ num }}</b></p>
     {% if filtered_people %}
           <table>
@@ -45,7 +48,7 @@
 {% endblock %}
 
 {% block main-graph %}
-    <div id="property_data">{{ properties }}</div>
+    <div id="property_data" hidden="true">{{ properties }}</div>
     <script type="text/javascript">
         //const _ = require('underscore');
         //const vis = require('vis-network');
@@ -73,18 +76,25 @@
           initialize(network);
           return network;
         }
+
+        //wrote this to explicitly initialize needed events. Couldn't make it work otherwise.
         function initialize(net) {
             net.on('selectNode', function (params) {
                 let s = document.getElementById('id_selected_text');
-                s.value = params['nodes'];
+                s.value = params['nodes'][0];
+                let label_data = getLabel(params['nodes'][0])
+                document.getElementById('id_shape_label').value = label_data[0];
+                document.getElementById('id_shape_type').value = label_data[1];
             })
 
             net.on('hoverNode', function (params) {
+                try {
                 tooltip_div.innerText = showProperties(params['node']);
                 tooltip_div.style.left = mouse_x + 'px';
                 tooltip_div.style.top = mouse_y + 'px';
-                if (params['node'] !== "undefined") {
-                    tooltip_div.hidden = false;
+                tooltip_div.hidden = false;
+                } catch (err) {
+                    alert(err.message)
                 }
             })
 
@@ -95,30 +105,65 @@
         }
         function showProperties(pitem_id) {
             try {
-                let js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
-                let i_data = _.find(js_objects, function (o)
-                    {return o.item_id === pitem_id;
-                    }, 0);
-                //let dob = "date of birth: " + i_data.itemprops.get('dob');
-                //let pob = "place of birth: " + i_data.itemprops.get('placeofbirth');
-                //inner_vals = dob + '<br>' + pob + '<br>';
-                return JSON.stringify(i_data);
+                let i_data = _.find(js_objects, function (o) //js_objects init on window load.
+                    {return o.id === pitem_id;}, 0);
+                if (i_data) {
+                    if (i_data['label']) {
+                        return i_data['label'];
+                    } else {
+                        let nm = "name: " + i_data.itemprops['itemlabel'];
+                        let image = "image: " + i_data.itemprops['image'];
+                        let dob = "date of birth: " + i_data.itemprops['dob'].substr(0, 10);
+                        let pob = "place of birth: " + i_data.itemprops['placeofbirth'];
+                        let dod = "date of death: " + i_data.itemprops['dateofdeath'].substr(0, 10);
+                        let pod = "place of death: " + i_data.itemprops['placeofdeath'];
+                        let mom = "mother: " + i_data.itemprops['mother'];
+                        let dad = "father: " + i_data.itemprops['father'];
+                        let sp = "spouse: " + i_data.itemprops['spouse'];
+                        let ch = "child: " + i_data.itemprops['child'];
+                        let rel = "relative: " + i_data.itemprops['relative'];
+                        return nm + '\n' + image + '\n' + dob + '\n' + pob +
+                            '\n' + dod + '\n' + pod + '\n' + mom + '\n' + dad +
+                            '\n' + sp + '\n' + ch + '\n' + rel;
+                    }
+                } else {
+                    return "";
+                }
             } catch (err) {
                 alert(err.message);
             }
         }
+        function getLabel(pitem_id) {
+            try {
+                let lbl, shape;
+                let label_data = _.find(js_objects, function (o) //js_objects init on window load.
+                    {return o.id === pitem_id;}, 0);
+                if (label_data['label']) {
+                    lbl = label_data['label'];
+                    shape = label_data['shape'];
+                } else {
+                     lbl = label_data.itemprops['itemlabel'];
+                     shape = 'circle'; //can only be ellipse or circle. shape data not present for nested objects.
+                }
+                return [lbl, shape];
+            } catch (err) {
+                alert(err.message + " " + pitem_id);
+            }
+        }
+
     </script>
 
 {% endblock %}
 {% block side-map %}
-    <div id="mousey"></div>
+    <button onclick="drawGraph()">Show Graph</button>
     <div id="vis-tooltip"></div>
     <div id="vis-container">
 
     </div> {# used by inserted javascript as canvas #}
-    <form action="discover/people_filtered/" method="post">
+    <div id="selection_label"></div>
+    <form action="/discover/people_filtered/" method="post">
         {% csrf_token %}
-        {{ selected }}
+        {{ select }}
         <input type="submit" value="filter">
    </form>
 
