@@ -1,5 +1,6 @@
 """
-This module handles all CREATE/UPDATE/DELETE transactions with the database, at least for version 1 of the prototype.
+This module handles all CREATE/UPDATE/DELETE transactions with the database tables,
+at least for version 1 of the prototype.
 """
 import datetime
 import logging
@@ -13,6 +14,7 @@ def cache_people():
     except BaseException as e:
         dt = datetime.datetime.now()
         the_log.error(str(dt) + ": " + str(e.args))
+
 def write_people(people_json):
     # internal function: parse JSON and save to Person table
     from .models import Person
@@ -76,12 +78,101 @@ def write_people(people_json):
             the_log.error(str(dt) + ": " + str(e.args))
     return n
 
+def cache_corp_bodies():
+    from . import sparql
+    try:
+        corp_json = sparql.build_wd_query('corp_bodies')
+        write_corp_bodies(corp_json)
+    except Exception as e:
+        dt = datetime.datetime.now()
+        the_log.error(str(dt) + ": " + str(e.args))
+
+def write_corp_bodies(corp_json):
+    from .models import CorpBody
+    import re
+    from django.utils.safestring import mark_safe
+
+    # clear yesterday's cache
+    CorpBody.objects.all().delete()
+    n = 0
+
+    for r in corp_json["results"]["bindings"]:
+        c = CorpBody()  # construct empty object
+        n += 1
+        try:
+            item = r.get("item", {}).get("value")
+            item_id = re.split(r'/', item).pop()
+            c.item_id = item_id  # must be there
+            c.itemlabel = r.get("itemLabel", {}).get("value")[:99]  # must be there
+            item_desc = supply_val(r.get("itemDescription", {}).get('value'), 'string')
+            c.itemdesc = item_desc[:199]
+            c.streetaddress = supply_val(r.get("streetAddress", {}).get("value"), 'string')
+            c.instanceoflabel = r.get('instanceOfLabel', {}).get('value')
+            incept = supply_val(r.get('inception', {}).get('value'), 'datetime')[:10]
+            if not incept == 'none':
+                c.inception = incept
+            dissolved = supply_val(r.get('dissolved', {}).get('value'), 'datetime')[:10]
+            if not dissolved == 'none':
+                c.dissolved = dissolved
+            doo = supply_val(r.get('dateOfOpening', {}).get('value'), 'datetime')[:10]
+            if not doo == 'none':
+                c.dateofopening = doo
+            doc = supply_val(r.get('dateOfClosure', {}).get('value'), 'datetime')[:10]
+            if not doc == 'none':
+                c.dateofclosure = doc
+            c.website = supply_val(r.get('website', {}).get('value'), 'string')
+            loc = supply_val(r.get('location', {}).get('value'), 'string')
+            if loc.__len__() <= 0:
+                pass
+            else:
+                locval = re.split(r'/', loc).pop()
+                c.location = locval
+                c.locationlabel = r.get('locationLabel', {}).get('value')
+            c.coordinates = supply_val(r.get('coordinates', {}).get('value'), 'string')
+            subj = supply_val(r.get('subject', {}).get('value'), 'string')
+            if subj.__len__() <= 0:
+                pass
+            else:
+                subjval = re.split(r'/', subj).pop()
+                c.subject_id = subjval
+                c.subjectlabel = r.get('subjectLabel', {}).get('value')
+            p_org = supply_val(r.get('parentOrg', {}).get('value'), 'string')
+            if p_org.__len__() <= 0:
+                pass
+            else:
+                p_orgval = re.split(r'/', p_org).pop()
+                c.parentorg_id = p_orgval
+                c.parentorglabel = r.get('parentOrgLabel', {}).get('value')[:49]
+            owner = supply_val(r.get('owner', {}).get('value'), 'string')
+            if owner.__len__() <= 0:
+                pass
+            else:
+                ownerval = re.split(r'/', owner).pop()
+                c.owner_id = ownerval
+                c.ownerlabel = r.get('ownerLabel', {}).get('value')
+                c.ownerdesc = r.get('ownerDescription', {}).get('value')
+            coll = supply_val(r.get('collection', {}).get('value'), 'string')
+            if coll.__len__() <= 0:
+                pass
+            else:
+                collval = re.split(r'/', coll).pop()
+                c.collection_id = collval
+            c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
+            c.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
+
+            c.save()  # object data saved to database
+        except TypeError:
+            continue
+
+
+
+
 def cache_collections():
     from . import sparql
     try:
         coll_json = sparql.build_wd_query('collections')
         write_collections(coll_json)
-    except BaseException as e:
+    except Exception as e:
         dt = datetime.datetime.now()
         the_log.error(str(dt) + ": " + str(e.args))
 
@@ -157,11 +248,39 @@ def write_subjects(json_dict):
         s = Subject()
 
         subject_raw = r.get("subject", {}).get("value")
-        s.subject_id = Subject(re.split(r'/', subject_raw).pop())
+        s.subject_id = re.split(r'/', subject_raw).pop()
         s.subjectlabel = r.get("subjectLabel", {}).get("value")
 
         s.save()
         n += 1
+    return n
+
+def cache_oral_histories():
+    from . import sparql
+    try:
+        oralh_json = sparql.build_wd_query('oralhistories')
+        write_oral_histories(oralh_json)
+    except BaseException as e:
+        dt = datetime.datetime.now()
+        the_log.error(str(dt) + ": " + str(e.args))
+
+def write_oral_histories(json_dict):
+    from .models import OralHistory
+    import re
+    n = 0
+    OralHistory.objects.all().delete()
+    for r in json_dict['results']['bindings']:
+        o = OralHistory()
+
+        item_raw = r.get('item', {}).get('value')
+        o.item_id = re.split(r'/', item_raw).pop()
+        o.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')
+        o.itemdesc = supply_val(r.get('oralHistory', {}).get('value'), 'string')
+        o.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
+        o.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
+        o.save()
+        n += 1
+    return n
 
 """
 Internal function to supply slug value when writing
@@ -172,7 +291,7 @@ def supply_val(val, the_type):
         return val
     else:
         if the_type == 'datetime':
-            d = '0000-00-00T00:00:00Z'
+            d = 'none'
             return d
         elif the_type == 'string':
             return ''

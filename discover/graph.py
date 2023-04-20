@@ -41,8 +41,8 @@ def load_people(dataset, relation_type):
             edge_list.append(e)  # todo: change to dict to avoid occ. dupes in results
 
     # add human nodes
-    for k, v in human_dict.items():
-        obj1 = {"id": k, "label": v, "shape": "circle", "color": "#00BFFF"}
+    for k, v in human_dict.items(): # todo: pull nodes & edges creation into its own def.
+        obj1 = {"id": k, "label": v[:12]+'.', "shape": "circle", "color": "#00BFFF"}
         node_list.append(obj1)
 
     # relation nodes
@@ -60,3 +60,64 @@ def load_people(dataset, relation_type):
 
     results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list), 'properties': mark_safe(props_json)}
     return results
+
+def load_collections(dataset, relation_type):
+    from django.utils.safestring import mark_safe
+    from . import db
+    import json
+
+    colls = dataset
+    # prepare two lists to use in Javascript on template.
+    # get unique lists of collections and main subjects, and a JSON
+    # dict of properties by collection for graph display.
+    # note: assigning a dup to a dict discards the dup.
+    collection_dict = {}
+    relation_dict = {}
+    props_dict = {}
+
+    node_list = []
+    edge_list = []
+    props_list = []
+    # create dicts plus add edge data to edge_list
+    for c in colls:
+        e = []
+        collection_dict[c.item_id] = c.itemlabel
+        props_dict[c.item_id] = {"itemlabel": c.itemlabel, "donatedby": c.donatedbylabel,
+                                 "colltypelabel": c.colltypelabel,
+                                 "inventorynum": c.inventorynum, "describedat": c.describedat}
+        if relation_type=='mainsubject': # currently only one relation type for collections. May change
+            if c.subject_id:
+                relation_dict[c.subject_id] = c.subjectlabel
+                e = {"from": c.item_id, "to": db.supply_val(c.subject_id, 'string')}
+            else:
+                pass
+        if not e.__len__() == 0:
+            edge_list.append(e)  # todo: change to dict to avoid occ. dupes in results
+
+    # add human nodes
+    for k, v in collection_dict.items():
+        obj1 = {"id": k, "label": v[:10]+'.', "shape": "circle", "color": "#00BFFF"}
+        node_list.append(obj1)
+
+    # relation nodes
+    for k, v in relation_dict.items():
+        obj2 = {"id": k, "label": v, "shape": "ellipse", "color": "#FF0000"}
+        node_list.append(obj2)
+        props_list.append(obj2)  # add here to provide on-page data to access via javascript.
+    # additional properties for humans
+    for k, v in props_dict.items():
+        obj3 = {"id": k, "itemprops": v}
+        props_list.append(obj3)
+
+    props_json = json.dumps(props_list, separators=(",", ":")) # creates ragged json of relation & human nodes
+
+
+    results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list), 'properties': mark_safe(props_json)}
+    return results
+
+def load_oral_histories(dataset, relation_type):
+    from django.utils.safestring import mark_safe
+    from . import db
+    import json
+
+    orals = dataset

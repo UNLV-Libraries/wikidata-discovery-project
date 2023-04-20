@@ -1,6 +1,5 @@
 {% extends 'discover/base.html' %}
-
-{% block header2 %}Information about Collections at UNLV - <i>Search Results: "{{ string }}"</i>{% endblock %}
+{# todo: refactor javascript out into static files if possible #}
 {% block head-script %}
     <script type="text/javascript">
         let tooltip_div;
@@ -14,38 +13,40 @@
         window.addEventListener('mousemove', function (event) {
             mouse_x = event.clientX;
             mouse_y = event.clientY;
+            //document.getElementById('mousey').innerText = 'x: ' + mouse_x + ' y: ' + mouse_y;
         })
     </script>
 {% endblock %}
+{% block header2 %}Information about Oral Histories - <i>Search Results: "{{ string }}"</i> {% endblock %}
+
 {% block main-content %}
-    <form action="/discover/collections_filtered/" method="post">
+    <form action="/discover/oralhistories_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
-    <p>Collections Returned: <b>{{ num }}</b></p><br>
-    {% if filtered_collections %}
+    <div id="errors"> {{ errors }}</div>
+    <p>Oral Histories Returned: <b>{{ num }}</b></p>
+    {% if filtered_orals %}
           <table>
               <tr>
                   <td>DETAILS</td>
-                  <td><strong>COLLECTION</strong></td>
-                  <td><strong>ABOUT</strong></td>
-                  <td><strong>COLLECTION TYPE</strong></td>
+                  <td><strong>PROVIDER</strong></td>
+                  <td><strong>ABOUT RESOURCE</strong></td>
             </tr>
-            {% for c in filtered_collections %}
+            {% for oh in filtered_orals %}
                 <tr>
-                    <td><a href="/discover/item/{{c.item_id}}">details</a></td>
-                    <td>{{ c.itemlabel }}</td>
-                    <td>{{ c.itemdesc }}</td>
-                    <td>{{ c.colltypelabel }}</td>
+                    <td><a href="/discover/item/{{ oh.item_id }}">details</a></td>
+                    <td>{{ oh.itemlabel}}</td>
+                    <td>{{ oh.itemdesc }}</td>
                 </tr>
             {% endfor %}
         </table>
     {% else %}
-        <p>No collections returned from your search.</p>
+        <p>No oral histories returned from your search.</p>
     {% endif %}
-
 {% endblock %}
+
 {% block main-graph %}
     <div id="property_data" hidden="true">{{ properties }}</div>
     <script type="text/javascript">
@@ -111,11 +112,19 @@
                         return i_data['label'];
                     } else {
                         let nm = "name: " + i_data.itemprops['itemlabel'];
-                        let dby = "donated by: " + i_data.itemprops['donatedby'];
-                        let colltype = "collection type: " + i_data.itemprops['colltypelabel'];
-                        let inv = "inventory number: " + i_data.itemprops['inventorynum'];
-                        let desc = "described at: " + i_data.itemprops['describedat'];
-                        return nm + '\n' + dby + '\n' + colltype + '\n' + inv + '\n' + desc;
+                        let image = "image: " + i_data.itemprops['image'];
+                        let dob = "date of birth: " + i_data.itemprops['dob'].substr(0, 10);
+                        let pob = "place of birth: " + i_data.itemprops['placeofbirth'];
+                        let dod = "date of death: " + i_data.itemprops['dateofdeath'].substr(0, 10);
+                        let pod = "place of death: " + i_data.itemprops['placeofdeath'];
+                        let mom = "mother: " + i_data.itemprops['mother'];
+                        let dad = "father: " + i_data.itemprops['father'];
+                        let sp = "spouse: " + i_data.itemprops['spouse'];
+                        let ch = "child: " + i_data.itemprops['child'];
+                        let rel = "relative: " + i_data.itemprops['relative'];
+                        return nm + '\n' + image + '\n' + dob + '\n' + pob +
+                            '\n' + dod + '\n' + pod + '\n' + mom + '\n' + dad +
+                            '\n' + sp + '\n' + ch + '\n' + rel;
                     }
                 } else {
                     return "";
@@ -151,7 +160,7 @@
     <div id="vis-container">
     </div> {# used by inserted javascript as canvas #}
     <div id="selection_label"></div>
-    <form action="/discover/collections_filtered/" method="post">
+    <form action="/discover/people_filtered/" method="post">
         {% csrf_token %}
         {{ select }}
         <input type="submit" value="filter">

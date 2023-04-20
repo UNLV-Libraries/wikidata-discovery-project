@@ -3,7 +3,6 @@ web_models handles all on-the-fly queries to wikidata. Returned JSON is
 instantiated as python objects and those are persisted in the
 application session.
 """
-
 class Item:
     item_code = ''
     item_label = ''
@@ -33,6 +32,9 @@ class SearchResult:
     itemlabel = ''
     itemdesc = ''
     colltypelabel = ''
+    donatedbylabel = ''
+    inventorynum = ''
+    describedat = ''
 
     def __init__(self, pitem_id):
         self.item_id = pitem_id
@@ -67,19 +69,27 @@ def get_item_details(qcode):
 
 def reduce_search_results(query_obj, special_col=None):
     # works only for sets that include item_id and itemdesc.
-    # also checks for a special column, such as colltype if the case requires.
-    # NOTE: run order_by on QuerySet object before calling this.
+    # also checks for a special column, such as colltypelabel, if the case requires.
+    # NOTE: run order_by('item_id') on QuerySet object before calling this.
+    # todo: change special_col to enum
+
     return_list = []
-    curr_item = ''
+    curr_item = '' # seed comparison to force initial SearchResult entry.
     for o in query_obj:
         if curr_item == o.item_id:
             pass
-        else:
+        else: # todo: clean this up. No need for current arg settings.
             i = SearchResult(o.item_id)
             i.itemlabel = o.itemlabel
             i.itemdesc = o.itemdesc
             if special_col== 'colltypelabel':
                 i.colltypelabel = o.colltypelabel
+            elif special_col == 'donatedbylabel':
+                i.colltypelabel = o.colltypelabel
+                i.donatedbylabel = o.donatedbylabel
+                i.inventorynum = o.inventorynum
+                i.describedat = o.describedat
+
             return_list.append(i)
             curr_item = o.item_id
 

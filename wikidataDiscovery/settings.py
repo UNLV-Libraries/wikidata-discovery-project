@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-p+i%5ko78n&stpfhr)c^8)w&tv8!_1l6f*v5m*ale5e)ko2xx$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ed-machine-2']
 
 
 # Application definition
@@ -70,7 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'wikidataDiscovery.wsgi.application'
-
+DJANGO_SETTINGS_MODULE = 'wikidataDiscovery.settings'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -79,6 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
+            # 'read_default_file': BASE_DIR + '/my.cnf'
             'read_default_file': '/home/ed/PycharmProjects/wikidataDiscovery/my.cnf'
         }
     }

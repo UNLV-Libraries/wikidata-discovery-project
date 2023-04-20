@@ -27,10 +27,10 @@ class Person(models.Model):
     def __str__(self):
         return self.item_id
 
-class Corp(models.Model):
+class CorpBody(models.Model):
     item_id = models.CharField(max_length=20, db_index=True)  # must exist; may have duplicates.
-    itemlabel = models.CharField(max_length=50)  # must exist; may have duplicates.
-    itemdesc = models.CharField(max_length=100, null=True)
+    itemlabel = models.CharField(max_length=100)  # must exist; may have duplicates.
+    itemdesc = models.CharField(max_length=200, null=True)
     streetaddress = models.CharField(max_length=255, null=True)
     instanceoflabel = models.CharField(max_length=50, null=True)
     inception = models.DateField(null=True)
@@ -44,11 +44,11 @@ class Corp(models.Model):
     subject_id = models.CharField(max_length=20, null=True)
     subjectlabel = models.CharField(max_length=50, null=True)
     parentorg_id = models.CharField(max_length=20, null=True)
-    parentorglabel = models.CharField(max_length=50, null=True)
+    parentorglabel = models.CharField(max_length=100, null=True)
     owner_id = models.CharField(max_length=20, null=True)
     ownerlabel = models.CharField(max_length=50, null=True)
     ownerdesc = models.CharField(max_length=200, null=True)
-    collection_id = models.CharField(max_length=20, null=True)
+    collection = models.CharField(max_length=200, null=True)
     inventorynum = models.CharField(max_length=20, null=True)
     describedat = models.URLField(max_length=500, null=True)
 
@@ -72,7 +72,8 @@ class Collection(models.Model):
 
 class OralHistory(models.Model):
     item_id = models.CharField(max_length=20, db_index=True)
-    oralhistorylabel = models.CharField(max_length=100, null=True)
+    itemlabel = models.CharField(max_length=100, null=True)
+    itemdesc = models.CharField(max_length=100, null=True)
     inventorynum = models.CharField(max_length=20, null=True)
     describedat = models.URLField(max_length=255, null=True)
 
@@ -87,7 +88,7 @@ class Subject(models.Model):
         return self.subject_id
 
 
-""""Table for storing saved queries."""
+"""Table for storing saved queries."""
 class WdQuery(models.Model):
     querytitle = models.CharField(max_length=30, primary_key=True)
     querytext = models.TextField()

@@ -52,9 +52,6 @@
 
 .site-menu ul li {
 	list-style-type: none;
-}
-
-.site-menu a {
 	text-decoration: none;
 	font-family: Tahoma, Arial, sans-serif;
 	color: #fff;
@@ -68,9 +65,7 @@
 .site-menu a:hover {
 	background-color: #9c1616;
 }
-.site-menu a:active {
-	background-color: #9c1616;
-}
+
 /*===MEDIA Query For Larger Screens===*/
 @media (min-width: 768px) {
 	/* establish CSS float */

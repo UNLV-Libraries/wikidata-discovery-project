@@ -11,7 +11,8 @@ import re
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
 
 FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode", 'collections': 'filt-wm-focus-list',
-               'subjects': 'filt-wm-focus-list'}
+               'subjects': 'filt-wm-focus-list', 'oralhistories': 'filt-oralhistory-at',
+               'corp_bodies': 'filt-wm-focus-list'}
 
 def apply_filter(qry, filterval):
 
@@ -26,13 +27,13 @@ def apply_filter(qry, filterval):
 
     return new_string
 
-def build_wd_query(filterkey, supplied_qcode=None):
+def build_wd_query(query_key, supplied_qcode=None):
     # loads source query from database, applies filter and submits to Wikidata.
     # Returns JSON-like list of dictionaries
 
     # insert filter value into query string
-    q = WdQuery.objects.get(querytitle=filterkey)
-    f = Filter.objects.get(name=FILTER_KEYS[filterkey])
+    q = WdQuery.objects.get(querytitle=query_key)
+    f = Filter.objects.get(name=FILTER_KEYS[query_key])
     if f.qcode[:10] == '[variable]':
         the_qcode = supplied_qcode
     else:
@@ -44,9 +45,7 @@ def build_wd_query(filterkey, supplied_qcode=None):
     return_json = run_wd_query(qry) #used internal function
     return return_json
 
-
-
-
+"""internal function that makes the call to Wikidata and returns json"""
 def run_wd_query(query):
     # takes query, either compiled for retrieved from disk, and submits to Wikidata.
     # Returns JSON.

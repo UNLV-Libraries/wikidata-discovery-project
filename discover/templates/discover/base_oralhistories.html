@@ -1,0 +1,20 @@
+{% extends "discover/base.html" %}
+
+{% block header2 %}Information about Oral Histories in Special Collections and Archives{% endblock %}
+
+    {% block main-content %}
+        <form action="/discover/oralhistories_filtered/" method="post">
+        {% csrf_token %}
+            {{ search }}
+        <input type="submit" value="SEARCH">
+        </form><br>
+        <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
+            For example, type part or all of the name of an oral history you're looking for.</i></p>
+    {% endblock %}
+
+{% block main-graph %}
+
+{% endblock %}
+{% block side-map %}
+    <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+{% endblock %}
