@@ -1,0 +1,88 @@
+{% extends 'discover/base.html' %}
+{% load static %}
+{% block head-script %}
+    <script type='text/javascript' src="{% static 'discover/filtered_head.js' %}"></script>
+{% endblock %}
+{% block header2 %}Information about Corporate Bodies - <i>Search Results: "{{ string }}"</i> {% endblock %}
+
+{% block main-content %}
+    <form action="/discover/corpbodies_filtered/" method="post">
+    {% csrf_token %}
+        {{ search }}
+    <input type="submit" value="SEARCH">
+    </form>
+    <div id="errors"> {{ errors }}</div>
+    <p>Corp Bodies Returned: <b>{{ num }}</b></p>
+    {% if filtered_corps %}
+          <table>
+              <tr>
+                  <td>DETAILS</td>
+                  <td><strong>CORP BODY</strong></td>
+                  <td><strong>ABOUT</strong></td>
+            </tr>
+            {% for c in filtered_corps %}
+                <tr>
+                    <td><a href="/discover/item/{{ c.getitemid }}">details</a></td>
+                    <td>{{ c.getlabel }}</td>
+                    <td>{{ c.getdesc }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No corporate bodies returned from your search.</p>
+    {% endif %}
+{% endblock %}
+
+{% block main-graph %}
+    <div id="property_data">{{ properties }}</div>
+    <script type="text/javascript">
+        // initialize global variables.
+        let inbound_nodes = {{ nodes }};
+        let inbound_edges = {{ edges }};
+        let inbound_checks = {{ checks }};  //checkbox settings pre-render
+
+        function showProperties(pitem_id) {
+            let results;
+            try {
+                let i_data = _.find(js_objects, function (o) //js_objects init on window load.
+                    {return o.id === pitem_id;}, 0);
+                if (i_data) {
+                    if (i_data['label']) {
+                        return i_data['label'];
+                    } else {
+                        results = "name: " + i_data.itemprops['itemlabel'] + '\n';
+                        let typ = "type: " + i_data.itemprops['instanceoflabel'];
+                        if (typ !=="None") {results+=typ + '\n';}
+                        let descat = "described at: " + i_data.itemprops['describedat'];
+                        if (descat !== "None") {results+=descat + '\n';}
+                        let inc = i_data.itemprops['inception'].toString();
+                        if (inc !== "None") {results+= "inception: " + inc + '\n';}
+                        let diss = i_data.itemprops['dissolved'].toString();
+                        if (diss !== "None") {results+= "dissolved: " + diss + '\n';}
+                        let loc = "location: " + i_data.itemprops['locationlabel'];
+                        if (loc.length > 10) {results+=loc;}
+
+                    return results;
+                    }
+                } else {
+                    return "";
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+    </script>
+    <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
+{% endblock %}
+{% block side-map %}
+    <p><strong>Interact with Graph</strong></p>
+    <form id='node_form' action="/discover/corpbodies_filtered/" method="post">
+        {% csrf_token %}
+        {{ select }}
+        <input type="submit" value="filter">
+   </form><div id="vis-tooltip"></div>
+    <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+    <div id="selection_label"></div>
+
+
+{% endblock %}

@@ -79,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            # 'read_default_file': BASE_DIR + '/my.cnf'
-            'read_default_file': '/home/ed/PycharmProjects/wikidataDiscovery/my.cnf'
+            'read_default_file': str(BASE_DIR / 'my.cnf')
+            # 'read_default_file': '/home/ed/PycharmProjects/wikidataDiscovery/my.cnf'
         }
     }
 }
@@ -119,13 +119,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = '/var/www/wd_static/static/'
 
-# STATIC_ROOT = ''
 STATICFILES_DIRS = [
     '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
     '/home/ed/node_modules/vis-network/standalone/umd/',
     '/home/ed/node_modules/vis-network/dist/dist/',
-    '/home/ed/node_modules/underscore/'
+    '/home/ed/node_modules/underscore/',
+    '/home/ed/node_modules/jquery/dist',
 ]
 
 STATICFILES_FINDERS = [
@@ -165,3 +166,4 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

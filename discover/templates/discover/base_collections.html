@@ -1,13 +1,7 @@
 {% extends "discover/base.html" %}
 
 {% block header2 %}Information about Collections at UNLV{% endblock %}
-{% block head-style %}
-    <style>
-        .selected {
-	    background-color: #9c1616;
-        }
-    </style>
-{% endblock %}
+
 {% block main-content %}
     <form action="/discover/collections_filtered/" method="post">
     {% csrf_token %}
@@ -21,5 +15,5 @@
 
 {% endblock %}
 {% block side-map %}
-    <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+    <div id="vis-container" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
 {% endblock %}

@@ -7,21 +7,8 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form><br>
+    <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
+            For example, type part or all of the name of a subject you're looking for, or type a word or phrase
+            that could describe one or more subjects.</i></p>
 
-    {% if subjects %}
-          <table>
-              <tr>
-                  <td>FILTER</td>
-                  <td><strong>SUBJECT</strong></td>
-            </tr>
-            {% for s in subjects %}
-                <tr>
-                    <td><a href="/discover/collections_filtered/{{ s.subject_id }}">filter</a></td>
-                    <td>{{ s.subjectlabel }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>Unable to retrieve subjects. Please contact your administrator.</p>
-    {% endif %}
 {% endblock %}

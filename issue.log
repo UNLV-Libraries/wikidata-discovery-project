@@ -1,0 +1,10 @@
+Internal Server Error: /discover/oralhistories_filtered/
+Traceback (most recent call last):
+  File "/home/ed/PycharmProjects/wikidataDiscovery/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 56, in inner
+    response = get_response(request)
+  File "/home/ed/PycharmProjects/wikidataDiscovery/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/ed/PycharmProjects/wikidataDiscovery/discover/views.py", line 205, in oralhistories_filtered
+    the_set = RelationType.objects.filter(domain='orals')
+NameError: name 'RelationType' is not defined
+"POST /discover/oralhistories_filtered/ HTTP/1.1" 500 78099

@@ -1,22 +1,10 @@
 {% extends 'discover/base.html' %}
+{% load static %}
 
 {% block head-script %}
-    <script type="text/javascript">
-        let tooltip_div;
-        let mouse_x, mouse_y;
-        let js_objects;
-        window.onload = function () {
-            tooltip_div = document.getElementById('vis-tooltip');
-            js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
-        }
-        //track mouse positions for tooltip
-        window.addEventListener('mousemove', function (event) {
-            mouse_x = event.clientX;
-            mouse_y = event.clientY;
-            //document.getElementById('mousey').innerText = 'x: ' + mouse_x + ' y: ' + mouse_y;
-        })
-    </script>
+    <script type='text/javascript' src="{% static 'discover/filtered_head.js' %}"></script>
 {% endblock %}
+
 {% block header2 %}Information about People - <i>Search Results: "{{ string }}"</i> {% endblock %}
 
 {% block main-content %}
@@ -36,9 +24,9 @@
             </tr>
             {% for p in filtered_people %}
                 <tr>
-                    <td><a href="/discover/item/{{ p.item_id }}">details</a></td>
-                    <td>{{ p.itemlabel }}</td>
-                    <td>{{ p.itemdesc }}</td>
+                    <td><a href="/discover/item/{{ p.getitemid }}">details</a></td>
+                    <td>{{ p.getlabel }}</td>
+                    <td>{{ p.getdesc }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -48,61 +36,12 @@
 {% endblock %}
 
 {% block main-graph %}
-    <div id="property_data" hidden="true">{{ properties }}</div>
+    <div id="property_data" class="prop_data">{{ properties }}</div>
     <script type="text/javascript">
-        //const _ = require('underscore');
-        //const vis = require('vis-network');
-        // initialize global variables.
         let inbound_nodes = {{ nodes }};
         let inbound_edges = {{ edges }};
-        let my_edges;
-        let my_nodes;
-        let network;
-        let container;
-        let options, the_data;
+        let inbound_checks = {{ checks }};
 
-        // This method is responsible for drawing the graph, returns the drawn network
-        function drawGraph() {
-          let container = document.getElementById('vis-container');
-          // create objects for network
-          my_nodes = new vis.DataSet(inbound_nodes);
-          my_edges = new vis.DataSet(inbound_edges);
-
-          // adding nodes and edges to the graph
-          the_data = {nodes: my_nodes, edges: my_edges};
-          let options = {interaction:{hover:true}};
-
-          network = new vis.Network(container, the_data, options);
-          initialize(network);
-          return network;
-        }
-
-        //wrote this to explicitly initialize needed events. Couldn't make it work otherwise.
-        function initialize(net) {
-            net.on('selectNode', function (params) {
-                let s = document.getElementById('id_selected_text');
-                s.value = params['nodes'][0];
-                let label_data = getLabel(params['nodes'][0])
-                document.getElementById('id_shape_label').value = label_data[0];
-                document.getElementById('id_shape_type').value = label_data[1];
-            })
-
-            net.on('hoverNode', function (params) {
-                try {
-                tooltip_div.innerText = showProperties(params['node']);
-                tooltip_div.style.left = mouse_x + 'px';
-                tooltip_div.style.top = mouse_y + 'px';
-                tooltip_div.hidden = false;
-                } catch (err) {
-                    alert(err.message)
-                }
-            })
-
-            net.on('blurNode', function () {
-                tooltip_div.hidden = true;
-            })
-
-        }
         function showProperties(pitem_id) {
             try {
                 let i_data = _.find(js_objects, function (o) //js_objects init on window load.
@@ -133,37 +72,24 @@
                 alert(err.message);
             }
         }
-        function getLabel(pitem_id) {
-            try {
-                let lbl, shape;
-                let label_data = _.find(js_objects, function (o) //js_objects init on window load.
-                    {return o.id === pitem_id;}, 0);
-                if (label_data['label']) {
-                    lbl = label_data['label'];
-                    shape = label_data['shape'];
-                } else {
-                     lbl = label_data.itemprops['itemlabel'];
-                     shape = 'circle'; //can only be ellipse or circle. shape data not present for nested objects.
-                }
-                return [lbl, shape];
-            } catch (err) {
-                alert(err.message + " " + pitem_id);
-            }
-        }
-
+    function keepTT() {
+        tooltip_div.hidden = 'false';
+    }
     </script>
+    <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
 
 {% endblock %}
 {% block side-map %}
-    <button onclick="drawGraph()">Show Graph</button>
-    <div id="vis-tooltip"></div>
-    <div id="vis-container">
-    </div> {# used by inserted javascript as canvas #}
-    <div id="selection_label"></div>
-    <form action="/discover/people_filtered/" method="post">
+    <p><strong>Interact with Graph</strong></p>
+    <form id='node_form' action="/discover/people_filtered/" method="post">
         {% csrf_token %}
         {{ select }}
         <input type="submit" value="filter">
    </form>
+    <div id="vis-tooltip" onpointerenter="keepTT()" ></div>
+    <div id="vis-container">
+    <div id="loading_graph" hidden="true">LOADING GRAPH DATA...</div>
+    </div> {# used by inserted javascript as canvas #}
+    <div id="selection_label"></div>
 
 {% endblock %}

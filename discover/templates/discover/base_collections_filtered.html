@@ -1,28 +1,19 @@
 {% extends 'discover/base.html' %}
+{% load static %}
 
 {% block header2 %}Information about Collections at UNLV - <i>Search Results: "{{ string }}"</i>{% endblock %}
+
 {% block head-script %}
-    <script type="text/javascript">
-        let tooltip_div;
-        let mouse_x, mouse_y;
-        let js_objects;
-        window.onload = function () {
-            tooltip_div = document.getElementById('vis-tooltip');
-            js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
-        }
-        //track mouse positions for tooltip
-        window.addEventListener('mousemove', function (event) {
-            mouse_x = event.clientX;
-            mouse_y = event.clientY;
-        })
-    </script>
+    <script type='text/javascript' src="{% static 'discover/filtered_head.js' %}"></script>
 {% endblock %}
+
 {% block main-content %}
     <form action="/discover/collections_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <p>{{ errors }}</p>
     <p>Collections Returned: <b>{{ num }}</b></p><br>
     {% if filtered_collections %}
           <table>
@@ -34,10 +25,10 @@
             </tr>
             {% for c in filtered_collections %}
                 <tr>
-                    <td><a href="/discover/item/{{c.item_id}}">details</a></td>
-                    <td>{{ c.itemlabel }}</td>
-                    <td>{{ c.itemdesc }}</td>
-                    <td>{{ c.colltypelabel }}</td>
+                    <td><a href="/discover/item/{{c.getitemid}}">details</a></td>
+                    <td>{{ c.getlabel }}</td>
+                    <td>{{ c.getdesc }}</td>
+                    <td>{{ c.getcolltypelabel }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -47,74 +38,27 @@
 
 {% endblock %}
 {% block main-graph %}
-    <div id="property_data" hidden="true">{{ properties }}</div>
+    <div id="property_data">{{ properties }}</div>
+
     <script type="text/javascript">
-        //const _ = require('underscore');
-        //const vis = require('vis-network');
-        // initialize global variables.
+       // initialize global variables.
         let inbound_nodes = {{ nodes }};
         let inbound_edges = {{ edges }};
-        let my_edges;
-        let my_nodes;
-        let network;
-        let container;
-        let options, the_data;
+        let inbound_checks = {{ checks }};
 
-        // This method is responsible for drawing the graph, returns the drawn network
-        function drawGraph() {
-          let container = document.getElementById('vis-container');
-          // create objects for network
-          my_nodes = new vis.DataSet(inbound_nodes);
-          my_edges = new vis.DataSet(inbound_edges);
-
-          // adding nodes and edges to the graph
-          the_data = {nodes: my_nodes, edges: my_edges};
-          let options = {interaction:{hover:true}};
-
-          network = new vis.Network(container, the_data, options);
-          initialize(network);
-          return network;
-        }
-
-        //wrote this to explicitly initialize needed events. Couldn't make it work otherwise.
-        function initialize(net) {
-            net.on('selectNode', function (params) {
-                let s = document.getElementById('id_selected_text');
-                s.value = params['nodes'][0];
-                let label_data = getLabel(params['nodes'][0])
-                document.getElementById('id_shape_label').value = label_data[0];
-                document.getElementById('id_shape_type').value = label_data[1];
-            })
-
-            net.on('hoverNode', function (params) {
-                try {
-                tooltip_div.innerText = showProperties(params['node']);
-                tooltip_div.style.left = mouse_x + 'px';
-                tooltip_div.style.top = mouse_y + 'px';
-                tooltip_div.hidden = false;
-                } catch (err) {
-                    alert(err.message)
-                }
-            })
-
-            net.on('blurNode', function () {
-                tooltip_div.hidden = true;
-            })
-
-        }
         function showProperties(pitem_id) {
             try {
                 let i_data = _.find(js_objects, function (o) //js_objects init on window load.
                     {return o.id === pitem_id;}, 0);
                 if (i_data) {
-                    if (i_data['label']) {
-                        return i_data['label'];
+                    if (i_data["label"]) {
+                        return i_data["label"];
                     } else {
-                        let nm = "name: " + i_data.itemprops['itemlabel'];
-                        let dby = "donated by: " + i_data.itemprops['donatedby'];
-                        let colltype = "collection type: " + i_data.itemprops['colltypelabel'];
-                        let inv = "inventory number: " + i_data.itemprops['inventorynum'];
-                        let desc = "described at: " + i_data.itemprops['describedat'];
+                        let nm = "name: " + i_data.itemprops["itemlabel"];
+                        let dby = "donor: " + i_data.itemprops["donatedbylabel"];
+                        let colltype = "kind of: " + i_data.itemprops["colltypelabel"];
+                        let inv = "inventory #: " + i_data.itemprops["inventorynum"];
+                        let desc = "described at: " + i_data.itemprops["describedat"];
                         return nm + '\n' + dby + '\n' + colltype + '\n' + inv + '\n' + desc;
                     }
                 } else {
@@ -124,37 +68,19 @@
                 alert(err.message);
             }
         }
-        function getLabel(pitem_id) {
-            try {
-                let lbl, shape;
-                let label_data = _.find(js_objects, function (o) //js_objects init on window load.
-                    {return o.id === pitem_id;}, 0);
-                if (label_data['label']) {
-                    lbl = label_data['label'];
-                    shape = label_data['shape'];
-                } else {
-                     lbl = label_data.itemprops['itemlabel'];
-                     shape = 'circle'; //can only be ellipse or circle. shape data not present for nested objects.
-                }
-                return [lbl, shape];
-            } catch (err) {
-                alert(err.message + " " + pitem_id);
-            }
-        }
-
     </script>
-
+    <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
 {% endblock %}
 {% block side-map %}
-    <button onclick="drawGraph()">Show Graph</button>
-    <div id="vis-tooltip"></div>
-    <div id="vis-container">
-    </div> {# used by inserted javascript as canvas #}
-    <div id="selection_label"></div>
-    <form action="/discover/collections_filtered/" method="post">
+    <p><strong>Interact with graph:</strong></p>
+    <form id='node_form' action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         {{ select }}
         <input type="submit" value="filter">
    </form>
+    <div id="vis-tooltip"></div>
+    <div id="vis-container">
+    </div> {# used by inserted javascript as canvas #}
+    <div id="selection_label"></div>
 
 {% endblock %}

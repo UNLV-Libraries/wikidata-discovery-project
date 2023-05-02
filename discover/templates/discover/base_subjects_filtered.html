@@ -7,8 +7,7 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form><br>
-
-    <form action="/discover/collections_filtered/" method="post">
+    <form id="subject_form" action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         {{ restrict }}
         <input type="submit" value="filter by selections">
@@ -23,7 +22,7 @@
                 <tr>
                     <td> <form><input id="{{ s.subject_id }}" type="checkbox"
                                       name="checkbox" onchange="handleCheck('{{ s.subject_id }}')"></form></td>
-                    <td>{{ s.subjectlabel }}</td>
+                    <td id="{{ s.subject_id }}_label">{{ s.subjectlabel }}</td>
                 </tr>
             {% endfor %}
         </table>
@@ -32,14 +31,19 @@
     {% endif %}
     <script type="text/javascript">
         function handleCheck(subj_id) {
-            let s = document.getElementById(subj_id);
-            let t = document.getElementById('id_restrict_text')
+            let si = document.getElementById(subj_id);
+            let sl = document.getElementById(subj_id + '_label');
+            let form_id = document.getElementById('id_restrict_text');
+            let form_label = document.getElementById('id_restrict_labels')
 
-            if (s.checked) {
-                t.value += s.id + ',';
+            if (si.checked) {
+                form_id.value += si.id + ',';
+                form_label.value += sl.innerText + ',';
             } else {
-                let oldtext = t.value;
-                t.value = oldtext.replace(subj_id + ',', '');
+                let old_ids = form_id.value;
+                let old_labels = form_label.value;
+                form_id.value = old_ids.replace(subj_id + ',', '');
+                form_label.value = old_labels.replace(sl.innerText + ",", '')
             }
         }
     </script>

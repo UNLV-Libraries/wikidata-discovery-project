@@ -1,0 +1,3 @@
+[{"name":"filt-item-qcode", "qcode":"[variable]", "description":"Filters query with item qcode provided dynamically from GUI."},
+ {"name":"filt-oralhistory-at", "qcode":"Q73644758", "description":"Used in cases where oral history info is a property qualifier for a person (item)."},
+ {"name":"filt-wm-focus-list", "qcode":"Q100202113", "description":"Organization value for the on-focus-list-of-wikimedia-project property (P5008)."}]

@@ -79,6 +79,7 @@ def write_people(people_json):
     return n
 
 def cache_corp_bodies():
+    """Queries SPARQL endpoint and writes results to db with the CorpBody object."""
     from . import sparql
     try:
         corp_json = sparql.build_wd_query('corp_bodies')
@@ -88,6 +89,7 @@ def cache_corp_bodies():
         the_log.error(str(dt) + ": " + str(e.args))
 
 def write_corp_bodies(corp_json):
+    """Internal function that writes json values to db. Call db.cache_corp_bodies instead."""
     from .models import CorpBody
     import re
     from django.utils.safestring import mark_safe
@@ -107,7 +109,11 @@ def write_corp_bodies(corp_json):
             item_desc = supply_val(r.get("itemDescription", {}).get('value'), 'string')
             c.itemdesc = item_desc[:199]
             c.streetaddress = supply_val(r.get("streetAddress", {}).get("value"), 'string')
-            c.instanceoflabel = r.get('instanceOfLabel', {}).get('value')
+            inst = supply_val(r.get('instanceOf', {}).get('value'), 'string')
+            if not inst.__len__() <= 0:
+                instval = re.split(r'/', inst).pop()
+                c.instanceof_id = instval
+                c.instanceoflabel = r.get('instanceOfLabel', {}).get('value')
             incept = supply_val(r.get('inception', {}).get('value'), 'datetime')[:10]
             if not incept == 'none':
                 c.inception = incept
@@ -151,12 +157,7 @@ def write_corp_bodies(corp_json):
                 c.owner_id = ownerval
                 c.ownerlabel = r.get('ownerLabel', {}).get('value')
                 c.ownerdesc = r.get('ownerDescription', {}).get('value')
-            coll = supply_val(r.get('collection', {}).get('value'), 'string')
-            if coll.__len__() <= 0:
-                pass
-            else:
-                collval = re.split(r'/', coll).pop()
-                c.collection_id = collval
+            c.collection = supply_val(r.get('collection', {}).get('value'), 'string')
             c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
             c.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
 
@@ -164,7 +165,7 @@ def write_corp_bodies(corp_json):
         except TypeError:
             continue
 
-
+    return n
 
 
 def cache_collections():
@@ -264,6 +265,7 @@ def cache_oral_histories():
         dt = datetime.datetime.now()
         the_log.error(str(dt) + ": " + str(e.args))
 
+
 def write_oral_histories(json_dict):
     from .models import OralHistory
     import re
@@ -275,18 +277,28 @@ def write_oral_histories(json_dict):
         item_raw = r.get('item', {}).get('value')
         o.item_id = re.split(r'/', item_raw).pop()
         o.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')
-        o.itemdesc = supply_val(r.get('oralHistory', {}).get('value'), 'string')
+        oh = supply_val(r.get('oralHistory', {}).get('value'), 'string')
+        if oh.__len__() == 0:
+            o.itemdesc = r.get('itemDescription', {}).get('value')
+        else:
+            o.itemdesc = oh
+        subj = supply_val(r.get('subject', {}).get('value'), 'string')
+        if not subj.__len__() == 0:
+            o.subject_id = re.split(r'/', subj).pop()
+            o.subjectlabel = r.get('subjectLabel', {}).get('value')
         o.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
         o.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
         o.save()
         n += 1
+
     return n
 
-"""
-Internal function to supply slug value when writing
-to a table from a ragged json array.
-"""
+
 def supply_val(val, the_type):
+    """
+    Internal function to supply slug value when writing
+    to a table from a ragged json array.
+    """
     if val:
         return val
     else:

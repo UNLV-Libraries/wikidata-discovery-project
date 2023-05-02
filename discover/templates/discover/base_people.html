@@ -1,8 +1,12 @@
 {% extends "discover/base.html" %}
+{% load static %}
 
 {% block header2 %}Information about People Named in Special Collections and Archives{% endblock %}
-
+{% block head-script %}
+    <script type='text/javascript' src="{% static 'discover/landing_head.js' %}"></script>
+{% endblock %}
     {% block main-content %}
+
         <form action="/discover/people_filtered/" method="post">
         {% csrf_token %}
             {{ search }}
@@ -11,11 +15,19 @@
         <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
             For example, type part or all of the name of a person you're looking for, or type a word or phrase
             that describes a person or people.</i></p>
+        {% if images %}
+            {% for i in images %}
+                <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="200" height="250"
+                     loading="lazy" title="{{ i.itemlabel }}: {{ i.itemdesc }}">
+            {% endfor %}
+            <div><i>[images credit: Wikimedia Commons]</i></div>
+        {% endif %}
+
     {% endblock %}
 
 {% block main-graph %}
 
 {% endblock %}
 {% block side-map %}
-    <div id="vis-container"></div> {# used by inserted javascript as canvas #}
+    <div id="vis-container" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
 {% endblock %}

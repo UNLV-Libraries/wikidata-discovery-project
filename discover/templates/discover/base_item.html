@@ -1,19 +1,21 @@
 {% extends 'discover/base.html' %}
 
-{% block header2 %}Details about {{ item }}{% endblock %}
+{% block header2 %}Details for <i><span style="color: forestgreen">{{ item }}</span></i>{% endblock %}
 
 <body>
 
 {% block main-content %}
+    <button>back to results</button>  {# todo: emulate back button using app urls #}
     {% if details %}
-          <table>
+        <p><b>About:</b> {{ itemdesc }}</p>
+        <table id="item_table">
               <tr>
-                  <td><strong>Category</strong></td>
-                  <td><strong>Value</strong></td>
+                  <td><strong>CATEGORY</strong></td>
+                  <td><strong>VALUE</strong></td>
             </tr>
             {% for d in details %}
                 <tr>
-                    <td>{{ d.prop_label }}</td>
+                    <td><strong>{{ d.prop_label }}</strong></td>
                     <td>{{ d.value_label }}</td>
                 </tr>
             {% endfor %}
@@ -23,4 +25,3 @@
     {% endif %}
 {% endblock %}
 </body>
-</html>

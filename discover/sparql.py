@@ -1,18 +1,16 @@
 """
 Manages all query interactions with Wikidata.
 """
-import sys
-
 from SPARQLWrapper import SPARQLWrapper, JSON
 from .models import WdQuery, Filter
-from . import db
 import re
 
 WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
 
 FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode", 'collections': 'filt-wm-focus-list',
                'subjects': 'filt-wm-focus-list', 'oralhistories': 'filt-oralhistory-at',
-               'corp_bodies': 'filt-wm-focus-list'}
+               'corp_bodies': 'filt-wm-focus-list', 'images_humans': 'filt-wm-focus-list',
+               'images_others': 'filt-wm-focus-list'}
 
 def apply_filter(qry, filterval):
 
@@ -47,7 +45,7 @@ def build_wd_query(query_key, supplied_qcode=None):
 
 """internal function that makes the call to Wikidata and returns json"""
 def run_wd_query(query):
-    # takes query, either compiled for retrieved from disk, and submits to Wikidata.
+    # takes query, either compiled on-the-fly or retrieved from disk, and submits to Wikidata.
     # Returns JSON.
     user_agent = 'PyDiscoverApp/0.1 (https://linkedin.com/andre_hulet; andrehulet@gmail.com)'
     spql = SPARQLWrapper(WIKIDATA_ENDPOINT, agent=user_agent)
