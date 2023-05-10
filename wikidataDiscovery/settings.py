@@ -152,7 +152,7 @@ LOGGING = {
         },
     },
     "loggers": {
-        "discover.views": {
+        "discover.wd_utils": {
           "handlers": ["file"],
           "level": "ERROR",
           "propagate": True,

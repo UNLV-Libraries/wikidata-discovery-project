@@ -1,10 +1,7 @@
 {% extends "discover/base.html" %}
-{% load static %}
 
 {% block header2 %}Information about People Named in Special Collections and Archives{% endblock %}
-{% block head-script %}
-    <script type='text/javascript' src="{% static 'discover/landing_head.js' %}"></script>
-{% endblock %}
+
     {% block main-content %}
 
         <form action="/discover/people_filtered/" method="post">

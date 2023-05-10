@@ -18,6 +18,9 @@ function drawGraph() {
         let options = {
             interaction: {
                 hover: true
+            },
+            layout: {
+                improvedLayout: false,
             }
         };
 
