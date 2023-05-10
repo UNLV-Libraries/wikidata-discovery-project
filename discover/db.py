@@ -2,9 +2,8 @@
 This module handles all CREATE/UPDATE/DELETE transactions with the database tables,
 at least for version 1 of the prototype.
 """
-import datetime
-import logging
-the_log = logging.getLogger(__name__)
+from .wd_utils import catch_err
+
 
 def cache_people():
     from . import sparql
@@ -12,8 +11,8 @@ def cache_people():
         people_json = sparql.build_wd_query('people')
         write_people(people_json)
     except BaseException as e:
-        dt = datetime.datetime.now()
-        the_log.error(str(dt) + ": " + str(e.args))
+        catch_err(e, 'cache_people')
+
 
 def write_people(people_json):
     # internal function: parse JSON and save to Person table
@@ -27,14 +26,14 @@ def write_people(people_json):
     n = 0
 
     for r in people_json["results"]["bindings"]:
-        p = Person()  #construct empty object
+        p = Person()  # construct empty object
         n += 1
         try:
             item = r.get("item", {}).get("value")
             item_id = re.split(r'/', item).pop()
-            p.item_id = item_id #must be there
+            p.item_id = item_id  # must be there
             p.image = mark_safe(supply_val(r.get('image', {}).get('value'), 'string'))
-            p.itemlabel = r.get("itemLabel", {}).get("value") #must be there
+            p.itemlabel = r.get("itemLabel", {}).get("value")  # must be there
             item_desc = r.get("itemDescription", {}).get('value')
             p.itemdesc = item_desc[:100]
             p.dob = supply_val(r.get("dateOfBirth", {}).get('value'), 'datetime')
@@ -57,7 +56,7 @@ def write_people(people_json):
             else:
                 p.occupation_id = supply_val(re.split(r'/', occ).pop(), 'string')
                 p.occupationlabel = supply_val(r.get('occupationLabel', {}).get('value'), 'string')
-            fow  = supply_val(r.get('fieldOfWork', {}).get('value'), 'string')
+            fow = supply_val(r.get('fieldOfWork', {}).get('value'), 'string')
             if fow.__len__() <= 0:
                 pass
             else:
@@ -74,9 +73,9 @@ def write_people(people_json):
         except TypeError:
             continue
         except BaseException as e:
-            dt = datetime.datetime.now()
-            the_log.error(str(dt) + ": " + str(e.args))
+            catch_err(e, 'write_people')
     return n
+
 
 def cache_corp_bodies():
     """Queries SPARQL endpoint and writes results to db with the CorpBody object."""
@@ -85,8 +84,8 @@ def cache_corp_bodies():
         corp_json = sparql.build_wd_query('corp_bodies')
         write_corp_bodies(corp_json)
     except Exception as e:
-        dt = datetime.datetime.now()
-        the_log.error(str(dt) + ": " + str(e.args))
+        catch_err(e, 'cache_corp_bodies')
+
 
 def write_corp_bodies(corp_json):
     """Internal function that writes json values to db. Call db.cache_corp_bodies instead."""
@@ -164,7 +163,8 @@ def write_corp_bodies(corp_json):
             c.save()  # object data saved to database
         except TypeError:
             continue
-
+        except Exception as e:
+            catch_err(e, 'write_corp_bodies')
     return n
 
 
@@ -174,8 +174,8 @@ def cache_collections():
         coll_json = sparql.build_wd_query('collections')
         write_collections(coll_json)
     except Exception as e:
-        dt = datetime.datetime.now()
-        the_log.error(str(dt) + ": " + str(e.args))
+        catch_err(e, 'cache_collections')
+
 
 def write_collections(collections_json):
     # internal function: receive the collections query in wikidata and write results to db.
@@ -187,7 +187,7 @@ def write_collections(collections_json):
 
     n = 0
     for r in collections_json["results"]["bindings"]:
-        c = Collection()  #construct empty object
+        c = Collection()  # construct empty object
         n += 1
     #try:
         item = r.get("item", {}).get("value")
@@ -229,14 +229,15 @@ def write_collections(collections_json):
         # log_exception(sys.exc_info(), "db.write_collections")
     return n
 
+
 def cache_subjects():
     from . import sparql
     try:
         subject_json = sparql.build_wd_query('subjects')
         write_subjects(subject_json)
     except BaseException as e:
-        dt = datetime.datetime.now()
-        the_log.error(str(dt) + ": " + str(e.args))
+        catch_err(e, 'cache_subjects')
+
 
 def write_subjects(json_dict):
     from .models import Subject
@@ -256,14 +257,14 @@ def write_subjects(json_dict):
         n += 1
     return n
 
+
 def cache_oral_histories():
     from . import sparql
     try:
         oralh_json = sparql.build_wd_query('oralhistories')
         write_oral_histories(oralh_json)
     except BaseException as e:
-        dt = datetime.datetime.now()
-        the_log.error(str(dt) + ": " + str(e.args))
+        catch_err(e, 'cache_oral_histories')
 
 
 def write_oral_histories(json_dict):

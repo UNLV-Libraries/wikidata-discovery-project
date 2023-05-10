@@ -1,0 +1,9 @@
+id,domain,relation_type,relation_type_label,list_order
+1,people,occupation,occupation,0
+2,people,fieldofwork,"field of work",1
+3,people,placeofbirth,"place of birth",2
+4,people,placeofdeath,"place of death",3
+5,corps,instanceof,category,0
+6,corps,subject,subject,1
+7,collections,subject,subject,0
+8,orals,subject,subject,0

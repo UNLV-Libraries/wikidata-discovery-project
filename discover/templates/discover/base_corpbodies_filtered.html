@@ -1,7 +1,7 @@
 {% extends 'discover/base.html' %}
 {% load static %}
 {% block head-script %}
-    <script type='text/javascript' src="{% static 'discover/filtered_head.js' %}"></script>
+    <script type='text/javascript' src="{% static 'filtered_head.js' %}"></script>
 {% endblock %}
 {% block header2 %}Information about Corporate Bodies - <i>Search Results: "{{ string }}"</i> {% endblock %}
 
@@ -72,7 +72,7 @@
             }
         }
     </script>
-    <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
 {% endblock %}
 {% block side-map %}
     <p><strong>Interact with Graph</strong></p>

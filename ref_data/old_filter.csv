@@ -1,0 +1,4 @@
+"name";"qcode";"description"
+"filt-item-qcode";"[variable]";"Filters query with item qcode provided dynamically from GUI."
+"filt-oralhistory-at";"Q73644758";"Used in cases where oral history info is a property qualifier for a person (item)."
+"filt-wm-focus-list";"Q100202113";"Organization value for the on-focus-list-of-wikimedia-project property (P5008)."

@@ -1,0 +1,8 @@
+
+[python]
+import sys
+sys.path.extend(['/home/ed/PycharmProjects/wikidataDiscovery', '/usr/local/lib/python3.10/dist-packages/django'])
+
+[terminal]
+source /path/to/venv/bin/activate -- make sure venv is running
+python3 manage.py collectstatic

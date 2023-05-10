@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-p+i%5ko78n&stpfhr)c^8)w&tv8!_1l6f*v5m*ale5e)ko2xx$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ed-machine-2']
 
@@ -119,7 +119,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = '/var/www/wd_static/static/'
+STATIC_ROOT = '/data/www/wd_static/'
 
 STATICFILES_DIRS = [
     '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
@@ -131,8 +131,8 @@ STATICFILES_DIRS = [
 
 STATICFILES_FINDERS = [
         'django.contrib.staticfiles.finders.FileSystemFinder',
-        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
+# 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 

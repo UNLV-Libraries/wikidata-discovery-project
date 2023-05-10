@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" serverName="Apache_loc" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" serverName="Apache_loc" filePermissions="509" folderPermissions="509" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
       <paths name="Apache_loc">
         <serverdata>
           <mappings>
             <mapping deploy="wikidataDiscovery" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="ore">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data/www/wikidataDiscovery" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>

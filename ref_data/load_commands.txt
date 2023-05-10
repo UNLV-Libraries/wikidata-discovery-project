@@ -1,0 +1,7 @@
+Server pre-req: System Variables > local_infile: Value=ON; Persist Value=ON.
+
+mysqlimport --local --fields-terminated-by ',' --fields-enclosed-by '"' --ignore-lines 1 -u service -p1miB@iley7 discover discover_relationtype.csv
+mysqlimport --local --fields-terminated-by ',' --fields-enclosed-by '"' --ignore-lines 1 -u service -p1miB@iley7 discover discover_wdquery.csv
+mysqlimport --local --fields-terminated-by ',' --fields-enclosed-by '"' --ignore-lines 1 -u service -p1miB@iley7 discover discover_filter.csv
+
+

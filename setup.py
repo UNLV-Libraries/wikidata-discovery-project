@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='wikidataDiscovery',
-    version='0.1.6',
+    version='dev.8',
     packages=['discover', 'discover.migrations', 'wikidataDiscovery'],
-    url='http://ed-machine-2/discover/home/',
+    url='http://ed-machine-2/discover/',
     license='',
     author='aehulet',
     author_email='andre.hulet@unlv.edu',

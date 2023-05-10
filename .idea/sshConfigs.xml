@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="ore.library.unlv.edu" id="93f95a10-c170-40c9-8d18-01ef84b789db" port="22" nameFormat="DESCRIPTIVE" username="ahulet" useOpenSSHConfig="true" />
+    </configs>
+  </component>
+</project>

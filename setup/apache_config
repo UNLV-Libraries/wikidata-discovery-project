@@ -1,0 +1,23 @@
+WSGIScriptAlias / /data/www/wikidataDiscovery/wikidataDiscovery/wsgi.py
+WSGIPythonHome /data/www/wikidataDiscovery/venv
+WSGIPythonPath /data/www/wikidataDiscovery
+
+Alias /static/ /data/www/wikidata_static/
+
+
+<Directory /data/www/>
+	Options Indexes FollowSymLinks
+	AllowOverride None
+	Require all granted
+</Directory>
+
+<Directory /data/www/wikidata_static/>
+	Require all granted
+</Directory>
+
+<Directory /data/www/wikidataDiscovery/wikidataDiscovery>
+	<Files wsgi.py>
+		Require all granted
+	</Files>
+</Directory>
+
