@@ -123,6 +123,7 @@ STATIC_ROOT = '/data/www/wd_static/'
 
 STATICFILES_DIRS = [
     '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
+    '/home/ed/PycharmProjects/wikidataDiscovery/',
     '/home/ed/node_modules/vis-network/standalone/umd/',
     '/home/ed/node_modules/vis-network/dist/dist/',
     '/home/ed/node_modules/underscore/',

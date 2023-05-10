@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='wikidataDiscovery',
-    version='dev.10',
+    version='dev.10.1',
     packages=['discover', 'discover.migrations', 'wikidataDiscovery'],
     url='http://ed-machine-2/discover/',
     license='',
