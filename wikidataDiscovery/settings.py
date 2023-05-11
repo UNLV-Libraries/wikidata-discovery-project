@@ -13,6 +13,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
+# App-specific values to show on 'About' page
+APP_VERSION = 'dev.10.2'
+APP_AUTHOR = 'Andre Hulet'
+APP_EMAIL = 'andre.hulet@unlv.edu'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +31,7 @@ SECRET_KEY = 'django-insecure-p+i%5ko78n&stpfhr)c^8)w&tv8!_1l6f*v5m*ale5e)ko2xx$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ed-machine-2']
+ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ore.library.unlv.edu']
 
 
 # Application definition

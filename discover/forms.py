@@ -24,3 +24,8 @@ class NodeSelectForm(forms.Form):
                                                                   widget=forms.CheckboxSelectMultiple,
                                                                   choices=dynamic_choices)
         # self.fields['relation_types'].choices = dynamic_choices
+
+
+class WikiLoad(forms.Form):
+    run_it = forms.ChoiceField(required=True, label="Choose process",
+                               choices=[(0, ' -- '), (1, 'run all')])

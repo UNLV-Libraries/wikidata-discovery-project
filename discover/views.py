@@ -243,10 +243,6 @@ def oralhistories_filtered(request):
         return render(request, 'discover/base_oralhistories_filtered.html', context)
 
 
-def about(request):
-    return render(request, 'discover/base_about.html')
-
-
 def subjects(request):
     from .forms import SearchForm
     # subj = Subject.objects.all().order_by('subjectlabel')
@@ -282,6 +278,36 @@ def item(request, item_code):
     the_item = details[0]
     context = {'details': details, 'item': the_item.item_label, 'itemdesc': the_item.item_desc}
     return render(request, 'discover/base_item.html', context)
+
+
+def about(request):
+    from . import db
+    from .forms import WikiLoad
+    from wikidataDiscovery import settings
+    ver = settings.APP_VERSION
+    auth = settings.APP_AUTHOR
+    email = settings.APP_EMAIL
+
+    msgs = ""
+    val = ''
+    nf = WikiLoad()
+    cf = WikiLoad(request.POST)
+    if cf.is_valid():
+        val = cf.cleaned_data['run_it']
+    if val == '1':
+        n = db.cache_collections()
+        msgs += str(n) + " collection records returned." + '\n'
+        n = db.cache_corp_bodies()
+        msgs += str(n) + " corp bodies records returned." + '\n'
+        n = db.cache_oral_histories()
+        msgs += str(n) + " oral history records returned." + '\n'
+        n = db.cache_people()
+        msgs += str(n) + " people records returned." + '\n'
+        n = db.cache_subjects()
+        msgs += str(n) + " subjects records returned." + '\n'
+
+    context = {'form': nf, 'version': ver, 'author': auth, 'email': email, 'messages': msgs}
+    return render(request, 'discover/base_about.html', context)
 
 
 def process_node_form(nsform, qset, domain):

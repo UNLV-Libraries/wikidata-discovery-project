@@ -3,6 +3,20 @@
 {% block header2 %}About the UNLV Discovery Tool{% endblock %}
 <body>
 {% block main-content %}
-    <p>This is the "About" page</p>
+    <div id="top">
+        <p><strong>About this application:</strong></p>
+        <p>Version: {{ version }}</p>
+        <p>Tech Lead: {{ author }}</p>
+        <p>Email: {{ email }}</p>
+    </div><br>
+    <form action='/discover/about/' method="post">
+        <p>For administrator use only. Do not run.</p>
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" value="run">cache data</button>
+    </form><br>
+    <div>
+        {{ messages }}
+    </div>
 {% endblock %}
 </body>

@@ -9,9 +9,11 @@ def cache_people():
     from . import sparql
     try:
         people_json = sparql.build_wd_query('people')
-        write_people(people_json)
-    except BaseException as e:
+        n = write_people(people_json)
+        return n
+    except Exception as e:
         catch_err(e, 'cache_people')
+        return 0
 
 
 def write_people(people_json):
@@ -82,9 +84,11 @@ def cache_corp_bodies():
     from . import sparql
     try:
         corp_json = sparql.build_wd_query('corp_bodies')
-        write_corp_bodies(corp_json)
+        n = write_corp_bodies(corp_json)
+        return n
     except Exception as e:
         catch_err(e, 'cache_corp_bodies')
+        return 0
 
 
 def write_corp_bodies(corp_json):
@@ -172,9 +176,11 @@ def cache_collections():
     from . import sparql
     try:
         coll_json = sparql.build_wd_query('collections')
-        write_collections(coll_json)
+        n = write_collections(coll_json)
+        return n
     except Exception as e:
         catch_err(e, 'cache_collections')
+        return 0
 
 
 def write_collections(collections_json):
@@ -234,9 +240,11 @@ def cache_subjects():
     from . import sparql
     try:
         subject_json = sparql.build_wd_query('subjects')
-        write_subjects(subject_json)
-    except BaseException as e:
+        n = write_subjects(subject_json)
+        return n
+    except Exception as e:
         catch_err(e, 'cache_subjects')
+        return 0
 
 
 def write_subjects(json_dict):
@@ -262,9 +270,11 @@ def cache_oral_histories():
     from . import sparql
     try:
         oralh_json = sparql.build_wd_query('oralhistories')
-        write_oral_histories(oralh_json)
-    except BaseException as e:
+        n = write_oral_histories(oralh_json)
+        return n
+    except Exception as e:
         catch_err(e, 'cache_oral_histories')
+        return 0
 
 
 def write_oral_histories(json_dict):
@@ -310,5 +320,3 @@ def supply_val(val, the_type):
             return ''
         elif the_type == 'numeric':
             return 0
-
-
