@@ -1,4 +1,4 @@
-# Wikidata Discovery Tool Development
+# WikiframeVG: Wikiframe Visual Graph
 
 ## Introduction
 This project is an effort to develop an end-user application for searching and retrieving Wikidata information that describes the contents of UNLV's Special Collections and Archives.
