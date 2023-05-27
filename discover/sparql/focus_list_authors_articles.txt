@@ -1,0 +1,16 @@
+SELECT ?article ?articleLabel ?author ?authorLabel ?publicationDate ?publishedInLabel ?vol ?issue ?pages ?DOI ?subjects ?subjectsLabel
+WHERE
+{
+ {
+  ?article wdt:P31 wd:Q13442814 ;
+           wdt:P50 ?author ;
+           wdt:P577 ?publicationDate ;
+           wdt:P1433 ?publishedIn ;
+           wdt:P478 ?vol ;
+           wdt:P433 ?issue ;
+           wdt:P304 ?pages .
+  OPTIONAL {?article wdt:P356 ?DOI } .
+  ?author wdt:P5008 wd:Q100202113 .
+  OPTIONAL {?article wdt:P921 ?subjects } .
+ }SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}

@@ -1,13 +1,17 @@
 {% extends 'discover/base.html' %}
 
-{% block header2 %}Information about Corporate Bodies at UNLV{% endblock %}
-
 {% block main-content %}
-    <form action="/discover/corpbodies_filtered/" method="post">
+    <form action="/discover/corps_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
-    </form><br>
+    </form>
+    <form action="/discover/corps_filtered/" method="post">
+        {% csrf_token %}
+        {{ priors }}
+        <input type="submit" value="RERUN">
+        </form>
+<br>
     <div id="errors"> {{ errors }}</div>
     <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
             For example, type part or all of the name of a corporate entity you're looking for, or type a word or phrase

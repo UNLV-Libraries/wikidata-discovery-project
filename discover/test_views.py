@@ -3,6 +3,7 @@ import unittest
 from django.test import Client
 from .forms import SearchForm, NodeSelectForm, RestrictSubjectForm
 
+
 class PeopleTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
@@ -15,9 +16,11 @@ class PeopleTest(unittest.TestCase):
         self.assertIsInstance(response.context['search'], SearchForm)
         self.assertIsInstance(response.context['select'], NodeSelectForm)
 
+
 class PeopleFilteredTest(unittest.TestCase):
     def setUp(self):
         self.client = Client()
+
     def test_details(self):
         # test two form inputs
         response = self.client.post('/discover/people_filtered/', {'search_text': 'Q12345'})

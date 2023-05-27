@@ -121,10 +121,15 @@ def load_item_details(json_dict):
         i = Item(re.split(r'/', item_raw).pop())
         i.item_label = r.get("itemLabel", {}).get("value")
         i.item_desc = r.get('itemDescription', {}).get('value')
-        i.prop_code = r.get("prop", {}).get("value")
+        prop_raw = r.get("prop", {}).get("value")
+        prop_code = re.split(r'/', prop_raw).pop()
+        i.prop_code = prop_code
         i.prop_label = r.get("propLabel", {}).get("value")
         i.value_code = r.get("oraw", {}.get("value"))
-        i.value_label = r.get("oValue", {}).get("value")
+        if prop_code == 'P8091':
+            i.value_label = 'http://n2t.net/' + r.get("oValue", {}).get("value")
+        else:
+            i.value_label = r.get("oValue", {}).get("value")
         item_set.append(i)
 
     return item_set

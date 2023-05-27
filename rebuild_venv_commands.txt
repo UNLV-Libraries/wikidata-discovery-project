@@ -1,0 +1,9 @@
+/data/www/wikidataDiscovery/
+
+python -m venv /data/www/wikidataDiscovery/wd_venv
+
+source ./wd_venv/bin/activate
+
+python -m pip install -r requirements.txt
+
+

@@ -1,0 +1,11 @@
+SELECT ?presentation ?presentationLabel ?author ?authorLabel ?publicationDate ?subjects ?subjectsLabel
+WHERE
+{
+ {
+  ?presentation wdt:P31 wd:Q604733 ;
+        wdt:P50 ?author ;
+        wdt:P577 ?publicationDate ;
+        wdt:P921 ?subjects  .
+  # ?author wdt:P5008 wd:Q100202113 .
+ }SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}

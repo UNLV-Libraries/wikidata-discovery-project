@@ -1,0 +1,13 @@
+SELECT ?work ?workLabel ?hasEdition ?hasEditionLabel ?author ?authorLabel ?publicationDate ?subjects ?subjectsLabel
+WHERE
+{
+ {
+  ?work wdt:P31 wd:Q47461344 ;
+        wdt:P50 ?author ;
+        wdt:P747 ?hasEdition ;
+        wdt:P577 ?publicationDate ;
+        wdt:P921 ?subjects  .
+  ?author wdt:P5008 wd:Q100202113 .
+
+ } SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}

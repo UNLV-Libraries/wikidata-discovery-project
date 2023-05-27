@@ -1,17 +1,24 @@
 {% extends 'discover/base.html' %}
-
 {% load static %}
+
 {% block head-script %}
     <script type='text/javascript' src="{% static 'filtered_head.js' %}"></script>
 {% endblock %}
-{% block header2 %}Information about Oral Histories - <i>Search Results: "{{ string }}"</i> {% endblock %}
+
+{% block header2 %}Search Results: <i>"{{ string }}"</i> {% endblock %}
 
 {% block main-content %}
-    <form action="/discover/oralhistories_filtered/" method="post">
+    <form action="/discover/orals_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <form action="/discover/orals_filtered/" method="post">
+            {% csrf_token %}
+            {{ priors }}
+            <input type="submit" value="RERUN">
+    </form>
+
     <div id="errors"> {{ errors }}</div>
     <p>Oral Histories Returned: <b>{{ num }}</b></p>
     {% if filtered_orals %}
@@ -24,7 +31,7 @@
             </tr>
             {% for oh in filtered_orals %}
                 <tr>
-                    <td><a href="/discover/item/{{ oh.getitemid }}">details</a></td>
+                    <td><a href="/discover/{{ domain }}/item/{{ oh.getitemid }}">details</a></td>
                     <td>{{ oh.getlabel}}</td>
                     <td>{{ oh.getinventorynum }}</td>
                     <td>{{ oh.getdesc }}</td>
@@ -69,10 +76,10 @@
 {% endblock %}
 {% block side-map %}
     <p><strong>Interact with graph:</strong></p>
-    <form id="node_form" action="/discover/oralhistories_filtered/" method="post">
+    <form id="node_form" action="/discover/orals_filtered/" method="post">
         {% csrf_token %}
         {{ select }}
-        <input type="submit" value="filter">
+        <input type="submit" value="SEARCH">
    </form>
     <div id="vis-tooltip"></div>
     <div id="vis-container">

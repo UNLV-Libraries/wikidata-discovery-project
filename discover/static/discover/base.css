@@ -17,6 +17,10 @@
 	visibility: hidden;
 }
 
+#back_button #id_back_value {
+	display: none;
+}
+
 #node_form {
 	display: block;
 }
@@ -24,6 +28,10 @@
 	display: none;
 }
 #node_form #id_color_type {
+	display: none;
+}
+
+#hidden_node_form {
 	display: none;
 }
 

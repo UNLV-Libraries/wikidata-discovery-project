@@ -1,0 +1,8 @@
+select distinct ?subject ?subjectLabel where
+{
+  ?item wdt:P5008 wd:Q100202113 .
+  # ?item wdt:921 ?subject .
+  ?item p:P921 ?value0.
+  ?value0 (ps:P921/(p:P279*)) ?subject #wd:Q59816. #racial segregation
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+  }

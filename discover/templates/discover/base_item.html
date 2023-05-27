@@ -1,22 +1,51 @@
 {% extends 'discover/base.html' %}
 
+{% load url_target_blank %}
+{% block head-script %}
+    <script type="text/javascript">
+        window.onload = function () {
+            setValue();  //provides a value to the back button form
+        }
+    </script>
+{% endblock %}
+
 {% block header2 %}Details for <i><span style="color: forestgreen">{{ item }}</span></i>{% endblock %}
 
 <body>
 
 {% block main-content %}
-    <button>back to results</button>  {# todo: emulate back button using app urls #}
+    <input type="hidden" id="domain" value="{{ domain }}">
+    <form id='back_button' action="/discover/{{ domain }}_filtered/" method="post">
+        {% csrf_token %}
+        {{ bb_form }}
+        <input type="submit" value="back to results">
+    </form>
+    <form id="hidden_node_form">
+        {% csrf_token %}
+        {{ select }}
+        <input type="submit" value="submit">
+    </form>
+    <script type="text/javascript">
+
+        function setValue() {
+            let f = document.getElementById('id_back_value');
+            f.value = '1';
+        }
+    </script>
+
     {% if details %}
         <p><b>About:</b> {{ itemdesc }}</p>
         <table id="item_table">
               <tr>
+                  <td>code</td>
                   <td><strong>CATEGORY</strong></td>
                   <td><strong>VALUE</strong></td>
             </tr>
             {% for d in details %}
                 <tr>
+                    <td id="{{ d.prop_code }}">{{ d.prop_code }}</td>
                     <td><strong>{{ d.prop_label }}</strong></td>
-                    <td>{{ d.value_label }}</td>
+                    <td>{{ d.value_label|urlize|url_target_blank }}</td>
                 </tr>
             {% endfor %}
         </table>

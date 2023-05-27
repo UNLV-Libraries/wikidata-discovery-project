@@ -1,0 +1,4 @@
+SELECT DISTINCT ?item ?itemLabel ?instanceOf ?instanceOfLabel ?itemDescription ?image
+WHERE { ?item wdt:P5008 wd:Q100202113 ; wdt:P31 ?instanceOf; wdt:P18 ?image .
+FILTER(?instanceOf NOT IN (wd:Q5)) BIND(UUID() AS ?uuid)
+SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } LIMIT 4

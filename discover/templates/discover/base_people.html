@@ -1,14 +1,18 @@
 {% extends "discover/base.html" %}
 
-{% block header2 %}Information about People Named in Special Collections and Archives{% endblock %}
-
     {% block main-content %}
 
         <form action="/discover/people_filtered/" method="post">
-        {% csrf_token %}
+            {% csrf_token %}
             {{ search }}
-        <input type="submit" value="SEARCH">
-        </form><br>
+            <input type="submit" value="SEARCH">
+        </form>
+        <form action="/discover/people_filtered/" method="post">
+            {% csrf_token %}
+            {{ priors }}
+            <input type="submit" value="RERUN">
+        </form>
+
         <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
             For example, type part or all of the name of a person you're looking for, or type a word or phrase
             that describes a person or people.</i></p>
@@ -17,7 +21,7 @@
                 <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="200" height="250"
                      loading="lazy" title="{{ i.itemlabel }}: {{ i.itemdesc }}">
             {% endfor %}
-            <div><i>[images credit: Wikimedia Commons]</i></div>
+            <div><i>[images: Wikimedia Commons]</i></div>
         {% endif %}
 
     {% endblock %}

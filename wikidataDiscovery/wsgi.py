@@ -17,4 +17,3 @@ from django.core.wsgi import get_wsgi_application
 # ensures other sites running on Apache locally don't overwrite this project's settings if all are running.
 os.environ['DJANGO_SETTINGS_MODULE'] = 'wikidataDiscovery.settings'
 application = get_wsgi_application()
-# application = WSGIHandler()

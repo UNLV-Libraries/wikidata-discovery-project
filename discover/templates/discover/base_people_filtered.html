@@ -5,7 +5,7 @@
     <script type='text/javascript' src="{% static 'filtered_head.js' %}"></script>
 {% endblock %}
 
-{% block header2 %}Information about People - <i>Search Results: "{{ string }}"</i> {% endblock %}
+{% block header2 %}Search Results: <i>"{{ string }}"</i> {% endblock %}
 
 {% block main-content %}
     <form action="/discover/people_filtered/" method="post">
@@ -13,6 +13,12 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <form action="/discover/people_filtered/" method="post">
+        {% csrf_token %}
+        {{ priors }}
+        <input type="submit" value="RERUN">
+    </form>
+
     <div id="errors"> {{ errors }}</div>
     <p>People Returned: <b>{{ num }}</b></p>
     {% if filtered_people %}
@@ -24,7 +30,7 @@
             </tr>
             {% for p in filtered_people %}
                 <tr>
-                    <td><a href="/discover/item/{{ p.getitemid }}">details</a></td>
+                    <td><a href="/discover/{{ domain }}/item/{{ p.getitemid }}">details</a></td>
                     <td>{{ p.getlabel }}</td>
                     <td>{{ p.getdesc }}</td>
                 </tr>
@@ -84,7 +90,7 @@
     <form id='node_form' action="/discover/people_filtered/" method="post">
         {% csrf_token %}
         {{ select }}
-        <input type="submit" value="filter">
+        <input type="submit" value="SEARCH">
    </form>
     <div id="vis-tooltip" onpointerenter="keepTT()" ></div>
     <div id="vis-container">

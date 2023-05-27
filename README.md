@@ -13,7 +13,7 @@ The application interacts with Wikidata's [SPARQL query service](https://query.w
 ## Technologies
 * Python with Django web development framework.
 * Apache web server.
-* PostGRES database server.
+* MySQL 8 database server.
 ## Project Management
 For information on the work plan, see the Project associated with this repository.
 

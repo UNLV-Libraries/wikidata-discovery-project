@@ -18,5 +18,5 @@ class Domain(Enum):
     corps = 'corps'
     colls = 'collections'
     orals = 'orals'
-    subjects = 'subjects'
+    subjs = 'subjects'
 

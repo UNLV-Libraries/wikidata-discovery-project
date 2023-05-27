@@ -1,6 +1,5 @@
 {% extends 'discover/base.html' %}
 
-{% block header2 %}Subjects Used in Special Collections and Archives{% endblock %}
 {% block main-content %}
     <form action="/discover/subjects_filtered/" method="post">
     {% csrf_token %}
