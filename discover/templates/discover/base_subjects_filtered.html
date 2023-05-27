@@ -1,6 +1,6 @@
 {% extends 'discover/base.html' %}
 
-{% block header2 %}Search Results For: <i>"{{ search_string }}<i>"{% endblock %}
+{% block header2 %}Search Results For: <i>"{{ search_string }}"<i>{% endblock %}
 {% block main-content %}
     <form action="/discover/subjects_filtered/" method="post">
     {% csrf_token %}
