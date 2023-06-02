@@ -1,5 +1,6 @@
 from django.db.models import QuerySet
 queue = []  # a list of lists
+curr_domain = "" #tracks which landing page has been filling the queue.
 
 def add_request(req: object) -> None:
     global queue
@@ -34,3 +35,7 @@ def set_prior_queries() -> list:
         the_choices.append((n, i[1]))
         n += 1
     return the_choices
+
+def clear_queue():
+    global queue
+    queue.clear()

@@ -1,5 +1,11 @@
 {% extends "discover/base.html" %}
-
+    {% block head-script %}
+        <script type="text/javascript">
+            window.onload = function () {
+                $('.site-menu ul #people a').css('background-color', '#9c1616');
+            }
+        </script>
+    {% endblock %}
     {% block main-content %}
 
         <form action="/discover/people_filtered/" method="post">

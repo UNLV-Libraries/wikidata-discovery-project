@@ -1,4 +1,11 @@
 {% extends "discover/base.html" %}
+    {% block head-script %}
+        <script type="text/javascript">
+            window.onload = function () {
+                $('.site-menu ul #orals a').css('background-color', '#9c1616');
+            }
+        </script>
+    {% endblock %}
 
     {% block main-content %}
         <form action="/discover/orals_filtered/" method="post">

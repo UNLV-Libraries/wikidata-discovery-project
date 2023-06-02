@@ -125,15 +125,15 @@ STATIC_ROOT = '/data/www/wd_static/'
 
 STATICFILES_DIRS = [
     '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
-    '/home/ed/node_modules/vis-network/standalone/umd/',
-    '/home/ed/node_modules/vis-network/dist/dist/',
-    '/home/ed/node_modules/underscore/',
-    '/home/ed/node_modules/jquery/dist',
+    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/vis-network/standalone/umd/',
+    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/vis-network/dist/dist/',
+    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/underscore/',
+    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/jquery/dist',
 ]
 
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',  # todo: find file system path to admin css.
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'

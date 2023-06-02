@@ -3,6 +3,12 @@
 
 {% block head-script %}
     <script type='text/javascript' src="{% static 'filtered_head.js' %}"></script>
+     <script type='text/javascript'>
+        $(document).ready(function () {
+            $('.site-menu ul #orals a').css('background-color', '#9c1616');
+        });
+    </script>
+
 {% endblock %}
 
 {% block header2 %}Search Results: <i>"{{ string }}"</i> {% endblock %}
@@ -18,7 +24,9 @@
             {{ priors }}
             <input type="submit" value="RERUN">
     </form>
-
+        <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
+        <img id="loading" alt="loading-in-progress image" height="20" width="20" src="{% static 'spinner.gif' %}">
+    </div>
     <div id="errors"> {{ errors }}</div>
     <p>Oral Histories Returned: <b>{{ num }}</b></p>
     {% if filtered_orals %}

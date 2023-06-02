@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 from . import graph
 from . import web_methods
 from .models import Collection, Subject
@@ -22,6 +21,12 @@ def home(request):
 def people(request):
     from . import forms
     from .web_methods import get_images
+    from .enums import Domain
+
+    # if user has switched to this facet from a different facet, restart queue
+    if not queue.curr_domain == Domain.people.value:
+        queue.clear_queue()
+        queue.curr_domain = Domain.people.value
 
     sform = forms.SearchForm()
     # 1)
@@ -120,6 +125,12 @@ def people_filtered(request):
 def corpbodies(request):
     from .forms import SearchForm, QueueForm
     from .web_methods import get_images
+
+    # if user has switched to this facet from a different facet, empty queue
+    if not queue.curr_domain == Domain.corps.value:
+        queue.clear_queue()
+        queue.curr_domain = Domain.corps.value
+
     sform = SearchForm()
     qform = QueueForm(dynamic_choices=queue.set_prior_queries())
     images = get_images('images_others')  # record name in db query table
@@ -129,7 +140,6 @@ def corpbodies(request):
 
 def corpbodies_filtered(request):
     """Processes and renders search results for corporate bodies data. Callable only by search forms."""
-    from .models import RelationType
     from . import forms
     from .models import CorpBody
     from django.db.models import QuerySet
@@ -215,6 +225,12 @@ def corpbodies_filtered(request):
 
 def collections(request):
     from .forms import SearchForm, QueueForm
+
+    # if user has switched to this facet from a different facet, empty queue
+    if not queue.curr_domain == Domain.colls.value:
+        queue.clear_queue()
+        queue.curr_domain = Domain.colls.value
+
     sform = SearchForm()
     qform = QueueForm(dynamic_choices=queue.set_prior_queries())
     context = {'search': sform, 'priors': qform}
@@ -225,7 +241,6 @@ def collections_filtered(request):
     """Processes and renders search results for collections data. Callable by search, node-select and
     queue forms."""
     from . import forms
-    from .models import RelationType
     from django.db.models import QuerySet
     global curr_query
 
@@ -302,7 +317,7 @@ def collections_filtered(request):
             results = process_invalid_forms('collections_filtered')
             qform = forms.QueueForm(dynamic_choices=queue.set_prior_queries())
             error_msg = results['message']
-            graph_data = graph.load_graph(results['filtered'], init_choice, choices)
+            graph_data = graph.load_graph(results['filtered'], init_choice, domain)
             curr_checks = []
 
         context = {'domain': domain, 'filtered_collections': results['unique'], 'search': sform,
@@ -320,6 +335,12 @@ def collections_filtered(request):
 
 def oralhistories(request):
     from .forms import SearchForm, QueueForm
+
+    # if user has switched to this facet from a different facet, empty queue
+    if not queue.curr_domain == Domain.orals.value:
+        queue.clear_queue()
+        queue.curr_domain = Domain.orals.value
+
     sform = SearchForm()
     qform = QueueForm(dynamic_choices=queue.set_prior_queries())
     context = {'search': sform, 'priors': qform}
@@ -329,7 +350,7 @@ def oralhistories(request):
 def oralhistories_filtered(request):
     """Processes and renders search results for oral histories data. Callable only by search or node form."""
     from . import forms
-    from .models import OralHistory, RelationType
+    from .models import OralHistory
     from . import graph
     from django.db.models import QuerySet
     global curr_query

@@ -1,5 +1,4 @@
 // initialize global variables.
-
 let my_edges;
 let my_nodes;
 let network;
@@ -7,7 +6,7 @@ let the_data;
 
 // This method is responsible for drawing the graph, returns the drawn network
 function drawGraph() {
-  let container = document.getElementById('vis-container');
+    let container = document.getElementById('vis-container');
   // create objects for network
     try {
         my_nodes = new vis.DataSet(inbound_nodes);
@@ -20,11 +19,24 @@ function drawGraph() {
                 hover: true
             },
             layout: {
-                improvedLayout: false,
+                improvedLayout: true
+            },
+            physics: {
+                enabled: true,
+                barnesHut: {
+                    avoidOverlap: 0
+                },
+                solver: 'barnesHut',
+                stabilization: {
+                    enabled: true,
+                    iterations: 250,
+                    updateInterval: 12,
+                    fit: true
+                }
             }
         };
-
         network = new vis.Network(container, the_data, options);
+
     } catch (err) {
         alert("There was a problem drawing the graph. " + err.toString())
     }
@@ -34,29 +46,37 @@ function drawGraph() {
 
 //wrote this to explicitly initialize needed events. Couldn't make it work otherwise.
 function initialize(net) {
-    net.on('selectNode', function (params) {
-        let s = document.getElementById('id_selected_text');
-        s.value = params['nodes'][0];
-        let label_data = getLabel(params['nodes'][0]);
-        let color_data = getColorType(params['nodes'][0]);
-        document.getElementById('id_shape_label').value = label_data;
-        document.getElementById('id_color_type').value = color_data;
-    })
+    net.on("stabilizationProgress", function (params) {
+        //alert(params.iterations.toString());
+    });
 
-    net.on('hoverNode', function (params) {
-        try {
+  net.on("stabilizationIterationsDone", function () {
+    document.getElementById('loading_div').hidden = true;
+  });
+
+  net.on('selectNode', function (params) {
+      let s = document.getElementById('id_selected_text');
+      s.value = params['nodes'][0];
+      let label_data = getLabel(params['nodes'][0]);
+      let color_data = getColorType(params['nodes'][0]);
+      document.getElementById('id_shape_label').value = label_data;
+      document.getElementById('id_color_type').value = color_data;
+    });
+
+  net.on('hoverNode', function (params) {
+      try {
         tooltip_div.innerText = showProperties(params['node']);
         tooltip_div.style.left = mouse_x + 'px';
         tooltip_div.style.top = mouse_y + 'px';
         tooltip_div.hidden = false;
-        } catch (err) {
-            alert(err.message)
+      } catch (err) {
+          alert(err.message)
         }
-    })
+    });
 
     net.on('blurNode', function () {
         tooltip_div.hidden = true;
-    })
+    });
 
 }
 

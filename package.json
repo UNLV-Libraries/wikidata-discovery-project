@@ -2,6 +2,8 @@
   "name": "wikidataDiscovery",
   "version": "1.0.0",
   "dependencies": {
+    "discover": "^0.4.3",
+    "jquery": "^3.7.0",
     "underscore": "^1.13.6",
     "vis-network": "^9.1.6"
   }

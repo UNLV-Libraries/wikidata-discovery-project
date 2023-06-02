@@ -1,4 +1,12 @@
 {% extends 'discover/base.html' %}
+{% block head-script %}
+     <script type='text/javascript'>
+        $(document).ready(function () {
+            $('.site-menu ul #subjects a').css('background-color', '#9c1616');
+        });
+    </script>
+
+{% endblock %}
 
 {% block header2 %}Search Results For: <i>"{{ search_string }}"<i>{% endblock %}
 {% block main-content %}

@@ -1,4 +1,11 @@
 {% extends 'discover/base.html' %}
+{% block head-script %}
+    <script type="text/javascript">
+        window.onload = function () {
+            $('.site-menu ul #home a').css('background-color', '#9c1616');
+        }
+    </script>
+{% endblock %}
 
 <body>
 {% block main-content %}
