@@ -1,7 +1,8 @@
 # wikiframeVG: Wikiframe Visual Graph
 
 ## Introduction
-This project is an effort to develop an end-user application for searching and retrieving Wikidata information that describes the contents of UNLV's Special Collections and Archives.
+
+Welcome to wikiframeVG (Wikiframe Visual Graph), an open-source community initiative and tool aimed to help Wikidata editors and users explore knowledge generated from organized Wikidata sprints. wikiframeVG adopts a community driven, SPARQL template-based approach towards Wikidata graph exploration. 
 
 The application interacts with Wikidata's [SPARQL query service](https://query.wikidata.org/) and provides users with point-and-click tools to search and filter information. No SPARQL or other coding knowledge will be required to retrieve data linked across the Wikidata knowledge graph.
 
