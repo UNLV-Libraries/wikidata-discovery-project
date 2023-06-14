@@ -24,12 +24,9 @@
             {{ priors }}
             <input type="submit" value="RERUN">
     </form>
-        <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
-        <img id="loading" alt="loading-in-progress image" height="20" width="20" src="{% static 'spinner.gif' %}">
-    </div>
     <div id="errors"> {{ errors }}</div>
     <p>Oral Histories Returned: <b>{{ num }}</b></p>
-    {% if filtered_orals %}
+    {% if unique_list %}
           <table>
               <tr>
                   <td>DETAILS</td>
@@ -37,9 +34,9 @@
                   <td><strong>INV #</strong></td>
                   <td><strong>ABOUT RESOURCE</strong></td>
             </tr>
-            {% for oh in filtered_orals %}
+            {% for oh in unique_list %}
                 <tr>
-                    <td><a href="/discover/{{ domain }}/item/{{ oh.getitemid }}">details</a></td>
+                    <td><a href="/discover/{{ facet }}/item/{{ oh.getitemid }}">details</a></td>
                     <td>{{ oh.getlabel}}</td>
                     <td>{{ oh.getinventorynum }}</td>
                     <td>{{ oh.getdesc }}</td>
@@ -57,7 +54,7 @@
         // initialize global variables.
         let inbound_nodes = {{ nodes }};
         let inbound_edges = {{ edges }};
-        let inbound_checks = {{ checks }};
+        let inbound_checks = {{ checks|safe }};
 
         function showProperties(pitem_id) {
             try {
@@ -89,9 +86,12 @@
         {{ select }}
         <input type="submit" value="SEARCH">
    </form>
+    <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
+        <img id="loading" alt="loading-in-progress image" src="{% static 'Stampede.gif' %}">
+    </div>
     <div id="vis-tooltip"></div>
     <div id="vis-container">
-    </div> {# used by inserted javascript as canvas #}
+    </div> {# used by vis.js as canvas #}
     <div id="selection_label"></div>
 
 {% endblock %}

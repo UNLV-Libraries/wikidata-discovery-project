@@ -21,18 +21,31 @@
 	display: none;
 }
 
+#search_form tr td #id_search_text {
+	width: 500px;
+}
+#queue_form tr td #id_run_qry {
+	width: 500px;
+}
+
 #node_form {
 	display: block;
 }
-#node_form #id_selected_text {
+#node_form #id_node_id {
 	display: none;
 }
 #node_form #id_color_type {
 	display: none;
 }
 
-#hidden_node_form {
-	display: none;
+#node_form tr td #id_node_label {
+	width: 300px;
+	border-style: none;
+}
+
+#node_form tr td #id_relation_types {
+	display: grid;
+	grid-auto-columns: minmax(10px, auto);
 }
 
 #subject_form #id_restrict_text {
@@ -49,12 +62,12 @@
 }
 
 #vis-container {
-	 width: 100%;
-	 height: 500px;
-	 background-color: #ffffff;
-	 border: 1px solid lightgray;
-	 position: relative;
-	 float: left;
+	width: 100%;
+	height: 500px;
+	background-color: #ffffff;
+	border: 1px solid lightgray;
+	position: relative;
+	float: left;
 	overflow: visible;
  }
 
@@ -78,11 +91,12 @@
   	z-index: 5;
 }
 
-#loading_message {
+/*#loading_div {
 	width: fit-content;
 	position: absolute;
-  	visibility: visible;
-}
+	/*visibility: hidden;
+}*/
+
 /*===NAVIGATION MENU===*/
 .site-menu ul {
 	display: flex;

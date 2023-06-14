@@ -1,5 +1,5 @@
 """
-web_models handles all on-the-fly queries to wikidata. Returned JSON is
+web_models handles all on-the-fly queries to wikidata. Returned JSON entries are
 instantiated as python objects.
 """
 from .wd_utils import catch_err
@@ -143,25 +143,25 @@ def get_item_details(qcode):
     return load_item_details(the_json)
 
 
-def reduce_search_results(query_obj, special_field=None):
+def reduce_search_results(query_obj, facet):
     """Creates a unique-rows version of filtered QuerySets,
     which contain duplicate item codes by design. Needed to
     replace missing 'SELECT IN' support in MySQL."""
     # checks for a special field to add to the search results,
     # such as colltypelabel, if the case requires.
-    # todo: change special_col to enum
+    from .enums import Facet
     item_dict = {}
     return_list = []
 
-    # force unique set via dictionary type.
+    # force unique set via dictionary.
     for r in query_obj:
-        if special_field == 'colltypelabel':  # used to show type of collection
+        if facet == Facet.colls.value:  # used to show type of collection
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'colltypelabel': r.colltypelabel}
-        elif special_field == 'inventorynum':  # for oral histories todo: and collections?
+        elif facet == Facet.orals.value:
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'inventorynum': r.inventorynum, 'describedat': r.describedat}
-        elif special_field == 'instanceoflabel':  # for corporate bodies
+        elif facet == Facet.corps.value:
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'instanceoflabel': r.instanceoflabel}
         else:

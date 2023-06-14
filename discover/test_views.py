@@ -26,5 +26,5 @@ class PeopleFilteredTest(unittest.TestCase):
         response = self.client.post('/discover/people_filtered/', {'search_text': 'Q12345'})
         self.assertEqual(response.status_code, 200)
         response = self.client.post('/discover/people_filtered/',
-                                    {'shape_type': 'ellipse', 'shape_label': 'politician', 'selected_text': 'Q12345'})
+                                    {'shape_type': 'ellipse', 'node_label': 'politician', 'selected_text': 'Q12345'})
         self.assertEqual(response.status_code, 200)

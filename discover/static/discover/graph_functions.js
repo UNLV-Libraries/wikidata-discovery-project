@@ -44,10 +44,10 @@ function drawGraph() {
     return network;
 }
 
-//wrote this to explicitly initialize needed events. Couldn't make it work otherwise.
+//Explicitly initializes needed events.
 function initialize(net) {
     net.on("stabilizationProgress", function (params) {
-        //alert(params.iterations.toString());
+        //document.getElementById('loading_div').hidden = false;
     });
 
   net.on("stabilizationIterationsDone", function () {
@@ -55,12 +55,19 @@ function initialize(net) {
   });
 
   net.on('selectNode', function (params) {
-      let s = document.getElementById('id_selected_text');
-      s.value = params['nodes'][0];
+      let s = document.getElementById('id_node_id');
+      s.value = params['nodes'][0];  //set node id field to curr selection
+      document.getElementById('id_prior_kw_search').value = ""; //ensure kw search is switched off.
+      document.getElementById('id_prior_subj_search').value = ""; //ensure subj search is switched off.
+      document.getElementById('id_prior_subj_labels').value = ""; //ensure subj label is empty.
+      document.getElementById('id_prior_node_search').value = params['nodes'][0]; //new node search; prior=current
       let label_data = getLabel(params['nodes'][0]);
       let color_data = getColorType(params['nodes'][0]);
-      document.getElementById('id_shape_label').value = label_data;
-      document.getElementById('id_color_type').value = color_data;
+      document.getElementById('id_node_label').value = label_data; //set node label
+      document.getElementById('id_prior_node_label').value = label_data; //prior label == curr label
+      document.getElementById('id_color_type').value = color_data; //capture color of node
+      document.getElementById('id_prior_color').value = color_data; // prior color == curr color
+      document.getElementById('id_dirty_flag').value = true;
     });
 
   net.on('hoverNode', function (params) {
@@ -81,20 +88,20 @@ function initialize(net) {
 }
 
 function setChecks() {
-    //picks up js array of checkboxes to set, based on prior user selections.
-    //checkboxes are referred to by ordinal position; 0. 1. 2...
-    if (inbound_checks.length === 0) {
-        $('#id_relation_types_0').prop('checked', true);
-    } else {
-        inbound_checks.forEach(function (c) {
-            let the_key = '#id_relation_types_' + c.toString();
-            $(the_key).prop('checked', true);
+    //Picks up js array of checkboxes to set, based on prior user selections.
+    //Checkboxes are referred to by ordinal position; 0. 1. 2...
+    inbound_checks.forEach(function (c) {
+        $('#id_relation_types div').each(function (i) {
+            let key = '#id_relation_types_' + i.toString();
+            if ($(key).prop('value') === c) {
+                $(key).prop('checked', true);
+            }
         });
-    }
+    });
 }
 
 function getColorType(pitem_id) {
-    //finds and returns color-as-guid for graph nodes.
+    //Finds and returns color-as-guid for graph nodes.
     let color_data = _.find(inbound_nodes, function (o) //inbound nodes init on template render.
     {return o.id === pitem_id;}, 0);
     if (color_data['color']) {

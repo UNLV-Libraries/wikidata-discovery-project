@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>the result</title>
+</head>
+<body>
+    <form action="/discover/testy_processed/" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="SUBMIT">
+    </form>
+        <form action="/discover/testy_processed/" method="post">
+        {% csrf_token %}
+        {{ q_form }}
+        <input type="submit" value="RERUN">
+    </form>
+
+    {{ the_value }}
+    {{ the_choices }}
+</body>
+</html>

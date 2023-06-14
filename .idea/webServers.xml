@@ -5,8 +5,8 @@
       <webServer id="0b0df5a6-2c05-485f-89de-5de6ad991c7c" name="Apache_loc" url="http://localhost">
         <fileTransfer mountedRoot="/data/www" accessType="MOUNT" port="0" />
       </webServer>
-      <webServer id="c6a22220-6dba-446e-a7fe-32323b42cbf4" name="ore" url="http://ore.library.unlv.edu">
-        <fileTransfer rootFolder="/data/www" accessType="SFTP" host="ore.library.unlv.edu" port="22" sshConfigId="93f95a10-c170-40c9-8d18-01ef84b789db" sshConfig="ahulet@ore.library.unlv.edu:22 password">
+      <webServer id="c6a22220-6dba-446e-a7fe-32323b42cbf4" name="ore" url="https://ore.library.unlv.edu">
+        <fileTransfer accessType="SFTP" host="ore.library.unlv.edu" port="22" sshConfigId="93f95a10-c170-40c9-8d18-01ef84b789db" sshConfig="ahulet@ore.library.unlv.edu:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

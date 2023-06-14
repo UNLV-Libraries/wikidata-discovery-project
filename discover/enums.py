@@ -12,8 +12,8 @@ class RelColor(Enum):
     instanceof = '#ff1a75'
 
 
-class Domain(Enum):
-    """Establishes allowable names in code for domains. """
+class Facet(Enum):
+    """Establishes allowable names in code for facets within the data domain. """
     people = 'people'
     corps = 'corps'
     colls = 'collections'

@@ -12,24 +12,20 @@ from pathlib import Path
 import os
 
 # App-specific values to show on 'About' page
-APP_VERSION = 'dev.11'
+APP_VERSION = 'dev.13'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-p+i%5ko78n&stpfhr)c^8)w&tv8!_1l6f*v5m*ale5e)ko2xx$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ore.library.unlv.edu']
+ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu']
 
 
 # Application definition
@@ -76,7 +72,6 @@ WSGI_APPLICATION = 'wikidataDiscovery.wsgi.application'
 DJANGO_SETTINGS_MODULE = 'wikidataDiscovery.settings'
 
 # Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -116,6 +111,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+# SESSION SETTINGS
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

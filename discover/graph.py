@@ -2,11 +2,12 @@ from .wd_utils import catch_err
 from .enums import RelColor
 
 
-def load_graph(dataset, relation_types, domain):
+def load_graph(dataset, relation_types, facet):
     """Loads graph visualizer with item, relations, and edges for all domains.
     Properties list created for on-page graph tooltip via JavaScript. """
     from django.utils.safestring import mark_safe
-    from . import db
+    from .db import supply_val
+    from .enums import RelColor, Facet
     import json
 
     try:
@@ -25,22 +26,22 @@ def load_graph(dataset, relation_types, domain):
         for i in dataset:
 
             item_dict[i.item_id] = i.itemlabel
-            if domain == 'people':
+            if facet == Facet.people.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "image": i.image, "dob": i.dob,
                                          "placeofbirth": i.placeofbirthlabel, "dateofdeath": i.dateofdeath,
                                          "placeofdeath": i.placeofdeathlabel,  "mother": i.motherlabel,
                                          "father": i.fatherlabel, "spouse": i.spouselabel,
                                          "child": i.childlabel, "relative": i.relativelabel}
-            elif domain == 'corps':
+            elif facet == Facet.corps.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "instanceoflabel": i.instanceoflabel,
                                          "describedat": i.describedat,
                                          "inception": str(i.inception), "dissolved": str(i.dissolved),
                                          "locationlabel": i.locationlabel}
-            elif domain == 'collections':
+            elif facet == Facet.colls.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "donatedbylabel": i.donatedbylabel,
                                          "colltypelabel": i.colltypelabel, "inventorynum": i.inventorynum,
                                          "describedat": i.describedat}
-            elif domain == 'orals':
+            elif facet == Facet.orals.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "inventorynum": i.inventorynum,
                                          "describedat": i.describedat}
 
@@ -50,17 +51,17 @@ def load_graph(dataset, relation_types, domain):
                         relation_dict[i.occupation_id] = {"label": 'occup: ' + i.occupationlabel,
                                                           "color": RelColor.occup.value}
                         edge_dict[i.item_id + i.occupation_id] = \
-                            {"from": i.item_id, "to": db.supply_val(i.occupation_id, 'string')}
+                            {"from": i.item_id, "to": supply_val(i.occupation_id, 'string')}
                 elif r == 'fieldofwork':
                     if i.fieldofwork_id:
                         relation_dict[i.fieldofwork_id] = {"label": 'field: ' + i.fieldofworklabel,
                                                            "color": RelColor.fow.value}
                         edge_dict[i.item_id + i.fieldofwork_id] = \
-                            {"from": i.item_id, "to": db.supply_val(i.fieldofwork_id, 'string')}
+                            {"from": i.item_id, "to": supply_val(i.fieldofwork_id, 'string')}
                 elif r == 'placeofbirth':
                     if i.placeofbirth_id:
                         edge_dict[i.item_id + i.placeofbirth_id] = \
-                                {"from": i.item_id, "to": db.supply_val(i.placeofbirth_id, 'string')}
+                                {"from": i.item_id, "to": supply_val(i.placeofbirth_id, 'string')}
                         relation_dict[i.placeofbirth_id] = {"label": 'birth: ' + i.placeofbirthlabel,
                                                             "color": RelColor.pob.value}
                 elif r == 'placeofdeath':
@@ -68,10 +69,10 @@ def load_graph(dataset, relation_types, domain):
                         relation_dict[i.placeofdeath_id] = {"label": 'death: ' + i.placeofdeathlabel,
                                                             "color": RelColor.pod.value}
                         edge_dict[i.item_id + i.placeofdeath_id] = \
-                            {"from": i.item_id, "to": db.supply_val(i.placeofdeath_id, 'string')}
+                            {"from": i.item_id, "to": supply_val(i.placeofdeath_id, 'string')}
                 elif r == 'instanceof':
                     if i.instanceof_id:
-                        relation_dict[i.instanceof_id] = {"label": 'category: ' + i.instanceoflabel,
+                        relation_dict[i.instanceof_id] = {"label": 'cat: ' + i.instanceoflabel,
                                                           "color": RelColor.instanceof.value}
                         edge_dict[i.item_id + i.instanceof_id] = \
                             {"from": i.item_id, "to": i.instanceof_id}

@@ -13,12 +13,12 @@
 {% block header2 %}Search Results: <i>"{{ string }}"</i>{% endblock %}
 
 {% block main-content %}
-    <form action="/discover/collections_filtered/" method="post">
+    <form id='search_form' action="/discover/collections_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
-        <form action="/discover/collections_filtered/" method="post">
+        <form id='queue_form' action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         {{ priors }}
         <input type="submit" value="RERUN">
@@ -26,7 +26,7 @@
 
     <p>{{ errors }}</p>
     <p>Collections Returned: <b>{{ num }}</b></p><br>
-    {% if filtered_collections %}
+    {% if unique_list %}
           <table>
               <tr>
                   <td>DETAILS</td>
@@ -34,9 +34,9 @@
                   <td><strong>ABOUT</strong></td>
                   <td><strong>COLLECTION TYPE</strong></td>
             </tr>
-            {% for c in filtered_collections %}
+            {% for c in unique_list %}
                 <tr>
-                    <td><a href="/discover/{{ domain }}/item/{{c.getitemid}}">details</a></td>
+                    <td><a href="/discover/{{ facet }}/item/{{c.getitemid}}">details</a></td>
                     <td>{{ c.getlabel }}</td>
                     <td>{{ c.getdesc }}</td>
                     <td>{{ c.getcolltypelabel }}</td>
@@ -55,7 +55,7 @@
        // initialize global variables.
         let inbound_nodes = {{ nodes }};
         let inbound_edges = {{ edges }};
-        let inbound_checks = {{ checks }};
+        let inbound_checks = {{ checks|safe }};
 
         function showProperties(pitem_id) {
             try {
@@ -90,7 +90,7 @@
         <input type="submit" value="SEARCH">
    </form>
     <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
-        <img id="loading" alt="loading-in-progress image" height="20" width="20" src="{% static 'spinner.gif' %}">
+        <img id="loading" alt="loading-in-progress image"  src="{% static 'Stampede.gif' %}">
     </div>
     <div id="vis-tooltip"></div>
     <div id="vis-container">

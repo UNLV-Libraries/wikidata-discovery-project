@@ -26,16 +26,16 @@
 
     <div id="errors"> {{ errors }}</div>
     <p>Corp Bodies Returned: <b>{{ num }}</b></p>
-    {% if filtered_corps %}
+    {% if unique_list %}
           <table>
               <tr>
                   <td>DETAILS</td>
                   <td><strong>CORP BODY</strong></td>
                   <td><strong>ABOUT</strong></td>
             </tr>
-            {% for c in filtered_corps %}
+            {% for c in unique_list %}
                 <tr>
-                    <td><a href="/discover/{{ domain }}/item/{{ c.getitemid }}">details</a></td>
+                    <td><a href="/discover/{{ facet }}/item/{{ c.getitemid }}">details</a></td>
                     <td>{{ c.getlabel }}</td>
                     <td>{{ c.getdesc }}</td>
                 </tr>
@@ -52,7 +52,7 @@
         // initialize global variables.
         let inbound_nodes = {{ nodes }};
         let inbound_edges = {{ edges }};
-        let inbound_checks = {{ checks }};  //checkbox settings pre-render
+        let inbound_checks = {{ checks|safe }};  //checkbox settings pre-render
 
         function showProperties(pitem_id) {
             let results;
@@ -95,7 +95,7 @@
         <input type="submit" value="SEARCH">
    </form>
     <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
-        <img id="loading" alt="loading-in-progress image" height="20" width="20" src="{% static 'spinner.gif' %}">
+        <img id="loading" alt="loading-in-progress image" src="{% static 'Stampede.gif' %}">
     </div>
     <div id="vis-tooltip"></div>
     <div id="vis-container"></div> {# used by inserted javascript as canvas #}
