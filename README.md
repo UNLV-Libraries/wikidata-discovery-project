@@ -8,7 +8,7 @@ The application interacts with Wikidata's [SPARQL query service](https://query.w
 
 ## Project Team
 * [Darnelle Melvin](https://github.com/darnelleMelvin): Project sponsor and SPARQL developer.
-* [Cory Lampert](https://guides.library.unlv.edu/prf.php?account_id=53953): Project sponsor and linked data advisor.
+* [Cory Lampert](https://github.com/corylampert): Project sponsor and linked data advisor.
 * [Andre Hulet](https://github.com/aehulet): Application developer.
 
 ## Technologies
