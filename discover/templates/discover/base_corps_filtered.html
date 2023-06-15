@@ -67,7 +67,7 @@
                         let typ = "type: " + i_data.itemprops['instanceoflabel'];
                         if (typ !=="None") {results+=typ + '\n';}
                         let descat = "described at: " + i_data.itemprops['describedat'];
-                        if (descat !== "None") {results+=descat + '\n';}
+                        if (descat !== "None" || "") {results+=descat + '\n';}
                         let inc = i_data.itemprops['inception'].toString();
                         if (inc !== "None") {results+= "inception: " + inc + '\n';}
                         let diss = i_data.itemprops['dissolved'].toString();

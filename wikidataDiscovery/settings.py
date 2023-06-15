@@ -12,7 +12,7 @@ from pathlib import Path
 import os
 
 # App-specific values to show on 'About' page
-APP_VERSION = 'dev.13'
+APP_VERSION = 'dev.13.1'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 

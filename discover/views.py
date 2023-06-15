@@ -18,8 +18,8 @@ def process_search(request):
     from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm
 
     # construct file path for rendering result template
-    url_path = request.path[1:]
-    url_path = url_path[:url_path.__len__() - 1]
+    url_path = request.path[1:request.path.__len__() - 1]
+    # url_path = url_path[:url_path.__len__() - 1]
     file_path = url_path.split('/')
     final_path = file_path[0] + '/base_' + file_path[1] + '.html'
     error_msg = ''
@@ -32,10 +32,10 @@ def process_search(request):
                               dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
         if rtn_qform.is_valid():
             pos = rtn_qform.cleaned_data['run_qry']
-            curr_request = queue_mgr.create_request(request.session.session_key, pos, bypass_queue)
             q_item = queue_mgr.get_queue_entry(pos, request.session.session_key)
             curr_facet = q_item['form_vals']['facet']
             final_path = get_prior_template_path(curr_facet)
+            curr_request = queue_mgr.create_request(request.session.session_key, pos, bypass_queue)
         else:
             curr_request = request
 
@@ -238,7 +238,6 @@ def item(request, item_code, facet):
     details = web_methods.get_item_details(item_code)
     the_facet = facet
     the_item = details[0]
-    # ns_form = NodeSelectForm(dynamic_choices=set_relation_types(facet))
     context = {'details': details, 'item': the_item.item_label, 'itemdesc': the_item.item_desc,
                'bb_form': bb_form, 'facet': the_facet}
     return render(request, 'discover/base_item.html', context)
@@ -280,6 +279,8 @@ def process_search_form(sform, qset, rel_type_list):
     from django.db.models import Q
     from .web_methods import reduce_search_results
     rel_type_str = rel_type_list[0]
+    if rel_type_str == 'instanceof':  # instanceof label is jargon
+        rel_type_str = 'category'
 
     filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
                           Q(itemlabel__icontains=sform.cleaned_data['search_text']))
@@ -301,7 +302,12 @@ def process_node_form(nsform, qset, session_key):
 
     # get selected checkboxes for relation types in graph; grab other needed values
     the_choices = nsform.cleaned_data['relation_types']
-    choices_str = '|'.join(the_choices)
+    choices_temp = ''
+    for c in the_choices:
+        if c == 'instanceof':  # replace jargon
+            c = 'category'
+        choices_temp += c + '|'
+    choices_str = choices_temp[:choices_temp.__len__() - 1]
     the_facet = nsform.cleaned_data['facet']
 
     # filter acc to unique node, based on color type.

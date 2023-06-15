@@ -5,7 +5,6 @@ WHERE
  {
   ?item wdt:P5008 wd:Q100202113 .
   ?item wdt:P31 wd:Q5 .
-  ?item wdt:P735 ?givenName ; wdt:P734 ?familyName .
 
   #====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
   OPTIONAL {?item wdt:P18 ?image }.
