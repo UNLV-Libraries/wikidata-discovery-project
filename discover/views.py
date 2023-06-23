@@ -24,6 +24,7 @@ def process_search(request):
     final_path = file_path[0] + '/base_' + file_path[1] + '.html'
     error_msg = ''
     curr_facet = ''
+    bypass_large_graph = 0
     bypass_queue = False
 
     try:
@@ -43,6 +44,7 @@ def process_search(request):
         bbf = BackButtonForm(curr_request.POST)
         if bbf.is_valid():
             bypass_queue = True
+            bypass_large_graph = 1
             curr_request = queue_mgr.create_request(request.session.session_key, 'top', bypass_queue)
 
         # attempt to hydrate all search forms based on POST data. Only one will be valid.
@@ -50,7 +52,7 @@ def process_search(request):
         curr_facet = rtn_search_frm['facet'].value()  # grab facet val off search form pre-validation
         if curr_facet == Facet.subjs.value:  # subject form has called this process_search
             curr_facet = Facet.colls.value
-        the_checks = [rtn_search_frm['relation_type'].value()]
+        the_checks = [get_default_rel_type(curr_facet)]
         rtn_node_frm = NodeSelectForm(curr_request.POST,
                                       dynamic_choices=set_relation_types(curr_facet))
         rtn_subject_frm = RestrictSubjectForm(curr_request.POST)
@@ -129,7 +131,7 @@ def process_search(request):
 
         context = {'facet': curr_facet, 'unique_list': results['unique'], 'search': sform, 'priors': qform,
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
-                   'select': nsform, 'properties': graph_data['properties'],
+                   'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
                    'string': results['search_str'], 'checks': the_checks, 'errors': error_msg}
 
         return render(request, final_path, context)
@@ -278,14 +280,21 @@ def process_search_form(sform, qset, rel_type_list):
     that use the search form. Initiates new search workflow for any query set."""
     from django.db.models import Q
     from .web_methods import reduce_search_results
+
+    the_facet = sform.cleaned_data['facet']
     rel_type_str = rel_type_list[0]
     if rel_type_str == 'instanceof':  # instanceof label is jargon
         rel_type_str = 'category'
 
-    filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
-                          Q(itemlabel__icontains=sform.cleaned_data['search_text']))
+    if the_facet == Facet.colls.value:  # a temporary hack; to be replaced by faceted filtering tool.
+        filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
+                              Q(itemlabel__icontains=sform.cleaned_data['search_text']) |
+                              Q(colltypelabel__icontains=sform.cleaned_data['search_text']))
+    else:
+        filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
+                              Q(itemlabel__icontains=sform.cleaned_data['search_text']))
 
-    uniqueset = reduce_search_results(filtset, sform.cleaned_data['facet'])
+    uniqueset = reduce_search_results(filtset, the_facet)
 
     num = uniqueset.__len__()
     the_string = "'" + sform.cleaned_data['search_text'] + "' + " + rel_type_str

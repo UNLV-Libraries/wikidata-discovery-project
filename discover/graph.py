@@ -18,8 +18,11 @@ def load_graph(dataset, relation_types, facet):
         relation_dict = {}
         props_dict = {}
         edge_dict = {}
+        node_dict = {}
+        eval_dict = {}
 
         node_list = []
+        node_list_final = []
         edge_list = []
         props_list = []
         # create dictionaries (force uniqueness)
@@ -88,12 +91,23 @@ def load_graph(dataset, relation_types, facet):
         for k, v in item_dict.items():
             obj1 = {"id": k, "label": v[:20] + '.', "shape": "ellipse", "color": RelColor.item.value}
             node_list.append(obj1)
+            node_dict[k] = v
 
         # add relation nodes
         for k, v in relation_dict.items():
             obj2 = {"id": k, "label": v['label'], "shape": "ellipse", "color": v['color']}
             node_list.append(obj2)
             props_list.append(obj2)  # add here to provide on-page label to access via javascript.
+            node_dict[k] = v
+
+        # force unique key set from node_list
+        for n in node_list:
+            count1 = eval_dict.keys().__len__()
+            eval_dict[n['id']] = n['label']
+            count2 = eval_dict.keys().__len__()
+            if count2 > count1:
+                node_list_final.append(n)
+
         # add edges
         for k, v in edge_dict.items():
             edge_list.append(v)
@@ -103,9 +117,15 @@ def load_graph(dataset, relation_types, facet):
             obj3 = {"id": k, "itemprops": v}
             props_list.append(obj3)
 
-        props_json = json.dumps(props_list, separators=(",", ":"))  # creates ragged json of relation & item nodes
+        # print('bad list: ' + str(node_list.__len__()))
+        # print('dict: ' + str(node_dict.keys().__len__()))
+        # print('good list: ' + str(node_list_final.__len__()))
 
-        results = {"nodes": mark_safe(node_list), "edges": mark_safe(edge_list), 'properties': mark_safe(props_json)}
+        node_json = json.dumps(node_list_final, separators=(",", ":"))  # convert python lists to JSON
+        edge_json = json.dumps(edge_list, separators=(",", ":"))
+        props_json = json.dumps(props_list, separators=(",", ":"))
+
+        results = {"nodes": mark_safe(node_json), "edges": mark_safe(edge_json), "properties": mark_safe(props_json)}
         return results
     except Exception as e:
         errors = catch_err(e, "graph.load_graph")

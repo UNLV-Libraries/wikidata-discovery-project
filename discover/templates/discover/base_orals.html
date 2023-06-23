@@ -13,19 +13,22 @@
             {{ search }}
         <input type="submit" value="SEARCH">
         </form>
+        <hr class="separator" />
         <form action="/discover/orals_filtered/" method="post">
             {% csrf_token %}
             {{ priors }}
         <input type="submit" value="RERUN">
     </form>
 <br>
-        <p style="color: dimgrey"><i>Use the search bar to type a word or phrase.
-            For example, type part or all of the name of an oral history you're looking for.</i></p>
+        <p class="instructions">Use the search bar to find oral histories. For example,
+            type all or part of a person's name who's the subject of an oral history,
+            like "Ruby Duncan". You can also type a term that might apply to several
+            oral histories, such as "African American".</p>
     {% endblock %}
 
 {% block main-graph %}
 
 {% endblock %}
 {% block side-map %}
-    <div id="vis-container" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
+    <div id="graph_canvas" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
 {% endblock %}

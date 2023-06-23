@@ -15,10 +15,11 @@ class RestrictSubjectForm(forms.Form):
 
 class NodeSelectForm(forms.Form):
     color_type = forms.CharField(required=False, label='', max_length=20)
-    node_label = forms.CharField(required=False, label='Click nodes for new searches:', max_length=200)
+    node_label = forms.CharField(required=False, label='Search by Selected Node:', max_length=200)
     node_id = forms.CharField(required=False, label='', max_length=200)
-    relation_types = forms.MultipleChoiceField(required=True, label='Show relation types',
-                                               widget=forms.CheckboxSelectMultiple, choices=())
+    relation_types = forms.MultipleChoiceField(required=False, label='Show or Hide Relation Types:',
+                                               widget=forms.CheckboxSelectMultiple(attrs={'class': 'rel_row'}),
+                                               choices=())
     facet = forms.CharField(widget=forms.HiddenInput())
     dirty_flag = forms.BooleanField(widget=forms.HiddenInput())  # required to set form to 'valid'
     prior_kw_search = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -31,10 +32,9 @@ class NodeSelectForm(forms.Form):
     def __init__(self, *args, **kwargs):
         dynamic_choices = kwargs.pop('dynamic_choices', ())
         super().__init__(*args, **kwargs)
-        self.fields['relation_types'] = forms.MultipleChoiceField(required=False, label='Show relation types',
-                                                                  widget=forms.CheckboxSelectMultiple,
+        self.fields['relation_types'] = forms.MultipleChoiceField(required=False, label='Show Relation Types:',
+                                                                  widget=forms.CheckboxSelectMultiple(attrs={'class': 'rel-row'}),
                                                                   choices=dynamic_choices)
-        # self.fields['relation_types'].choices = dynamic_choices
 
 
 class WikiLoadForm(forms.Form):

@@ -12,6 +12,7 @@
     <script type='module' src="{% static 'vis-network.min.js' %}"></script>
     <script type='text/javascript' src="{% static 'underscore.js' %}"></script>
     <script type='text/javascript' src="{% static 'jquery.min.js' %}"></script>
+    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
     {% block head-script %}{% endblock %}
 </head>
 
@@ -26,32 +27,37 @@
 			<li id="corps"><a href="/discover/corps">Corporate Bodies</a></li>
             <li id="collections"><a href="/discover/collections">Collections</a></li>
 			<li id="orals"><a href="/discover/orals">Oral Histories</a></li>
-            <li id="subjects"><a href="/discover/subjects">Subjects</a></li>
+            <li id="subjects"><a href="/discover/subjects">Search by Subjects</a></li>
 			<li id="about"><a href="/discover/about">About</a></li>
 		</ul>
 	</nav>
 </header>
 
 <div class="wrapper">
-    <main class="page-main">
+
+    <div class="page-main">
         {% block main-content %}
 
         {% endblock %}
 
         {% block main-graph %}
-            {# javascript inserted here #}
+
         {% endblock %}
-    </main>
-    <aside class="page-side">
+    </div>
+
+    <div class="page-side">
         {% block side-content %}
 
         {% endblock %}
         {% block side-map %}
 
         {% endblock %}
-    </aside>
+    </div>
+
 </div>
 
 <footer class="app-footer"></footer>
+<script>{% block page-script %}{% endblock %}</script>
+
 </body>
 </html>

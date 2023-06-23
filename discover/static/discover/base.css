@@ -13,6 +13,16 @@
 	justify-content: center;
 }
 
+.instructions {
+	color: dimgrey;
+	font-style: italic;
+	font-size: 20px;
+}
+
+.page-side {
+	padding: 2px;
+}
+/* ==== UNIQUE ELEMENTS AND CONTROLS ==== */
 #property_data {
 	visibility: hidden;
 }
@@ -21,15 +31,35 @@
 	display: none;
 }
 
-#search_form tr td #id_search_text {
+#id_search_text {
+	width: 495px;
+	border: none;
+	height: 24px;
+	background-color: lightgrey;
+}
+
+#id_run_qry {
+	height: 24px;
 	width: 500px;
 }
-#queue_form tr td #id_run_qry {
+
+.separator {
+	width: 650px;
+	color: #aaaaaa;
+}
+
+.border {
 	width: 500px;
+	height: 20px;
+	border-bottom: 1px #808074;
+	position: relative;
 }
 
 #node_form {
 	display: block;
+}
+#node_form tr {
+	display: grid;
 }
 #node_form #id_node_id {
 	display: none;
@@ -38,15 +68,30 @@
 	display: none;
 }
 
-#node_form tr td #id_node_label {
+#id_node_label {
 	width: 300px;
 	border-style: none;
+	font-size: 14px;
+	font-weight: bold;
+	font-style: italic;
+	color: darkgreen;
 }
 
-#node_form tr td #id_relation_types {
-	display: grid;
-	grid-auto-columns: minmax(10px, auto);
+#id_relation_types div {
+	float: left;
 }
+
+#graph_btn {
+	float: right;
+	clear: none;
+}
+
+input.rel-row {
+	float:left;
+	margin-right: 5px;
+	margin-left: 5px;
+	clear: none;
+   }
 
 #subject_form #id_restrict_text {
 	display: none;
@@ -55,26 +100,75 @@
 	width: 300px;
 }
 
-#wrap {
-  position: relative;
-  width: 100%;
-  height: 500px;
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 2; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-#vis-container {
-	width: 100%;
+/* Modal Content/Box */
+.modal-wrapper {
+  background-color: #fefefe;
+  margin: 2% auto; /* 2% from the top and centered */
+  padding: 10px;
+  border: 1px solid #888;
+  width: 95%; /* Could be more or less, depending on screen size */
+	height: 95%;
+
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  margin: 2px;
+	font-size: 24px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.col-graph-wrapper {
+  background-color: #fefefe;
+  margin: 2px;
+  padding: 2px;
+  border: 1px solid #888;
+  width: 100%;
 	height: 500px;
+}
+
+#col-graph-parent {
+	margin: 2px;
+	padding: 2px;
+}
+
+#graph_canvas {
+	width: 99%;
+	height: 499px;
 	background-color: #ffffff;
-	border: 1px solid lightgray;
 	position: relative;
 	float: left;
 	overflow: visible;
  }
 
-#vis-tooltip {
+#graph_tooltip {
 	width: fit-content;
 	position: absolute;
-  	visibility: visible;
+  	/* visibility: visible; */
+	display: none;
   	padding: 5px;
   	white-space: break-spaces;
 	font-family: verdana, serif;
@@ -88,14 +182,8 @@
   	border: 1px solid #808074;
 	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   	pointer-events: none;
-  	z-index: 5;
+  	z-index: 3;
 }
-
-/*#loading_div {
-	width: fit-content;
-	position: absolute;
-	/*visibility: hidden;
-}*/
 
 /*===NAVIGATION MENU===*/
 .site-menu ul {
@@ -122,9 +210,8 @@
 	background-color: #9c1616;
 }
 
-/*===MEDIA Query For Larger Screens===*/
-@media (min-width: 768px) {
-	/* establish CSS float */
+/*===MEDIA Query For Larger Screens=== */
+ @media (min-width: 768px) {
 	.wrapper {
 		overflow: hidden;
 		max-width: 1400px;
@@ -133,12 +220,12 @@
 
 	.page-main {
 		float: left;
-		width: 60%; /*  */
+		width: 60%;
 	}
 
 	.page-side {
 		float: left;
-		width: 40%; /* */
-		border-left: 1px solid lightgray;
+		width: 40%;
+		/* border-left: 1px solid lightgray; */
 	}
 }

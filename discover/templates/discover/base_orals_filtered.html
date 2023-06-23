@@ -14,11 +14,22 @@
 {% block header2 %}Search Results: <i>"{{ string }}"</i> {% endblock %}
 
 {% block main-content %}
+    <!-- The Modal -->
+    <div id="modal_graph" class="modal">
+      <!-- Modal content -->
+        <div id="modalWrapper" class="modal-wrapper">
+            <strong>GRAPH</strong> (EXPANDED VIEW - zoom, pan, select. Close for a new search.)
+            <span id="closer" class="close">&times;</span>
+            <div id="mod-graph-parent"><div id="graph_canvas"></div></div>
+        </div>
+    </div>
+
     <form action="/discover/orals_filtered/" method="post">
     {% csrf_token %}
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <hr class="separator" />
     <form action="/discover/orals_filtered/" method="post">
             {% csrf_token %}
             {{ priors }}
@@ -50,48 +61,80 @@
 
 {% block main-graph %}
     <div id="property_data">{{ properties }}</div>
-    <script type="text/javascript">
-        // initialize global variables.
-        let inbound_nodes = {{ nodes }};
-        let inbound_edges = {{ edges }};
-        let inbound_checks = {{ checks|safe }};
-
-        function showProperties(pitem_id) {
-            try {
-                let i_data = _.find(js_objects, function (o) //js_objects init on window load.
-                    {return o.id === pitem_id;}, 0);
-                if (i_data) {
-                    if (i_data['label']) {
-                        return i_data['label'];
-                    } else {
-                        let nm = "name: " + i_data.itemprops['itemlabel'];
-                        let inv = "inventory #: " + i_data.itemprops['inventorynum'];
-                        let dat = "described at: " + i_data.itemprops['describedat'];
-                        return nm + '\n' + inv + '\n' + dat;
-                    }
-                } else {
-                    return "";
-                }
-            } catch (err) {
-                alert(err.message);
-            }
-        }
-    </script>
-    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
 {% endblock %}
+{% block side-content %}<div><strong>EXPLORE GRAPH (zoom, pan, select) </strong></div>{% endblock %}
 {% block side-map %}
-    <p><strong>Interact with graph:</strong></p>
-    <form id="node_form" action="/discover/orals_filtered/" method="post">
+    <form id='node_form' action="/discover/orals_filtered/" method="post">
         {% csrf_token %}
-        {{ select }}
-        <input type="submit" value="SEARCH">
+        <div id="button_box"><input id="graph_btn" type="submit" value="SEARCH"></div>
+        {% for field in select %}
+            {% if field.name == 'node_label' %}
+                {{ field.label }}{{ field }}
+            {% elif field.name == 'node_id' %}
+                {{ field }}<br>
+            {% elif field.name == 'relation_types' %}
+                <div id="rel_type_label">{{ field.label }}</div>{{ field }}
+            {% else %}
+                {{ field }}
+            {% endif %}
+        {% endfor %}
+
    </form>
+    <br>
     <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
-        <img id="loading" alt="loading-in-progress image" src="{% static 'Stampede.gif' %}">
+        <img id="loading" alt="loading-in-progress image"  src="{% static 'Stampede.gif' %}">
     </div>
-    <div id="vis-tooltip"></div>
-    <div id="vis-container">
-    </div> {# used by vis.js as canvas #}
-    <div id="selection_label"></div>
+    <div id="graph_tooltip"></div>
+    <div id="colWrapper" class="col-graph-wrapper">
+        <span id="enlarger" class="close">&#9974;</span><div id="col-graph-parent"></div>
+    </div>
 
 {% endblock %}
+
+<script type="text/javascript">
+{% block page-script %}
+        // initialize global variables.
+    let inbound_nodes = {{ nodes }};
+    let inbound_edges = {{ edges }};
+    let inbound_checks = {{ checks|safe }};
+    let bypass_lg_graph = {{ bypass_lg_graph }};
+    let modal;
+    let span_close = document.getElementById('closer');
+    let span_enlarge = document.getElementById('enlarger');
+
+    // When the user clicks on the 'close' or 'enlarge' span...
+    span_close.onclick = function() {
+        modal.style.display = "none";
+        moveGraphToColumn();
+    }
+
+    span_enlarge.onclick = function() {
+        modal.style.display = "block";
+        moveGraphToModal();
+    }
+
+    function showProperties(pitem_id) {
+        try {
+            let i_data = _.find(js_objects, function (o) //js_objects init on window load.
+                {return o.id === pitem_id;}, 0);
+            if (i_data) {
+                if (i_data['label']) {
+                    return i_data['label'];
+                } else {
+                    let nm = "name: " + i_data.itemprops['itemlabel'];
+                    let inv = "inventory #: " + i_data.itemprops['inventorynum'];
+                    let dat = "described at: " + i_data.itemprops['describedat'];
+                    return nm + '\n' + inv + '\n' + dat;
+                }
+            } else {
+                return "";
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    {% endblock %}
+
+
+</script>

@@ -3,10 +3,12 @@ let mouse_x, mouse_y;
 let js_objects;
 
 window.onload = function () {
-    tooltip_div = document.getElementById('vis-tooltip');
+    modal = document.getElementById("modal_graph");
+    tooltip_div = document.getElementById('graph_tooltip');
     js_objects = JSON.parse(document.getElementById('property_data').innerHTML);
     //hide loading graph if zero records have been returned.
     if (!js_objects.length) {document.getElementById('loading_div').hidden = true;}
+
     drawGraph();
     setChecks();  //sets one or more checks based on prior user selection.
 }
@@ -21,3 +23,4 @@ window.addEventListener('change', function (event) {
     //alert('changed');
     document.getElementById('id_dirty_flag').value = true;
 })
+

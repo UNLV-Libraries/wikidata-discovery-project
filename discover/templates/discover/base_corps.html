@@ -13,6 +13,7 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+    <hr class="separator" />
     <form action="/discover/corps_filtered/" method="post">
         {% csrf_token %}
         {{ priors }}
@@ -20,9 +21,10 @@
         </form>
 <br>
     <div id="errors"> {{ errors }}</div>
-    <p style="color: dimgrey"><i>Use the search bar to look for corporate bodies by type of business, name, or
+    <p class="instructions">Use the search bar to look for corporate bodies by type of business, name, or
             other descriptive details. For example, type "newspaper" or "casino", or a location
-            like "las vegas".</i></p>
+            like "las vegas". You can type all or part of a specific name, like "wadsworth," for the Wadsworth
+        Dispatch.</p>
             {% if images %}
             {% for i in images %}
                 <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="400" height="250"
@@ -32,5 +34,5 @@
 
 {% endblock %}
 {% block side-map %}
-    <div id="vis-container" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
+    <div id="graph_canvas" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
 {% endblock %}

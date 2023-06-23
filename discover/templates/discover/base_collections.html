@@ -13,6 +13,7 @@
         {{ search }}
     <input type="submit" value="SEARCH">
     </form>
+        <hr class="separator" />
         <form action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         {{ priors }}
@@ -20,10 +21,11 @@
     </form>
 <br>
     <div id="errors"> {{ errors }}</div>
-    <p style="color: dimgrey"><i>Use the search bar to look for collections by subject, material type, name, or other descriptive
-            details. For example, type "architecture" or "mining", or type "manuscript".</i></p>
+    <p class="instructions">Use the search bar to look for collections by subject, material type, name, or other descriptive
+            details. For example, type "architecture", "mining", or "manuscript". Type all or part of the
+    name of a known collection, like "barbara" for the Barbara and John Kizziar Photograph Collection.</p>
 
 {% endblock %}
 {% block side-map %}
-    <div id="vis-container" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
+    <div id="graph_canvas" style="color: dimgrey"><i>SEARCH RESULTS GRAPH</i></div> {# used by inserted javascript as canvas #}
 {% endblock %}

@@ -6,7 +6,7 @@ let the_data;
 
 // This method is responsible for drawing the graph, returns the drawn network
 function drawGraph() {
-    let container = document.getElementById('vis-container');
+    let container = document.getElementById('graph_canvas');
   // create objects for network
     try {
         my_nodes = new vis.DataSet(inbound_nodes);
@@ -19,7 +19,8 @@ function drawGraph() {
                 hover: true
             },
             layout: {
-                improvedLayout: true
+                improvedLayout: true,
+                clusterThreshold: 200
             },
             physics: {
                 enabled: true,
@@ -46,12 +47,14 @@ function drawGraph() {
 
 //Explicitly initializes needed events.
 function initialize(net) {
-    net.on("stabilizationProgress", function (params) {
-        //document.getElementById('loading_div').hidden = false;
-    });
-
   net.on("stabilizationIterationsDone", function () {
     document.getElementById('loading_div').hidden = true;
+    if (bypass_lg_graph===0) {
+        document.getElementById("modal_graph").style.display = 'block';
+        moveGraphToModal();
+    } else {
+        moveGraphToColumn();
+    }
   });
 
   net.on('selectNode', function (params) {
@@ -75,14 +78,15 @@ function initialize(net) {
         tooltip_div.innerText = showProperties(params['node']);
         tooltip_div.style.left = mouse_x + 'px';
         tooltip_div.style.top = mouse_y + 'px';
-        tooltip_div.hidden = false;
+        tooltip_div.style.display = 'block';
+        //tooltip_div.hidden = false;
       } catch (err) {
           alert(err.message)
         }
     });
 
     net.on('blurNode', function () {
-        tooltip_div.hidden = true;
+        tooltip_div.style.display = 'none';
     });
 
 }
@@ -125,4 +129,31 @@ function getLabel(pitem_id) {
     } catch (err) {
         alert(err.message + " " + pitem_id);
     }
+}
+
+function moveGraphToModal() {
+    let c = document.getElementById('col-graph-parent');
+    let m = document.getElementById('mod-graph-parent');
+    let v = document.getElementById('graph_canvas')
+    if (c.childElementCount > 0) {
+        m.appendChild(c.lastChild);
+        }
+    v.style.height = '699px';
+    centerGraph();
+}
+function centerGraph() {
+    //let options = {position: {x: 0, y: 0}, scale: 1.15};
+    network.redraw();
+    network.fit();
+}
+
+function moveGraphToColumn() {
+    let c = document.getElementById('col-graph-parent');
+    let m = document.getElementById('mod-graph-parent');
+    let v = document.getElementById('graph_canvas');
+    if (m.childElementCount > 0) {
+        c.appendChild(m.lastChild);
+    }
+    v.style.height = '439px';
+    centerGraph();
 }
