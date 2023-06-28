@@ -39,7 +39,9 @@ class NodeSelectForm(forms.Form):
 
 class WikiLoadForm(forms.Form):
     run_it = forms.ChoiceField(required=True, label="Choose process",
-                               choices=[(0, ' -- '), (1, 'run all')])
+                               choices=[(0, ' -- '), (1, 'run all'), (2, 'people'),
+                                        (3, 'corp bodies'), (4, 'collections'),
+                                        (5, 'oral histories'), (6, 'subjects')])
 
 
 class QueueForm(forms.Form):

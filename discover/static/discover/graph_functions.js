@@ -3,6 +3,7 @@ let my_edges;
 let my_nodes;
 let network;
 let the_data;
+let keep_tooltip = false;
 
 // This method is responsible for drawing the graph, returns the drawn network
 function drawGraph() {
@@ -57,6 +58,16 @@ function initialize(net) {
     }
   });
 
+  net.on('click', function (params) {
+     if (params['nodes'][0] === undefined) {
+        document.getElementById('id_node_id').value = '';
+        document.getElementById('id_node_label').value = '';
+        document.getElementById('id_color_type').value = '';
+        keep_tooltip = false;
+        tooltip_div.style.display = 'none';
+     }
+  });
+
   net.on('selectNode', function (params) {
       let s = document.getElementById('id_node_id');
       s.value = params['nodes'][0];  //set node id field to curr selection
@@ -75,18 +86,33 @@ function initialize(net) {
 
   net.on('hoverNode', function (params) {
       try {
-        tooltip_div.innerText = showProperties(params['node']);
-        tooltip_div.style.left = mouse_x + 'px';
-        tooltip_div.style.top = mouse_y + 'px';
-        tooltip_div.style.display = 'block';
-        //tooltip_div.hidden = false;
+        if (keep_tooltip === false) {
+            let dict = showProperties(params['node']);
+            tooltip_div.innerText = dict['the_list'];
+            anchorForTooltip('image', dict['image_url']);
+            anchorForTooltip('archival description', dict['da_url']);
+            tooltip_div.style.left = mouse_x + 'px';
+            tooltip_div.style.top = mouse_y + 'px';
+            tooltip_div.style.display = 'block';
+        }
       } catch (err) {
           alert(err.message)
         }
     });
 
+    net.on('doubleClick', function(params) {
+        //alert(params['node']);
+        tooltip_div.style.display = 'block';
+        keep_tooltip = true;
+    });
+
     net.on('blurNode', function () {
-        tooltip_div.style.display = 'none';
+        //alert(keep_tooltip.toString())
+        if (keep_tooltip!==true) {
+            tooltip_div.style.display = 'none';
+        } else {
+            tooltip_div.style.display = 'block';
+        }
     });
 
 }
@@ -156,4 +182,70 @@ function moveGraphToColumn() {
     }
     v.style.height = '439px';
     centerGraph();
+}
+
+function anchorForTooltip(label, href_val) {
+    if (href_val !== '') {
+        let newA = document.createElement("a");
+        newA.href = href_val;
+        newA.target = '_blank'
+        newA.text = label
+        document.getElementById('graph_tooltip').appendChild(newA);
+    }
+}
+
+function mapPropertyLabel (prop) {
+    let dict = {
+        itemlabel: "name", donatedbylabel: "donor", colltypelabel: "type of",
+        inventorynum: "inventory #", describedat: "described at",
+        instanceoflabel: "type", inception: "inception", dissolved: "dissolved",
+        locationlabel: "location", image: "image", dob: "date born", placeofbirth: "place born",
+        dateofdeath: "date died", placeofdeath: "place died", mother: "mother", father: "father",
+        spouse: "spouse", child: "child", relative: "relative"
+    };
+    let label = dict[prop];
+    if (!label) {
+        return prop;
+    } else {
+        return label;
+    }
+}
+
+function showProperties(pitem_id) {
+    try {
+        let i_data = _.find(js_objects, function (o) //js_objects init on window load.
+            {return o.id === pitem_id;}, 0);
+        if (i_data) {
+            let da_url = '';
+            let image_url = '';
+            if (i_data["label"]) {
+                return {the_list: i_data["label"], da_url: '', image_url: ''};
+            } else {
+                let list_vals = '';
+                let da_url = '';
+                let image_url = '';
+                let item_props = i_data.itemprops;
+                for (const p in item_props) {
+                    if (!item_props[p]) {
+                        //skip to next p
+                    } else {
+                        let label = mapPropertyLabel(`${p}`);
+                        if (label === 'described at') {
+                            da_url = `${item_props[p]}`;
+                        } else if (label === 'image') {
+                            image_url = `${item_props[p]}`;
+                        } else {
+                            list_vals += label + ": " + `${item_props[p]}` + '\n';
+                        }
+                    }
+                }
+                return {the_list: list_vals, image_url: image_url, da_url: da_url};
+
+            }
+        } else {
+            return "";
+        }
+    } catch (err) {
+        alert(err.message + err.code);
+    }
 }

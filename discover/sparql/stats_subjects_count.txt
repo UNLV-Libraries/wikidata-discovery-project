@@ -1,0 +1,11 @@
+# Count the subject values for items on UNLV foucs list grouped by subject values and ordered by count.
+
+SELECT ?_Label (COUNT(?item) AS ?count)
+WHERE
+{
+  ?item wdt:P5008 wd:Q100202113; wdt:P921 ?_ .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language 'en' . }
+}
+GROUP BY ?_ ?_Label
+HAVING (COUNT(?item) > 25)
+ORDER BY DESC (?count)

@@ -1,0 +1,1 @@
+INSERT INTO discover_wdquery (querytitle, querytext) VALUES ("stats_subjects_count", "SELECT ?_Label (COUNT(?item) AS ?count) WHERE { ?item wdt:P5008 wd:~filt-wm-focus-list~; wdt:P921 ?_ . SERVICE wikibase:label { bd:serviceParam wikibase:language 'en' . } } GROUP BY ?_ ?_Label HAVING (COUNT(?item) > 25) ORDER BY DESC (?count)");

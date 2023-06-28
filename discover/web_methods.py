@@ -3,6 +3,18 @@ web_models handles all on-the-fly queries to wikidata. Returned JSON entries are
 instantiated as python objects.
 """
 from .wd_utils import catch_err
+from . import sparql
+
+
+class ChartRow:
+    label = ''
+    value = ''
+
+    def __init__(self, label):
+        self.label = label
+
+    def __str__(self):
+        return self.label
 
 
 class Image:
@@ -85,19 +97,36 @@ class SearchResult:
         return self.record['instanceoflabel']
 
 
+def get_chart(qry):
+    """Wrapper for retrieving basic chart data from wikidata source."""
+    the_dict = sparql.build_wd_query(qry)
+    return load_chart(the_dict)
+
+
+def load_chart(the_dict):
+    """Used by get_chart() to load source data into python list of objects."""
+    labels = []
+    data = []
+    for r in the_dict["results"]["bindings"]:
+        labels.append(r.get("_Label", {}).get("value"))
+        data.append(r.get("count", {}).get("value"))
+
+    return {'labels': labels, 'data': data}
+
+
 def get_images(qry):
-    # wrapper for retrieving and transforming the wikidata
-    # into objects for views.item
-    from . import sparql
+    """Wrapper for retrieving and transforming the wikidata into objects for views.item."""
+
     the_json = sparql.build_wd_query(qry)
     return load_images(the_json)
 
 
-def load_images(json_dict):
+def load_images(the_dict):
+    """Used by get_images() to load source data into python list of objects."""
     import re
 
     images = []
-    for r in json_dict["results"]["bindings"]:
+    for r in the_dict["results"]["bindings"]:
         i = Image(re.split(r'/', r.get("item", {}).get("value")).pop())
         i.itemlabel = r.get("itemLabel", {}).get("value")
         i.instanceof_id = re.split(r'/', r.get("instanceOf", {}).get("value")).pop()
@@ -109,13 +138,13 @@ def load_images(json_dict):
     return images
 
 
-def load_item_details(json_dict):
-    """private method to create item object passed to the view layer."""
+def load_item_details(the_dict):
+    """private method to create item objects passed to the view layer."""
     # Binds only to the "item" query saved in discover_wdquery.
     import re
 
     item_set = []
-    for r in json_dict["results"]["bindings"]:
+    for r in the_dict["results"]["bindings"]:
         # base query includes item (Q code) label, the property, English language prop value
         item_raw = r.get("item", {}).get("value")
         i = Item(re.split(r'/', item_raw).pop())
@@ -136,9 +165,9 @@ def load_item_details(json_dict):
 
 
 def get_item_details(qcode):
-    # call stack for retrieving and transforming the wikidata
-    # into objects for views.item
-    from . import sparql
+    """Wrapper for retrieving and transforming item wikidata
+    into objects for views.item"""
+
     the_json = sparql.build_wd_query('item', supplied_qcode=qcode)
     return load_item_details(the_json)
 

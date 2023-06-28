@@ -12,9 +12,11 @@ from pathlib import Path
 import os
 
 # App-specific values to show on 'About' page
-APP_VERSION = 'dev.14'
+APP_VERSION = 'dev.15'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
+APP_CONTACT = 'Darnelle Melvin'
+APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -129,6 +131,7 @@ STATICFILES_DIRS = [
     '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/vis-network/dist/dist/',
     '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/underscore/',
     '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/jquery/dist',
+    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/chart.js/dist',
 ]
 
 STATICFILES_FINDERS = [

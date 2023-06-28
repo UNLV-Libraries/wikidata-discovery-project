@@ -3,9 +3,9 @@ from django.db import models
 
 
 class Person(models.Model):
-    item_id = models.CharField(max_length=20, db_index=True)  #must exist; may have duplicates.
+    item_id = models.CharField(max_length=20, db_index=True)  # must exist; may have duplicates.
     image = models.URLField(null=True)
-    itemlabel = models.CharField(max_length=50) #must exist; may have duplicates.
+    itemlabel = models.CharField(max_length=50)  # must exist; may have duplicates.
     itemdesc = models.CharField(max_length=100, null=True)
     dob = models.CharField(max_length=30, null=True)
     placeofbirth_id = models.CharField(max_length=20, null=True)
@@ -35,10 +35,10 @@ class CorpBody(models.Model):
     streetaddress = models.CharField(max_length=255, null=True)
     instanceof_id = models.CharField(max_length=20, null=True)
     instanceoflabel = models.CharField(max_length=50, null=True)
-    inception = models.DateField(null=True)
-    dissolved = models.DateField(null=True)
-    dateofopening = models.DateField(null=True)
-    dateofclosure = models.DateField(null=True)
+    inception = models.CharField(max_length=10, null=True)
+    dissolved = models.CharField(max_length=10, null=True)
+    dateofopening = models.CharField(max_length=10, null=True)
+    dateofclosure = models.CharField(max_length=10, null=True)
     website = models.URLField(max_length=255, null=True)
     location = models.CharField(max_length=20, null=True)
     locationlabel = models.CharField(max_length=50, null=True)

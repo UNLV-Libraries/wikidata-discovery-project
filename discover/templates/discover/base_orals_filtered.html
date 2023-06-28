@@ -113,28 +113,5 @@
         moveGraphToModal();
     }
 
-    function showProperties(pitem_id) {
-        try {
-            let i_data = _.find(js_objects, function (o) //js_objects init on window load.
-                {return o.id === pitem_id;}, 0);
-            if (i_data) {
-                if (i_data['label']) {
-                    return i_data['label'];
-                } else {
-                    let nm = "name: " + i_data.itemprops['itemlabel'];
-                    let inv = "inventory #: " + i_data.itemprops['inventorynum'];
-                    let dat = "described at: " + i_data.itemprops['describedat'];
-                    return nm + '\n' + inv + '\n' + dat;
-                }
-            } else {
-                return "";
-            }
-        } catch (err) {
-            alert(err.message);
-        }
-    }
-
-    {% endblock %}
-
-
+{% endblock %}
 </script>

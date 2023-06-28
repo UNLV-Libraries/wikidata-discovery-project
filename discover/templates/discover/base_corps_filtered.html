@@ -110,36 +110,6 @@
         moveGraphToModal();
     }
 
-    function showProperties(pitem_id) {
-    let results;
-    try {
-        let i_data = _.find(js_objects, function (o) //js_objects init on window load.
-            {return o.id === pitem_id;}, 0);
-        if (i_data) {
-            if (i_data['label']) {
-                return i_data['label'];
-            } else {
-                results = "name: " + i_data.itemprops['itemlabel'] + '\n';
-                let typ = "type: " + i_data.itemprops['instanceoflabel'];
-                if (typ !=="None") {results+=typ + '\n';}
-                let descat = "described at: " + i_data.itemprops['describedat'];
-                if (descat !== "None" || "") {results+=descat + '\n';}
-                let inc = i_data.itemprops['inception'].toString();
-                if (inc !== "None") {results+= "inception: " + inc + '\n';}
-                let diss = i_data.itemprops['dissolved'].toString();
-                if (diss !== "None") {results+= "dissolved: " + diss + '\n';}
-                let loc = "location: " + i_data.itemprops['locationlabel'];
-                if (loc.length > 10) {results+=loc;}
-
-            return results;
-            }
-        } else {
-            return "";
-        }
-    } catch (err) {
-        alert(err.message);
-    }
-}
 
 {% endblock %}
 

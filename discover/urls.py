@@ -17,4 +17,5 @@ urlpatterns = [
     path('subjects_filtered/', views.subjects_filtered, name='subjects_filtered'),
     path('<str:facet>/item/<str:item_code>/', views.item, name='item'),
     path('about/', views.about, name='about'),
+    path('utils/', views.utilities, name='utils')
 ]

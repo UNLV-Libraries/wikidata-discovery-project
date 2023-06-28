@@ -110,38 +110,5 @@
         moveGraphToModal();
     }
 
-    function showProperties(pitem_id) {
-        try {
-            let i_data = _.find(js_objects, function (o) //js_objects init on window load.
-                {return o.id === pitem_id;}, 0);
-            if (i_data) {
-                if (i_data['label']) {
-                    return i_data['label'];
-                } else {
-                    let nm = "name: " + i_data.itemprops['itemlabel'];
-                    let image = "image: " + i_data.itemprops['image'];
-                    let dob = "date of birth: " + i_data.itemprops['dob'].substring(0, 10);
-                    let pob = "place of birth: " + i_data.itemprops['placeofbirth'];
-                    let dod = "date of death: " + i_data.itemprops['dateofdeath'].substring(0, 10);
-                    let pod = "place of death: " + i_data.itemprops['placeofdeath'];
-                    let mom = "mother: " + i_data.itemprops['mother'];
-                    let dad = "father: " + i_data.itemprops['father'];
-                    let sp = "spouse: " + i_data.itemprops['spouse'];
-                    let ch = "child: " + i_data.itemprops['child'];
-                    let rel = "relative: " + i_data.itemprops['relative'];
-                    return nm + '\n' + image + '\n' + dob + '\n' + pob +
-                        '\n' + dod + '\n' + pod + '\n' + mom + '\n' + dad +
-                        '\n' + sp + '\n' + ch + '\n' + rel;
-                }
-            } else {
-                return "";
-            }
-        } catch (err) {
-            alert(err.message);
-        }
-    }
-function keepTT() {
-    tooltip_div.hidden = 'false';
-}
 {% endblock %}
 </script>

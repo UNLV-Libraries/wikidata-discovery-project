@@ -22,6 +22,24 @@
 .page-side {
 	padding: 2px;
 }
+
+p {
+	font-size: 18px;
+}
+
+/* ==== HOME PAGE CHARTS ==== */
+#instanceof_wrapper, #subject_wrapper {
+	height: 400px;
+	width: 400px;
+	padding: 2px;
+	float: right;
+}
+
+#stats_header {
+	position: relative;
+	left: 50%;
+}
+
 /* ==== UNIQUE ELEMENTS AND CONTROLS ==== */
 #property_data {
 	visibility: hidden;
@@ -181,7 +199,7 @@ input.rel-row {
   	border-radius: 3px;
   	border: 1px solid #808074;
 	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  	pointer-events: none;
+  	pointer-events: all;
   	z-index: 3;
 }
 

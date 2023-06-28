@@ -33,50 +33,49 @@ def write_people(people_json):
         try:
             item = r.get("item", {}).get("value")
             item_id = re.split(r'/', item).pop()
-            p.item_id = item_id  # must be there
-            p.image = mark_safe(supply_val(r.get('image', {}).get('value'), 'string'))
-            p.itemlabel = r.get("itemLabel", {}).get("value")  # must be there
-            item_desc = r.get("itemDescription", {}).get('value')
+            p.item_id = item_id  # required
+            p.itemlabel = r.get("itemLabel", {}).get("value")  # required
+            item_desc = r.get("itemDescription", {}).get('value')  # possibly required
             p.itemdesc = item_desc[:100]
-            p.dob = supply_val(r.get("dateOfBirth", {}).get('value'), 'datetime')
-            pobirth = supply_val(r.get("placeOfBirth", {}).get('value'), 'string')
-            if pobirth.__len__() <= 0:
-                pass
-            else:
+            image = r.get('image', {}).get('value')
+            if image:
+                p.image = mark_safe(image)
+            dob = r.get("dateOfBirth", {}).get('value')
+            if dob:
+                p.dob = dob[:10]
+            pobirth = r.get("placeOfBirth", {}).get('value')
+            if pobirth:
                 p.placeofbirth_id = re.split(r'/', pobirth).pop()
-                p.placeofbirthlabel = supply_val(r.get('placeOfBirthLabel', {}).get('value'), 'string')
-            p.dateofdeath = supply_val(r.get('dateOfDeath', {}).get('value'), 'datetime')
-            podeath = supply_val(r.get('placeOfDeath', {}).get('value'), "string")
-            if podeath.__len__() <= 0:
-                pass
-            else:
+                p.placeofbirthlabel = r.get('placeOfBirthLabel', {}).get('value')
+            dodeath = r.get('dateOfDeath', {}).get('value')
+            if dodeath:
+                p.dateofdeath = dodeath[:10]
+            podeath = r.get('placeOfDeath', {}).get('value')
+            if podeath:
                 p.placeofdeath_id = re.split(r'/', podeath).pop()
-                p.placeofdeathlabel = supply_val(r.get('placeOfDeathLabel', {}).get('value'), 'string')
-            occ = supply_val(r.get('occupation', {}).get('value'), 'string')
-            if occ.__len__() <= 0:
-                pass
-            else:
-                p.occupation_id = supply_val(re.split(r'/', occ).pop(), 'string')
-                p.occupationlabel = supply_val(r.get('occupationLabel', {}).get('value'), 'string')
-            fow = supply_val(r.get('fieldOfWork', {}).get('value'), 'string')
-            if fow.__len__() <= 0:
-                pass
-            else:
-                p.fieldofwork_id = supply_val(re.split(r'/', fow).pop(), 'string')
-                p.fieldofworklabel = supply_val(r.get('fieldOfWorkLabel', {}).get('value'), 'string')
-            p.motherlabel = supply_val(r.get('motherLabel', {}).get('value'), 'string')
-            p.fatherlabel = supply_val(r.get('fatherLabel', {}).get('value'), 'string')
-            p.siblinglabel= supply_val(r.get('siblingLabel', {}).get('value'), 'string')
-            p.spouselabel = supply_val(r.get('spouseLabel', {}).get('value'), 'string')
-            p.childlabel = supply_val(r.get('childLabel', {}).get('value'), 'string')
-            p.relativelabel = supply_val(r.get('relativeLabel', {}).get('value'), 'string')
+                p.placeofdeathlabel = r.get('placeOfDeathLabel', {}).get('value')
+            occ = r.get('occupation', {}).get('value')
+            if occ:
+                p.occupation_id = re.split(r'/', occ).pop()
+                p.occupationlabel = r.get('occupationLabel', {}).get('value')
+            fow = r.get('fieldOfWork', {}).get('value')
+            if fow:
+                p.fieldofwork_id = re.split(r'/', fow).pop()
+                p.fieldofworklabel = r.get('fieldOfWorkLabel', {}).get('value')
+            p.motherlabel = r.get('motherLabel', {}).get('value')
+            p.fatherlabel = r.get('fatherLabel', {}).get('value')
+            p.siblinglabel = r.get('siblingLabel', {}).get('value')
+            p.spouselabel = r.get('spouseLabel', {}).get('value')
+            p.childlabel = r.get('childLabel', {}).get('value')
+            p.relativelabel = r.get('relativeLabel', {}).get('value')
 
             p.save()
-        except TypeError:
-            continue
-        except BaseException as e:
-            catch_err(e, 'write_people')
-    return n
+        except Exception as e:
+            catch_err(e, 'write_people: ' + item_id)
+
+    c = Person.objects.count()
+
+    return [c, n]
 
 
 def cache_corp_bodies():
@@ -95,7 +94,6 @@ def write_corp_bodies(corp_json):
     """Internal function that writes json values to db. Call db.cache_corp_bodies instead."""
     from .models import CorpBody
     import re
-    from django.utils.safestring import mark_safe
 
     # clear yesterday's cache
     CorpBody.objects.all().delete()
@@ -109,67 +107,63 @@ def write_corp_bodies(corp_json):
             item_id = re.split(r'/', item).pop()
             c.item_id = item_id  # must be there
             c.itemlabel = r.get("itemLabel", {}).get("value")[:99]  # must be there
-            item_desc = supply_val(r.get("itemDescription", {}).get('value'), 'string')
-            c.itemdesc = item_desc[:199]
-            c.streetaddress = supply_val(r.get("streetAddress", {}).get("value"), 'string')
-            inst = supply_val(r.get('instanceOf', {}).get('value'), 'string')
-            if not inst.__len__() <= 0:
+            item_desc = r.get("itemDescription", {}).get('value')
+            if item_desc:
+                c.itemdesc = item_desc[:199]
+            c.streetaddress = r.get("streetAddress", {}).get("value")
+            inst = r.get('instanceOf', {}).get('value')
+            if inst:
                 instval = re.split(r'/', inst).pop()
                 c.instanceof_id = instval
                 c.instanceoflabel = r.get('instanceOfLabel', {}).get('value')
-            incept = supply_val(r.get('inception', {}).get('value'), 'datetime')[:10]
-            if not incept == 'none':
-                c.inception = incept
-            dissolved = supply_val(r.get('dissolved', {}).get('value'), 'datetime')[:10]
-            if not dissolved == 'none':
-                c.dissolved = dissolved
-            doo = supply_val(r.get('dateOfOpening', {}).get('value'), 'datetime')[:10]
-            if not doo == 'none':
-                c.dateofopening = doo
-            doc = supply_val(r.get('dateOfClosure', {}).get('value'), 'datetime')[:10]
-            if not doc == 'none':
-                c.dateofclosure = doc
-            c.website = supply_val(r.get('website', {}).get('value'), 'string')
-            loc = supply_val(r.get('location', {}).get('value'), 'string')
-            if loc.__len__() <= 0:
-                pass
-            else:
+            inception = r.get('inception', {}).get('value')
+            if inception:
+                c.inception = inception[:10]
+            dissolved = r.get('dissolved', {}).get('value')
+            if dissolved:
+                c.dissolved = dissolved[:10]
+            doo = r.get('dateOfOpening', {}).get('value')
+            if doo:
+                c.dateofopening = doo[:10]
+            doc = r.get('dateOfClosure', {}).get('value')
+            if doc:
+                c.dateofclosure = doc[:10]
+            site = r.get('website', {}).get('value')
+            if site:
+                c.website = site
+            loc = r.get('location', {}).get('value')
+            if loc:
                 locval = re.split(r'/', loc).pop()
                 c.location = locval
                 c.locationlabel = r.get('locationLabel', {}).get('value')
-            c.coordinates = supply_val(r.get('coordinates', {}).get('value'), 'string')
-            subj = supply_val(r.get('subject', {}).get('value'), 'string')
-            if subj.__len__() <= 0:
-                pass
-            else:
+            c.coordinates = r.get('coordinates', {}).get('value')
+            subj = r.get('subject', {}).get('value')
+            if subj:
                 subjval = re.split(r'/', subj).pop()
                 c.subject_id = subjval
                 c.subjectlabel = r.get('subjectLabel', {}).get('value')
-            p_org = supply_val(r.get('parentOrg', {}).get('value'), 'string')
-            if p_org.__len__() <= 0:
-                pass
-            else:
+            p_org = r.get('parentOrg', {}).get('value')
+            if p_org:
                 p_orgval = re.split(r'/', p_org).pop()
                 c.parentorg_id = p_orgval
                 c.parentorglabel = r.get('parentOrgLabel', {}).get('value')[:49]
-            owner = supply_val(r.get('owner', {}).get('value'), 'string')
-            if owner.__len__() <= 0:
-                pass
-            else:
+            owner = r.get('owner', {}).get('value')
+            if owner:
                 ownerval = re.split(r'/', owner).pop()
                 c.owner_id = ownerval
                 c.ownerlabel = r.get('ownerLabel', {}).get('value')
                 c.ownerdesc = r.get('ownerDescription', {}).get('value')
-            c.collection = supply_val(r.get('collection', {}).get('value'), 'string')
-            c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
-            c.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
+            c.collection = r.get('collection', {}).get('value')
+            c.inventorynum = r.get('inventoryNum', {}).get('value')
+            c.describedat = r.get('describedAt', {}).get('value')
 
             c.save()  # object data saved to database
-        except TypeError:
-            continue
         except Exception as e:
-            catch_err(e, 'write_corp_bodies')
-    return n
+            catch_err(e, 'write_corp_bodies: ' + item_id)
+
+    c = CorpBody.objects.count()  # get total records actually cached
+
+    return [c, n]
 
 
 def cache_collections():
@@ -195,45 +189,33 @@ def write_collections(collections_json):
     for r in collections_json["results"]["bindings"]:
         c = Collection()  # construct empty object
         n += 1
-    #try:
         item = r.get("item", {}).get("value")
         c.item_id = re.split(r'/', item).pop()
-        c.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')[:99]
-        c.itemdesc  = supply_val(r.get('itemDescription', {}).get('value'), 'string')
+        c.itemlabel = r.get('itemLabel', {}).get('value')[:99]
+        c.itemdesc = r.get('itemDescription', {}).get('value')
         subject = r.get('subject', {}).get('value')
-        c.subject_id = re.split(r'/', subject).pop()
-        c.subjectlabel = supply_val(r.get('subjectLabel', {}).get('value'), 'string')[:99]
-        donor = supply_val(r.get('donatedBy', {}).get('value'), 'string')
-        if donor.__len__() <= 0:
-            pass
-        else:
+        if subject:
+            c.subject_id = re.split(r'/', subject).pop()
+            c.subjectlabel = r.get('subjectLabel', {}).get('value')[:99]
+        donor = r.get('donatedBy', {}).get('value')
+        if donor:
             c.donatedby_id = re.split(r'/', donor).pop()
-            c.donatedbylabel = supply_val(r.get('donatedByLabel', {}).get('value'), 'string')[:99]
+            c.donatedbylabel = r.get('donatedByLabel', {}).get('value')[:99]
+        colltype = r.get('instanceOf', {}).get('value')
+        if colltype:
+            c.colltypelabel = r.get('instanceOfLabel', {}).get('value')
+        invnum = r.get('inventoryNum', {}).get('value')
+        if invnum:
+            c.inventorynum = r.get('inventoryNum', {}).get('value')
 
-        colltype = supply_val(r.get('instanceOf', {}).get('value'), 'string')
-        if colltype.__len__() <= 0:
-            pass
-        else:
-            c.colltypelabel = supply_val(r.get('instanceOfLabel', {}).get('value'), 'string')
-
-        invnum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
-        if invnum.__len__() <= 0:
-            pass
-        else:
-            c.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
-
-        da = supply_val(r.get('describedAt', {}).get('value'), 'string')
-        if da.__len__() <= 0:
-            pass
-        else:
-            c.describedat = mark_safe(supply_val(r.get('describedAt', {}).get('value'), 'string'))
+        da = r.get('describedAt', {}).get('value')
+        if da:
+            c.describedat = mark_safe(r.get('describedAt', {}).get('value'))
 
         c.save()
-    #except TypeError:
-        # log_exception(sys.exc_info(), "db.write_collections")
-    #except:
-        # log_exception(sys.exc_info(), "db.write_collections")
-    return n
+    c = Collection.objects.count()
+
+    return [c, n]
 
 
 def cache_subjects():
@@ -263,7 +245,10 @@ def write_subjects(json_dict):
 
         s.save()
         n += 1
-    return n
+
+    c = Subject.objects.count()
+
+    return [c, n]
 
 
 def cache_oral_histories():
@@ -287,36 +272,32 @@ def write_oral_histories(json_dict):
 
         item_raw = r.get('item', {}).get('value')
         o.item_id = re.split(r'/', item_raw).pop()
-        o.itemlabel = supply_val(r.get('itemLabel', {}).get('value'), 'string')
-        oh = supply_val(r.get('oralHistory', {}).get('value'), 'string')
-        if oh.__len__() == 0:
-            o.itemdesc = r.get('itemDescription', {}).get('value')
-        else:
+        o.itemlabel = r.get('itemLabel', {}).get('value')
+        oh = r.get('oralHistory', {}).get('value')
+        if oh:
             o.itemdesc = oh
-        subj = supply_val(r.get('subject', {}).get('value'), 'string')
-        if not subj.__len__() == 0:
+        else:
+            o.itemdesc = r.get('itemDescription', {}).get('value')  # use in case oral history text not present.
+        subj = supply_val(r.get('subject', {}).get('value'))
+        if subj:
             o.subject_id = re.split(r'/', subj).pop()
             o.subjectlabel = r.get('subjectLabel', {}).get('value')
-        o.inventorynum = supply_val(r.get('inventoryNum', {}).get('value'), 'string')
-        o.describedat = supply_val(r.get('describedAt', {}).get('value'), 'string')
+        o.inventorynum = r.get('inventoryNum', {}).get('value')
+        o.describedat = r.get('describedAt', {}).get('value')
         o.save()
         n += 1
 
-    return n
+    c = OralHistory.objects.count()
+
+    return [c, n]
 
 
-def supply_val(val, the_type):
+def supply_val(val):
     """
-    Internal function to supply slug value when writing
-    to a table from a ragged json array.
+    Internal function to supply 'None' value when JSON element
+    is not present.
     """
     if val:
         return val
     else:
-        if the_type == 'datetime':
-            d = 'none'
-            return d
-        elif the_type == 'string':
-            return ''
-        elif the_type == 'numeric':
-            return 0
+        return None

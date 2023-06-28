@@ -10,7 +10,8 @@ WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql"
 FILTER_KEYS = {"people": "filt-wm-focus-list", "item": "filt-item-qcode", 'collections': 'filt-wm-focus-list',
                'subjects': 'filt-wm-focus-list', 'oralhistories': 'filt-oralhistory-at',
                'corp_bodies': 'filt-wm-focus-list', 'images_humans': 'filt-wm-focus-list',
-               'images_others': 'filt-wm-focus-list'}
+               'images_others': 'filt-wm-focus-list', 'stats_instanceof_count': 'filt-wm-focus-list',
+               'stats_subjects_count': 'filt-wm-focus-list'}
 
 
 def apply_filter(qry, filterval):

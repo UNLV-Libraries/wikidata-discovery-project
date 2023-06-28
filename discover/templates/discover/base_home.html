@@ -1,20 +1,180 @@
 {% extends 'discover/base.html' %}
+{% load static %}
+
 {% block head-script %}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript">
         window.onload = function () {
             $('.site-menu ul #home a').css('background-color', '#9c1616');
+            buildInstanceOfChart();
+            buildSubjectChart();
         }
     </script>
+
 {% endblock %}
 
-<body>
 {% block main-content %}
     <p><strong>Welcome to wikiframeVG (Wikiframe Visual Graph)</strong>, an open-source community initiative and tool aimed to help
         Wikidata editors and users explore knowledge generated from organized Wikidata sprints. wikiframeVG
-        adopts a community driven, SPARQL template-based approach towards Wikidata graph exploration.</p>
+        adopts a community driven, SPARQL template-based approach toward Wikidata graph exploration.</p>
     <p>The application interacts with Wikidata's SPARQL <a href="https://query.wikidata.org/" target="_blank">query service</a>
         and provides users with point-and-click tools to search and filter information.
         No SPARQL or other coding knowledge will be required to retrieve data linked across the Wikidata
         knowledge graph.</p>
+    <p><strong>What is Wikidata?</strong></p>
+    <p>Wikidata is a free and open knowledge base that can be read and edited by both humans and machines. Wikidata
+        acts as central storage for the structured data of its Wikimedia sister projects including Wikipedia. Wikidata
+        is collaboratively edited by a global community of users and the content of Wikidata is
+        <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank">available under a free
+            license</a>, <a href="https://www.wikidata.org/wiki/Special:MyLanguage/Wikidata:Database_download"
+                            target="_blank">exported using standard formats</a>, and can be
+        <a href="https://www.wikidata.org/wiki/Special:MyLanguage/Wikidata:Data_access#How_can_I_get_data_out_of_Wikidata?"
+           target="_blank">interlinked to other open data sets</a> on the linked data web.</p>
+        <p>Galleries, libraries, archives and museums contribute to Wikidata to better encourage discovery and use of their
+        unique materials. Contributions can take the form of data, code and technical tools, or participation in
+        community governance of the knowledge base. Increasingly, organizations like UNLV Special Collections and
+        Archives are prioritizing specific projects to surface underrepresented collections and histories of
+        marginalized identities.</p>
+    <p>Multiple communities including virtual assistant technologies have embraced Wikidata as
+        a credible, public, global source of information and persistent identifier hub. As a widely used source of
+        structured data, Wikidata offers a platform to publish, link, and enrich special collections metadata, and UNLV
+        has undertaken several data “sprints” with target goals to expose specific data in Wikidata. The contributed
+        data is a smaller subset of Special Collections data made publicly available online elsewhere such as in the
+        <a href="https://special.library.unlv.edu" target="_blank">Special Collections and Archives portal.</a>
+        To see the types of Special Collections added to Wikidata, review the <a href="https://www.wikidata.org/wiki/
+        Wikidata:WikiProject_PCC_Wikidata_Pilot/UNLV#Sprints" target="_blank">UNLV Wikidata Dashboard Sprint</a>
+        section.</p>
+    <p>UNLV has been an early adopter of investigations into transforming Special Collections data into linked data for
+        use on the Semantic Web. A sample of pilot efforts includes: work to transform metadata from CONTENTdm into a
+        Virtuoso triplestore, analysis of large-scale automated reconciliation processes using OpenRefine, and the
+        creation of a linked data visualization tool called, Navigator. Today’s work builds on this foundation with the
+        advent of Wikidata providing new opportunities and a more sustainable model for large-scale linked data
+        development including: easy (no-coding required) access for anyone to become a linked data creator, a free,
+        non-profit, and centralized location to store and share code and tools online, and an active global community of
+        discipline-specific contributors, collaborators, developers, and advisors.</p>
+    <p><strong>Why this Application?</strong></p>
+    <p>Wikiframe VG (Visual Graph) provides a search capability for Special Collections data stored on Wikidata
+        (wikidata.org). It currently retrieves any data entered by UNLV staff as part of the Library of Congress’s
+        Program For Cooperative Cataloging pilot.</p>
+    <p>Wikiframe shows results in both list and visual graph form for any search. Currently, users begin by performing
+        a keyword search in one of four areas: People, Corporate Bodies, Collections, and Oral Histories.
+        Users can then perform different keyword searches or begin to use the graph view to select nodes and run new
+        searches based on those selections.  Users can see details about any result in the Details page (hyperlinked in
+        the list) or when hovering the mouse pointer over a node in the graph. Some detail properties are hyperlinked
+        and take the user to external locations, such as the UNLV Special Collections portal.  For the first time,
+        Wikiframe allows users to graphically explore things in Wikidata and the relationships between them; no
+        programming experience required and no need to write specialized code (SPARQL queries). While the application
+        is currently running on top of UNLV Wikidata, it can work with any set of Wikidata specified. The code is meant
+        to be openly shared and easily adaptable for other knowledge domains. It is hoped that wider testing and
+        adoption by the Wikidata community will result in extensions of the current application.</p>
+    <p><strong>Acknowledgements and Future Work</strong></p>
+    <p>This application was funded by the UNLV Libraries Dean’s Leadership Circle and through special projects funding.
+        The project was active during March 2023- June 2023 and funding supported the employment of one part-time
+        Wikidata developer. Two UNLV Digital Collections staff members proposed and led the project as a part of their
+        research activity. The University of Nevada, Las Vegas Project Team included:</p>
+
+    <ul>
+        <li><strong>Andre Hulet</strong>, Lead Developer</li>
+        <li><strong>Darnelle Melvin</strong>, Special Collections Metadata Librarian</li>
+        <li><strong>Cory Lampert</strong>, Head of Digital Collections</li>
+    </ul>
+    <p><strong>In the future, we plan to build on this work in the following ways:</strong></p>
+        <ul>
+            <li>Complete UNLV requirements to share the code with the Wikidata community.</li>
+            <li>Make the application more powerful by adding more Special Collections data to Wikidata for it to
+                query. By taking a programmatic approach to representing our collections in Wikidata, the power of
+                linked data relationships can be leveraged. Developing additional features such as a map view overview
+                by date/timeline.</li>
+            <li>Writing more back-end SPARQL queries to power new searches. In the future, browsing user-friendly topic
+                lists or drop-downs that can be used to build and execute queries in the background without users
+                needing to work with a developer would allow researchers to complete complex research requests.</li>
+            <li>Soliciting more community use cases, collecting feedback on the application and engaging widely in
+                Wikidata community conversations about this and other tools.</li>
+        </ul>
+    <p>Please contact Darnelle Melvin (darnelle.melvin@unlv.edu) if you would like to share feedback on the application.</p>
 {% endblock %}
-</body>
+{% block side-content %}
+    <h3 id="stats_header">UNLV Wikidata Stats</h3>
+    <div id="instanceof_wrapper">
+        <canvas
+                id="instanceof_chart"
+                aria-label="counts of 'instance of' property for UNLV data"
+                role="img">
+        </canvas>
+    </div>
+
+    <div id="subject_wrapper">
+        <canvas
+                id="subject_chart"
+                aria-label="counts of subjects for UNLV data"
+                role="img">
+        </canvas>
+    </div>
+
+{% endblock %}
+
+<script type="text/javascript">
+{% block page-script %}
+const canvas_io = document.getElementById('instanceof_chart');
+const canvas_subj = document.getElementById('subject_chart');
+let cht_io, cht_subj;
+
+function buildInstanceOfChart () {
+    cht_io = new Chart(canvas_io, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_io_labels|safe }},
+            datasets: [{
+                label: 'Count',
+                data: {{chart_io_data|safe}},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: "Top UNLV Entities",
+                    }
+                }
+            }
+        }
+    });
+    return cht_io
+}
+
+function buildSubjectChart () {
+    cht_subj = new Chart(canvas_subj, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_subj_labels|safe }},
+            datasets: [{
+                label: 'Count',
+                data: {{chart_subj_data|safe}},
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: "Top UNLV Subjects",
+                    }
+                }
+            }
+        }
+    });
+    return cht_subj
+}
+
+{% endblock %}
+</script>
+
+
+

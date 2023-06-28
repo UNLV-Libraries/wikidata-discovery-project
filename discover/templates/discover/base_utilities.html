@@ -1,0 +1,15 @@
+{% extends 'discover/base.html' %}
+{% block header2 %}Administrative Utilities (for administrator use only){% endblock %}
+<body>
+{% block main-content %}
+    <form action='/discover/utils/' method="post">
+        <p><strong>Cache wikidata in backend tables</strong></p>
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" value="run">cache data</button>
+    </form><br>
+    <div>
+        {{ messages }}
+    </div>
+{% endblock %}
+</body>

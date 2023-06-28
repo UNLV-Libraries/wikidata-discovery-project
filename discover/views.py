@@ -9,7 +9,13 @@ from . import queue_mgr
 
 
 def home(request):
-    return render(request, 'discover/base_home.html')
+    from .web_methods import get_chart
+
+    chart_io_dict = get_chart('stats_instanceof_count')
+    chart_subj_dict = get_chart('stats_subjects_count')
+    context = {'chart_io_labels': chart_io_dict['labels'], 'chart_io_data': chart_io_dict['data'],
+               'chart_subj_labels': chart_subj_dict['labels'], 'chart_subj_data': chart_subj_dict['data']}
+    return render(request, 'discover/base_home.html', context)
 
 
 def process_search(request):
@@ -56,13 +62,6 @@ def process_search(request):
         rtn_node_frm = NodeSelectForm(curr_request.POST,
                                       dynamic_choices=set_relation_types(curr_facet))
         rtn_subject_frm = RestrictSubjectForm(curr_request.POST)
-
-        # print('search: ' + str(rtn_search_frm.is_valid()))
-        # print(rtn_search_frm.errors)
-        # print('node: ' + str(rtn_node_frm.is_valid()))
-        # print(rtn_node_frm.errors)
-        # print('subject: ' + str(rtn_subject_frm.is_valid()))
-        # print(rtn_subject_frm.errors)
 
         # variables to track previous search values used on search, subject, or node forms.
         # set all to 'empty'; logic below fills fields for kw, subject, or node, depending on case.
@@ -245,14 +244,10 @@ def item(request, item_code, facet):
     return render(request, 'discover/base_item.html', context)
 
 
-def about(request):
+def utilities(request):
     from . import db
     from .forms import WikiLoadForm
-    from wikidataDiscovery import settings
-    ver = settings.APP_VERSION
-    auth = settings.APP_AUTHOR
-    email = settings.APP_EMAIL
-    # todo: switch caching utility to hidden url
+
     msgs = ""
     val = ''
     nf = WikiLoadForm()
@@ -261,17 +256,43 @@ def about(request):
         val = cf.cleaned_data['run_it']
     if val == '1':
         n = db.cache_collections()
-        msgs += str(n) + " collection records returned." + '\n'
+        msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
         n = db.cache_corp_bodies()
-        msgs += str(n) + " corp bodies records returned." + '\n'
+        msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
         n = db.cache_oral_histories()
-        msgs += str(n) + " oral history records returned." + '\n'
+        msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
         n = db.cache_people()
-        msgs += str(n) + " people records returned." + '\n'
+        msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
         n = db.cache_subjects()
-        msgs += str(n) + " subjects records returned." + '\n'
+        msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+    elif val == '2':
+        n = db.cache_people()
+        msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
+    elif val == '3':
+        n = db.cache_corp_bodies()
+        msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
+    elif val == '4':
+        n = db.cache_collections()
+        msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
+    elif val == '5':
+        n = db.cache_oral_histories()
+        msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
+    elif val == '6':
+        n = db.cache_subjects()
+        msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
 
-    context = {'form': nf, 'version': ver, 'author': auth, 'email': email, 'messages': msgs}
+    context = {'form': nf, 'messages': msgs}
+    return render(request, 'discover/base_utilities.html', context)
+
+
+def about(request):
+    from wikidataDiscovery import settings
+    ver = settings.APP_VERSION
+    auth = settings.APP_AUTHOR
+    email = settings.APP_EMAIL
+    contact = settings.APP_CONTACT
+    contact_email = settings.APP_CONTACT_EMAIL
+    context = {'version': ver, 'author': auth, 'email': email, 'contact': contact, 'contact_email': contact_email}
     return render(request, 'discover/base_about.html', context)
 
 
