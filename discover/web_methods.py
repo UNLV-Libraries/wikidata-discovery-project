@@ -1,20 +1,9 @@
 """
-web_models handles all on-the-fly queries to wikidata. Returned JSON entries are
-instantiated as python objects.
+web_methods handles all on-the-fly queries to Wikidata. Returned JSON entries are
+instantiated as python objects for processing and rendering in templates.
 """
 from .wd_utils import catch_err
 from . import sparql
-
-
-class ChartRow:
-    label = ''
-    value = ''
-
-    def __init__(self, label):
-        self.label = label
-
-    def __str__(self):
-        return self.label
 
 
 class Image:
@@ -40,6 +29,7 @@ class Item:
     prop_label = ''
     value_code = ''
     value_label = ''
+    has_url = True
 
     def __init__(self, item_code):
         self.item_code = item_code
@@ -154,11 +144,31 @@ def load_item_details(the_dict):
         prop_code = re.split(r'/', prop_raw).pop()
         i.prop_code = prop_code
         i.prop_label = r.get("propLabel", {}).get("value")
-        i.value_code = r.get("oraw", {}.get("value"))
+        i.value_code = r.get("oraw", {}).get("value")
+
+        # format item authority codes or other 'https' values for web retrieval
         if prop_code == 'P8091':
             i.value_label = 'http://n2t.net/' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P244':
+            i.value_label = 'http://id.loc.gov/authorities/names/' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P214':
+            i.value_label = 'http://viaf.org/viaf/' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P2163':
+            i.value_label = 'https://experimental.worldcat.org/fast/' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P646':
+            i.value_label = 'https://www.google.com/search?kgmid=' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P8189':
+            i.value_label = 'http://uli.nli.org.il/F/?func=find-b&local_base=NLX10&find_code=UID&request=' \
+                            + r.get("oValue", {}).get("value")
+        elif prop_code == 'P3430':
+            i.value_label = 'https://snaccooperative.org/ark:/99166/' + r.get("oValue", {}).get("value")
+        elif prop_code == 'P973':  # 'described at URL'
+            i.value_label = r.get("oValue", {}).get("value")  # value is already http-formatted.
+        elif prop_code == 'P2671':
+            i.value_label = 'https://www.google.com/search?kgmid=' + r.get("oValue", {}).get("value")
         else:
             i.value_label = r.get("oValue", {}).get("value")
+            i.has_url = False
         item_set.append(i)
 
     return item_set

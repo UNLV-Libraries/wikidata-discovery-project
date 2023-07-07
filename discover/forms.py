@@ -8,7 +8,7 @@ class SearchForm(forms.Form):
 
 
 class RestrictSubjectForm(forms.Form):
-    restrict_labels = forms.CharField(label="Selected Subjects", max_length=1000)
+    restrict_labels = forms.CharField(label='', max_length=1000)
     restrict_text = forms.CharField(label='', max_length=1000)
     facet = forms.CharField(widget=forms.HiddenInput())
 

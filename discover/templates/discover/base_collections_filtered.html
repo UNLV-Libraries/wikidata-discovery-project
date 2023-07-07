@@ -8,8 +8,6 @@
             $('.site-menu ul #collections a').css('background-color', '#9c1616');
         });
     </script>
-    <style>
-    </style>
 
 {% endblock %}
 
@@ -37,7 +35,7 @@
         <form id='queue_form' action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         {{ priors }}
-        <input type="submit" value="RERUN">
+            <button id="q_submit" type="submit" value="RERUN">RERUN</button>
     </form>
 
     <p>{{ errors }}</p>
@@ -75,7 +73,7 @@
 {% block side-map %}
     <form id='node_form' action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
-        <div id="button_box"><input id="graph_btn" type="submit" value="SEARCH"></div>
+        <div id="button_box"><button id="node_submit" type="submit" value="SEARCH">SEARCH</button></div>
         {% for field in select %}
             {% if field.name == 'node_label' %}
                 {{ field.label }}{{ field }}

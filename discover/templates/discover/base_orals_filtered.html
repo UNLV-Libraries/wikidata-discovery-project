@@ -33,7 +33,7 @@
     <form action="/discover/orals_filtered/" method="post">
             {% csrf_token %}
             {{ priors }}
-            <input type="submit" value="RERUN">
+        <button id="q_submit" type="submit" value="RERUN">RERUN</button>
     </form>
     <div id="errors"> {{ errors }}</div>
     <p>Oral Histories Returned: <b>{{ num }}</b></p>
@@ -66,7 +66,7 @@
 {% block side-map %}
     <form id='node_form' action="/discover/orals_filtered/" method="post">
         {% csrf_token %}
-        <div id="button_box"><input id="graph_btn" type="submit" value="SEARCH"></div>
+        <div id="button_box"><button id="node_submit" type="submit" value="SEARCH">SEARCH</button></div>
         {% for field in select %}
             {% if field.name == 'node_label' %}
                 {{ field.label }}{{ field }}

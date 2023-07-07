@@ -10,22 +10,23 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from .keytrieve import get_django_key
 
-# App-specific values to show on 'About' page
-APP_VERSION = 'dev.15'
+# App-specific values
+APP_VERSION = 'dev.16'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
 APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
+SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://linkedin.com/andre_hulet; andre.hulet@unlv.edu)'
+
+# DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
+DEBUG = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-p+i%5ko78n&stpfhr)c^8)w&tv8!_1l6f*v5m*ale5e)ko2xx$'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+SECRET_KEY = get_django_key()
 
 ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu']
 
@@ -120,7 +121,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
 STATIC_ROOT = '/data/www/wd_static/'

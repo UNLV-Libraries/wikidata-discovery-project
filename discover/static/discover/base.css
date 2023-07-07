@@ -73,6 +73,7 @@ p {
 	position: relative;
 }
 
+
 #node_form {
 	display: block;
 }
@@ -99,7 +100,7 @@ p {
 	float: left;
 }
 
-#graph_btn {
+#node_submit {
 	float: right;
 	clear: none;
 }
@@ -111,11 +112,22 @@ input.rel-row {
 	clear: none;
    }
 
-#subject_form #id_restrict_text {
+/* Search by Subjects form */
+#id_restrict_text, #id_restrict_labels {
 	display: none;
 }
-#subject_form #id_restrict_labels {
-	width: 300px;
+
+#selection_div {
+	border-style: solid;
+	border-width: 1px;
+	border-color: dimgrey;
+	color: dimgrey;
+	font-style: italic;
+	width: 750px;
+}
+
+#selection_label {
+
 }
 
 /* The Modal (background) */

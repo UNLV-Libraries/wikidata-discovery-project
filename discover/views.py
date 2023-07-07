@@ -25,7 +25,6 @@ def process_search(request):
 
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
-    # url_path = url_path[:url_path.__len__() - 1]
     file_path = url_path.split('/')
     final_path = file_path[0] + '/base_' + file_path[1] + '.html'
     error_msg = ''
@@ -82,7 +81,7 @@ def process_search(request):
             the_checks = results['choices']  # all downstream relation type variables must be iterable.
             graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
         elif rtn_subject_frm.is_valid():
-            qry = set_query(Facet.colls.value)  # subject form used for collections
+            qry = set_query(Facet.colls.value)  # subject form used only for collections at present.
             if not bypass_queue:
                 queue_mgr.update_queue('subject', rtn_subject_frm, request.session.session_key)
             results = process_restrictsubj_form(rtn_subject_frm, qry)
@@ -90,7 +89,7 @@ def process_search(request):
             graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
         elif rtn_node_frm.is_valid():
             if rtn_node_frm.cleaned_data['node_id'] == '':  # node hasn't been clicked, just change in rel types
-                if not rtn_node_frm.cleaned_data['prior_subj_search'] == '':  # descended form subj search
+                if not rtn_node_frm.cleaned_data['prior_subj_search'] == '':  # descended from subj search
                     prior_subj_search = rtn_node_frm.cleaned_data['prior_subj_search']
                     prior_subj_label = rtn_node_frm.cleaned_data['prior_subj_labels']
                 elif not rtn_node_frm.cleaned_data['prior_kw_search'] == '':  # descended from kw search
@@ -212,9 +211,8 @@ def subjects(request):
 
 
 def subjects_filtered(request):
-    """Callable only by search forms."""
-    # todo: add item details method and links to results
     from .forms import SearchForm, RestrictSubjectForm
+
     try:
         sf = SearchForm(initial={'facet': Facet.subjs.value, 'relation_type': 'none'})
         rf = RestrictSubjectForm(initial={'facet': Facet.subjs.value})

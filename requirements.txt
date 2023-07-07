@@ -1,9 +1,11 @@
-asgiref==3.6.0
+asgiref==3.7.2
 Django==4.1.9
 isodate==0.6.1
 mysqlclient==2.1.1
-pyparsing==3.0.9
+pyparsing==3.1.0
 rdflib==6.3.2
 six==1.16.0
 SPARQLWrapper==2.0.0
 sqlparse==0.4.4
+setuptools==68.0.0
+cryptography~=41.0.1

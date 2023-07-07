@@ -1,8 +1,17 @@
 {% extends 'discover/base.html' %}
+
 {% block head-script %}
     <script type="text/javascript">
+        let q_list, queueFormButton;
         window.onload = function () {
             $('.site-menu ul #corps a').css('background-color', '#9c1616');
+
+            q_list = document.querySelector('#id_run_qry');
+            queueFormButton = document.querySelector('#q_submit');
+            queueFormButton.disabled = true;
+            q_list.addEventListener('change', function () {
+                queueFormButton.disabled = q_list.value === 'none';
+            });
         }
     </script>
 {% endblock %}
@@ -17,8 +26,8 @@
     <form action="/discover/corps_filtered/" method="post">
         {% csrf_token %}
         {{ priors }}
-        <input type="submit" value="RERUN">
-        </form>
+        <button id="q_submit" type="submit" value="RERUN">RERUN</button>
+    </form>
 <br>
     <div id="errors"> {{ errors }}</div>
     <p class="instructions">Use the search bar to look for corporate bodies by type of business, name, or
@@ -30,7 +39,8 @@
                 <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="400" height="250"
                      loading="lazy" title="{{ i.itemlabel }}: {{ i.itemdesc }}">
             {% endfor %}
-        {% endif %}
+            <div><i>[images: Wikimedia Commons]</i></div>
+            {% endif %}
 
 {% endblock %}
 {% block side-map %}

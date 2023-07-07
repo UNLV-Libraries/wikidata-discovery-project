@@ -2,7 +2,8 @@ from enum import Enum
 
 
 class RelColor(Enum):
-    """Controls evaluation of graph node types by color."""
+    """Controls evaluation of graph
+    node types by color."""
     item = '#f2f2f2'
     occup = '#ff8533'
     fow = '#e6e600'

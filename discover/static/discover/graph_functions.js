@@ -56,6 +56,7 @@ function initialize(net) {
     } else {
         moveGraphToColumn();
     }
+    net.stopSimulation();
   });
 
   net.on('click', function (params) {
@@ -69,19 +70,24 @@ function initialize(net) {
   });
 
   net.on('selectNode', function (params) {
+      //set Qcode value in hidden node id field.
       let s = document.getElementById('id_node_id');
       s.value = params['nodes'][0];  //set node id field to curr selection
+      //clear prior kw and subject search vals. New node searches now descended from curr node search.
       document.getElementById('id_prior_kw_search').value = ""; //ensure kw search is switched off.
       document.getElementById('id_prior_subj_search').value = ""; //ensure subj search is switched off.
       document.getElementById('id_prior_subj_labels').value = ""; //ensure subj label is empty.
       document.getElementById('id_prior_node_search').value = params['nodes'][0]; //new node search; prior=current
+      //set label and color data for processing in views.process_search.
       let label_data = getLabel(params['nodes'][0]);
       let color_data = getColorType(params['nodes'][0]);
       document.getElementById('id_node_label').value = label_data; //set node label
       document.getElementById('id_prior_node_label').value = label_data; //prior label == curr label
       document.getElementById('id_color_type').value = color_data; //capture color of node
       document.getElementById('id_prior_color').value = color_data; // prior color == curr color
+      //values have changed. Set dirty flag and enable search button.
       document.getElementById('id_dirty_flag').value = true;
+      nodeFormButton.disabled = false;
     });
 
   net.on('hoverNode', function (params) {
@@ -91,6 +97,7 @@ function initialize(net) {
             tooltip_div.innerText = dict['the_list'];
             anchorForTooltip('image', dict['image_url']);
             anchorForTooltip('archival description', dict['da_url']);
+            anchorForDetails(params['node']);
             tooltip_div.style.left = mouse_x + 'px';
             tooltip_div.style.top = mouse_y + 'px';
             tooltip_div.style.display = 'block';
@@ -101,13 +108,11 @@ function initialize(net) {
     });
 
     net.on('doubleClick', function(params) {
-        //alert(params['node']);
         tooltip_div.style.display = 'block';
         keep_tooltip = true;
     });
 
     net.on('blurNode', function () {
-        //alert(keep_tooltip.toString())
         if (keep_tooltip!==true) {
             tooltip_div.style.display = 'none';
         } else {
@@ -194,6 +199,19 @@ function anchorForTooltip(label, href_val) {
     }
 }
 
+function anchorForDetails(item_id) {
+    let curr_facet = document.getElementById('id_facet').value;
+    let curr_color = getColorType(item_id);
+    if (curr_color === '#f2f2f2') {
+        let url = '/discover/' + curr_facet + '/item/' + item_id;
+        let newA = document.createElement("a");
+        let br = document.createElement("br");
+        newA.href = url;
+        newA.text = "full item details";
+        document.getElementById('graph_tooltip').appendChild(br);
+        document.getElementById('graph_tooltip').appendChild(newA);
+    }
+}
 function mapPropertyLabel (prop) {
     let dict = {
         itemlabel: "name", donatedbylabel: "donor", colltypelabel: "type of",
@@ -248,4 +266,12 @@ function showProperties(pitem_id) {
     } catch (err) {
         alert(err.message + err.code);
     }
+}
+
+function changeNodeFormState(){
+    nodeFormButton.disabled = dirtyField.value !== true;
+}
+
+function changeQueueFormState() {
+    queueFormButton.disabled = q_list.value === 'none';
 }

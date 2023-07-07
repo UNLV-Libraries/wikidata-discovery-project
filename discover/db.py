@@ -2,11 +2,12 @@
 This module handles all CREATE/UPDATE/DELETE transactions with the database tables,
 at least for version 1 of the prototype.
 """
-from .wd_utils import catch_err
+from discover.wd_utils import catch_err
+from discover import sparql
 
 
 def cache_people():
-    from . import sparql
+
     try:
         people_json = sparql.build_wd_query('people')
         n = write_people(people_json)
@@ -18,7 +19,7 @@ def cache_people():
 
 def write_people(people_json):
     # internal function: parse JSON and save to Person table
-    from .models import Person
+    from discover.models import Person
     import re
     from django.utils.safestring import mark_safe
 
@@ -80,7 +81,6 @@ def write_people(people_json):
 
 def cache_corp_bodies():
     """Queries SPARQL endpoint and writes results to db with the CorpBody object."""
-    from . import sparql
     try:
         corp_json = sparql.build_wd_query('corp_bodies')
         n = write_corp_bodies(corp_json)
@@ -92,7 +92,7 @@ def cache_corp_bodies():
 
 def write_corp_bodies(corp_json):
     """Internal function that writes json values to db. Call db.cache_corp_bodies instead."""
-    from .models import CorpBody
+    from discover.models import CorpBody
     import re
 
     # clear yesterday's cache
@@ -167,7 +167,6 @@ def write_corp_bodies(corp_json):
 
 
 def cache_collections():
-    from . import sparql
     try:
         coll_json = sparql.build_wd_query('collections')
         n = write_collections(coll_json)
@@ -179,7 +178,7 @@ def cache_collections():
 
 def write_collections(collections_json):
     # internal function: receive the collections query in wikidata and write results to db.
-    from .models import Collection
+    from discover.models import Collection
     import re
     from django.utils.safestring import mark_safe
     # Delete existing table records
@@ -219,7 +218,6 @@ def write_collections(collections_json):
 
 
 def cache_subjects():
-    from . import sparql
     try:
         subject_json = sparql.build_wd_query('subjects')
         n = write_subjects(subject_json)
@@ -230,7 +228,7 @@ def cache_subjects():
 
 
 def write_subjects(json_dict):
-    from .models import Subject
+    from discover.models import Subject
     import re
 
     Subject.objects.all().delete()
@@ -252,7 +250,6 @@ def write_subjects(json_dict):
 
 
 def cache_oral_histories():
-    from . import sparql
     try:
         oralh_json = sparql.build_wd_query('oralhistories')
         n = write_oral_histories(oralh_json)
@@ -263,7 +260,7 @@ def cache_oral_histories():
 
 
 def write_oral_histories(json_dict):
-    from .models import OralHistory
+    from discover.models import OralHistory
     import re
     n = 0
     OralHistory.objects.all().delete()

@@ -6,14 +6,12 @@ def load_graph(dataset, relation_types, facet):
     """Loads graph visualizer with item, relations, and edges for all domains.
     Properties list created for on-page graph tooltip via JavaScript. """
     from django.utils.safestring import mark_safe
-    from .db import supply_val
     from .enums import RelColor, Facet
     import json
 
     try:
-        # prepare two lists to use in Javascript on template.
-        # get unique lists of nodes and edges, and a JSON
-        # dict of properties by item for graph display.
+        # prepare two lists to use in Javascript on template. Get unique lists of nodes and edges,
+        # and a JSON dict of properties by item for graph display.
         item_dict = {}
         relation_dict = {}
         props_dict = {}
@@ -38,7 +36,7 @@ def load_graph(dataset, relation_types, facet):
             elif facet == Facet.corps.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "instanceoflabel": i.instanceoflabel,
                                          "describedat": i.describedat,
-                                         "inception": str(i.inception), "dissolved": str(i.dissolved),
+                                         "inception": i.inception, "dissolved": i.dissolved,
                                          "locationlabel": i.locationlabel}
             elif facet == Facet.colls.value:
                 props_dict[i.item_id] = {"itemlabel": i.itemlabel, "donatedbylabel": i.donatedbylabel,

@@ -1,0 +1,6 @@
+/discover/obsolete/
+/discover/old_migrations/
+/node_modules/
+/wd_venv/
+/my.cnf
+/rebuild_venv_commands.txt

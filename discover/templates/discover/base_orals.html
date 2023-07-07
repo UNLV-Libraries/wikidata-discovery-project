@@ -1,8 +1,16 @@
 {% extends "discover/base.html" %}
     {% block head-script %}
         <script type="text/javascript">
+            let q_list, queueFormButton;
             window.onload = function () {
                 $('.site-menu ul #orals a').css('background-color', '#9c1616');
+
+                q_list = document.querySelector('#id_run_qry');
+                queueFormButton = document.querySelector('#q_submit');
+                queueFormButton.disabled = true;
+                q_list.addEventListener('change', function () {
+                    queueFormButton.disabled = q_list.value === 'none';
+                });
             }
         </script>
     {% endblock %}
@@ -17,7 +25,7 @@
         <form action="/discover/orals_filtered/" method="post">
             {% csrf_token %}
             {{ priors }}
-        <input type="submit" value="RERUN">
+            <button id="q_submit" type="submit" value="RERUN">RERUN</button>
     </form>
 <br>
         <p class="instructions">Use the search bar to find oral histories. For example,

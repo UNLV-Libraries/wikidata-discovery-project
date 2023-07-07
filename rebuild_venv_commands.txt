@@ -1,5 +1,7 @@
 /data/www/wikidataDiscovery/
 
+rm -d -r -f wd_venv
+
 python -m venv /data/www/wikidataDiscovery/wd_venv
 
 source ./wd_venv/bin/activate

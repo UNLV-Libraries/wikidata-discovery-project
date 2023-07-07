@@ -100,8 +100,8 @@ def create_request(session_key, queue_key, bypass):
         elif form_data['form_type'] == 'subject':
             frm = forms.RestrictSubjectForm(request.POST)
 
-        if not bypass:
-            update_queue(form_data['form_type'], frm, session_key)
+        # if not bypass:
+            # update_queue(form_data['form_type'], frm, session_key)
 
         return request
     except Exception as e:
