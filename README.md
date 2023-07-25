@@ -21,4 +21,4 @@ For information on the work plan, see the Project associated with this repositor
 For use cases, requirements, and feature descriptions, see the repository wiki.
 
 ## License
-© 2023, University of Nevada, Las Vegas, All Rights Reserved.  For questions, contact [Darnelle Melvin](https://github.com/darnelleMelvin). 
+Source code is made available under the [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). For questions, contact [Darnelle Melvin](https://github.com/darnelleMelvin). 
