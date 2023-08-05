@@ -9,3 +9,4 @@ SPARQLWrapper==2.0.0
 sqlparse==0.4.4
 setuptools==68.0.0
 cryptography~=41.0.1
+schedule~=1.2.0

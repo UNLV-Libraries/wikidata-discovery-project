@@ -1,0 +1,22 @@
+# Images of People listed as subject of Oral History + people with both an oral history and image
+SELECT DISTINCT ?item ?itemLabel  ?itemDescription ?image
+WHERE
+{
+  { VALUES ?instanceOf { wd:Q558929  } # oral history entities
+   ?item wdt:P5008 wd:Q100202113 ;
+         wdt:P31 ?instanceOf ;
+         wdt:P921 ?subject .
+   ?subject wdt:P31 wd:Q5 .
+   ?subject wdt:P18 ?image .
+  }
+UNION
+  {
+    ?item p:P9600 ?oralHistoryAt . # person w/ oral history entities
+    ?oralHistoryAt ps:P9600 wd:Q73644758 .
+    ?oralHistoryAt pq:P1810 ?oralHistory .
+    ?item wdt:P18 ?image .
+  }
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}
+

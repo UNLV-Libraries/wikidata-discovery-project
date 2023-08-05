@@ -182,25 +182,25 @@ def get_item_details(qcode):
     return load_item_details(the_json)
 
 
-def reduce_search_results(query_obj, facet):
+def reduce_search_results(query_obj, app_class):
     """Creates a unique-rows version of filtered QuerySets,
     which contain duplicate item codes by design. Needed to
     replace missing 'SELECT IN' support in MySQL."""
     # checks for a special field to add to the search results,
     # such as colltypelabel, if the case requires.
-    from .enums import Facet
+    from .enums import AppClass
     item_dict = {}
     return_list = []
 
     # force unique set via dictionary.
     for r in query_obj:
-        if facet == Facet.colls.value:  # used to show type of collection
+        if app_class == AppClass.colls.value:  # used to show type of collection
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'colltypelabel': r.colltypelabel}
-        elif facet == Facet.orals.value:
+        elif app_class == AppClass.orals.value:
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'inventorynum': r.inventorynum, 'describedat': r.describedat}
-        elif facet == Facet.corps.value:
+        elif app_class == AppClass.corps.value:
             item_dict[r.item_id] = {'itemlabel': r.itemlabel, 'itemdesc': r.itemdesc,
                                     'instanceoflabel': r.instanceoflabel}
         else:
@@ -212,6 +212,6 @@ def reduce_search_results(query_obj, facet):
                 o[p] = d
             return_list.append(o)
     except Exception as e:
-        catch_err(e, 'reduce_search_results')
+        catch_err(e, 'web_methods.reduce_search_results')
 
     return return_list

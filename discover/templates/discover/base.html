@@ -4,25 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}UNLV Libraries Wikidata Discovery Tool{% endblock %}</title>
+    <title>{% block title %}WikiframeVG - Wikidata Discovery Tool{% endblock %}</title>
     <link rel='stylesheet' type='text/css' media='screen' href="{% static 'vis-network.min.css' %}">
     <link rel='stylesheet' type='text/css' media='screen' href="{% static 'base.css' %}">
     <link rel='icon' href="{% static 'unlv.ico' %}"/>
     <script type='module' src="{% static 'vis-network.min.js' %}"></script>
     <script type='text/javascript' src="{% static 'underscore.js' %}"></script>
     <script type='text/javascript' src="{% static 'jquery.min.js' %}"></script>
-    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
     {% block head-script %}{% endblock %}
 </head>
 
 <body>
-<header class="app-header">
+<header class="app_header">
     <h1>{% block header1 %}wikiframe VG{% endblock %}</h1>
     <h2>{% block header2 %}{% endblock %}</h2>
 	<nav class='site-menu'>
 		<ul>
 			<li id="home"><a href="/discover/home">Home</a></li>
-            <li id="subjects"><a href="/discover/subjects">Search by Subjects</a></li>
+            <!--<li id="subjects"><a href="/discover/subjects">Search by Subjects</a></li>-->
             <li id="collections"><a href="/discover/collections">Collections</a></li>
 			<li id="orals"><a href="/discover/orals">Oral Histories</a></li>
 			<li id="people"><a href="/discover/people">People</a></li>
@@ -55,7 +54,12 @@
 
 </div>
 
-<footer class="app-footer"></footer>
+<footer class="app_footer">
+    <div id="wikidata_stamp">
+        <img src="{% static 'wikidata_stamp.png' %}"
+     alt="powered-by-Wikidata graphic" width="160" height="40" title="powered by Wikidata">
+    </div>
+</footer>
 <script>{% block page-script %}{% endblock %}</script>
 
 </body>

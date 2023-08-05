@@ -3,13 +3,15 @@ from . import graph
 from . import web_methods
 from .models import Subject
 from .wd_utils import catch_err
-from django.db.models import QuerySet
-from .enums import RelColor, Facet
+from .enums import AppClass
 from . import queue_mgr
+from . import mappings
 
 
 def home(request):
     from .web_methods import get_chart
+
+    init_session(request)
 
     chart_io_dict = get_chart('stats_instanceof_count')
     chart_subj_dict = get_chart('stats_subjects_count')
@@ -19,7 +21,7 @@ def home(request):
 
 
 def process_search(request):
-    """Processes and renders search results for all facets.
+    """Processes and renders search results for all app classes.
     Callable by search form, node-select form, subject forms, and queue form."""
     from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm
 
@@ -28,7 +30,7 @@ def process_search(request):
     file_path = url_path.split('/')
     final_path = file_path[0] + '/base_' + file_path[1] + '.html'
     error_msg = ''
-    curr_facet = ''
+    curr_class = ''
     bypass_large_graph = 0
     bypass_queue = False
 
@@ -39,9 +41,9 @@ def process_search(request):
         if rtn_qform.is_valid():
             pos = rtn_qform.cleaned_data['run_qry']
             q_item = queue_mgr.get_queue_entry(pos, request.session.session_key)
-            curr_facet = q_item['form_vals']['facet']
-            final_path = get_prior_template_path(curr_facet)
-            curr_request = queue_mgr.create_request(request.session.session_key, pos, bypass_queue)
+            curr_class = q_item['form_vals']['app_class']
+            final_path = get_prior_template_path(curr_class)
+            curr_request = queue_mgr.create_request(request.session.session_key, pos)
         else:
             curr_request = request
 
@@ -50,154 +52,201 @@ def process_search(request):
         if bbf.is_valid():
             bypass_queue = True
             bypass_large_graph = 1
-            curr_request = queue_mgr.create_request(request.session.session_key, 'top', bypass_queue)
+            curr_request = queue_mgr.create_request(request.session.session_key, 'top')
 
         # attempt to hydrate all search forms based on POST data. Only one will be valid.
         rtn_search_frm = SearchForm(curr_request.POST)
-        curr_facet = rtn_search_frm['facet'].value()  # grab facet val off search form pre-validation
-        if curr_facet == Facet.subjs.value:  # subject form has called this process_search
-            curr_facet = Facet.colls.value
-        the_checks = [get_default_rel_type(curr_facet)]
+        curr_class = rtn_search_frm['app_class'].value()  # grab app class val off search form pre-validation
+        if curr_class == AppClass.subjs.value:  # subject form has called this process_search
+            curr_class = AppClass.colls.value
+        the_checks = [get_default_rel_type(curr_class)]
         rtn_node_frm = NodeSelectForm(curr_request.POST,
-                                      dynamic_choices=set_relation_types(curr_facet))
+                                      dynamic_choices=set_relation_types(curr_class))
         rtn_subject_frm = RestrictSubjectForm(curr_request.POST)
 
         # variables to track previous search values used on search, subject, or node forms.
         # set all to 'empty'; logic below fills fields for kw, subject, or node, depending on case.
         prior_kw_search = ''
+        prior_facet_values = ''
+        prior_facet_labels = ''
         prior_node_search = ''
         prior_node_label = ''
         prior_color = ''
         prior_subj_search = ''
         prior_subj_label = ''
+        prior_show_all = False
 
         # find valid form and process
         if rtn_search_frm.is_valid():
             prior_kw_search = rtn_search_frm.cleaned_data['search_text']
-            qry = set_query(curr_facet)
+            prior_facet_values = rtn_search_frm.cleaned_data['facet_values']
+            prior_facet_labels = rtn_search_frm.cleaned_data['facet_labels']
+            prior_show_all = rtn_search_frm.cleaned_data['show_all']
+            qry = mappings.get_search_queryset(curr_class)
             if not bypass_queue:
                 queue_mgr.update_queue('search', rtn_search_frm, request.session.session_key)
             results = process_search_form(rtn_search_frm, qry, the_checks)
             the_checks = results['choices']  # all downstream relation type variables must be iterable.
-            graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
+            graph_data = graph.load_graph(results['filtered'], the_checks, curr_class)
         elif rtn_subject_frm.is_valid():
-            qry = set_query(Facet.colls.value)  # subject form used only for collections at present.
+            qry = mappings.get_search_queryset(AppClass.colls.value)  # subject form used only for collections
             if not bypass_queue:
                 queue_mgr.update_queue('subject', rtn_subject_frm, request.session.session_key)
             results = process_restrictsubj_form(rtn_subject_frm, qry)
             the_checks = results['choices']
-            graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
+            graph_data = graph.load_graph(results['filtered'], the_checks, curr_class)
         elif rtn_node_frm.is_valid():
             if rtn_node_frm.cleaned_data['node_id'] == '':  # node hasn't been clicked, just change in rel types
-                if not rtn_node_frm.cleaned_data['prior_subj_search'] == '':  # descended from subj search
+                if rtn_node_frm.cleaned_data['prior_subj_search'].__len__() > 0:  # descended from subj search
                     prior_subj_search = rtn_node_frm.cleaned_data['prior_subj_search']
                     prior_subj_label = rtn_node_frm.cleaned_data['prior_subj_labels']
-                elif not rtn_node_frm.cleaned_data['prior_kw_search'] == '':  # descended from kw search
-                    prior_kw_search = rtn_node_frm.cleaned_data['prior_kw_search']  # maintain last keyword search ref
+                elif (rtn_node_frm.cleaned_data['prior_kw_search'].__len__() > 0 or
+                      rtn_node_frm.cleaned_data['prior_facet_values'].__len__() > 0 or
+                        rtn_node_frm.cleaned_data['prior_show_all']):  # descended from kw-facet search
+                    prior_kw_search = rtn_node_frm.cleaned_data['prior_kw_search']  # maintain last kw search ref
+                    prior_facet_values = rtn_node_frm.cleaned_data['prior_facet_values']  # maintain facet search refs
+                    prior_facet_labels = rtn_node_frm.cleaned_data['prior_facet_labels']
+                    prior_show_all = rtn_node_frm.cleaned_data['prior_show_all']
                 else:  # descended from a prior node search
                     prior_node_search = rtn_node_frm.cleaned_data['prior_node_search']
                     prior_node_label = rtn_node_frm.cleaned_data['prior_node_label']  # maintain prior label
                     prior_color = rtn_node_frm.cleaned_data['prior_color']  # maintain last color ref
+                    prior_kw_search = rtn_node_frm.cleaned_data['prior_kw_search']
+                    prior_facet_values = rtn_node_frm.cleaned_data['prior_facet_values']
+                    prior_facet_labels = rtn_node_frm.cleaned_data['prior_facet_labels']
+                    prior_show_all = rtn_node_frm.cleaned_data['prior_show_all']
             else:  # node was just clicked
-                # The prior query will now be a node query, not a keyword or subject query.
+                # The prior query will now be a node query, not a keyword-facet or subject query.
                 # See graph_functions.js::selectNode.
                 prior_node_search = rtn_node_frm.cleaned_data['node_id']  # set last node search val
                 prior_node_label = rtn_node_frm.cleaned_data['node_label']  # maintain prior label
                 prior_color = rtn_node_frm.cleaned_data['color_type']  # maintain prior color
-            qry = set_query(curr_facet)
+            qry = mappings.get_search_queryset(curr_class)
             if not bypass_queue:
                 queue_mgr.update_queue('node', rtn_node_frm, request.session.session_key)
             results = process_node_form(rtn_node_frm, qry, request.session.session_key)
             the_checks = results['choices']
-            graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
-        else:
-            # creates empty objects for form rendering w/o awkward error handling.
-            results = process_invalid_forms('people_filtered')
-            error_msg = results['message']
-            graph_data = graph.load_graph(results['filtered'], the_checks, curr_facet)
+            graph_data = graph.load_graph(results['filtered'], the_checks, curr_class)
+        else:  # edge case in which no forms are valid
+            results = process_invalid_form()  # pass empty set
+            graph_data = graph.load_graph(results, the_checks, curr_class)
+
+        # obtain facet values list for faceted search
+        facet_vals = mappings.get_facet_queryset(curr_class)
 
         # new forms to pass to people_filtered
-        nsform = NodeSelectForm(initial={'facet': curr_facet, 'prior_kw_search': prior_kw_search,
+        nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
+                                         'prior_facet_values': prior_facet_values,
+                                         'prior_facet_labels': prior_facet_labels,
                                          'prior_color': prior_color, 'prior_node_label': prior_node_label,
                                          'prior_node_search': prior_node_search,
                                          'prior_subj_search': prior_subj_search,
-                                         'prior_subject_labels': prior_subj_label},
-                                dynamic_choices=set_relation_types(curr_facet))
-        sform = SearchForm(initial={'facet': curr_facet, 'relation_type': get_default_rel_type(curr_facet)})
-        qform = QueueForm(initial={'facet': curr_facet},
+                                         'prior_subject_labels': prior_subj_label,
+                                         'prior_show_all': prior_show_all},
+                                dynamic_choices=set_relation_types(curr_class))
+        sform = SearchForm(initial={'app_class': curr_class, 'relation_type': get_default_rel_type(curr_class)})
+        qform = QueueForm(initial={'app_class': curr_class},
                           dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
 
-        context = {'facet': curr_facet, 'unique_list': results['unique'], 'search': sform, 'priors': qform,
+        context = {'app_class': curr_class, 'unique_list': results['unique'], 'search': sform, 'priors': qform,
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
-                   'string': results['search_str'], 'checks': the_checks, 'errors': error_msg}
+                   'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks, 'errors': error_msg}
 
         return render(request, final_path, context)
 
     except Exception as e:
-        errors = catch_err(e, 'views.search_processed')
+        errors = catch_err(e, 'views.process_search')
+        # error_message(request, errors)
         context = {'errors': errors}
-        return render(request, get_prior_template_path(curr_facet), context)
+        return render(request, 'discover/base_error_message.html', context)
+
+
+def error_message(request, errors):
+    context = {'errors': errors}
+    req = create_error_request()
+    return render(req, 'discover/base_error_message.html', context)
+
+
+def create_error_request():
+    from django.contrib.auth.models import AnonymousUser
+    from django.test import RequestFactory
+
+    factory = RequestFactory()
+    request = RequestFactory.get(factory, '/discover/app_error/', secure=True)
+    request.user = AnonymousUser()
+
+    return request
 
 
 def people(request):
     from . import forms
     from .web_methods import get_images
-    from .enums import Facet
 
     # initialize session for queue management
     init_session(request)
-    relation = get_default_rel_type(Facet.people.value)
-    sf = forms.SearchForm(initial={'facet': Facet.people.value, 'relation_type': relation})
-    qf = forms.QueueForm(initial={'facet': Facet.people.value},
+
+    relation = get_default_rel_type(AppClass.people.value)
+    facet_vals = mappings.get_facet_queryset(AppClass.people.value)
+
+    sf = forms.SearchForm(initial={'app_class': AppClass.people.value, 'relation_type': relation})
+    qf = forms.QueueForm(initial={'app_class': AppClass.people.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
-    images = get_images('images_humans')  # record name in db query table
-    context = {'search': sf, 'images': images, 'priors': qf}
+    images = get_images('images_humans')
+    context = {'search': sf, 'images': images, 'priors': qf,
+               'app_class': AppClass.people.value, 'facet': facet_vals}
     return render(request, 'discover/base_people.html', context)
 
 
-def corpbodies(request):
+def corp_bodies(request):
     from . import forms
     from .web_methods import get_images
-    from .enums import Facet
 
     # initialize session for queue management
     init_session(request)
-    relation = get_default_rel_type(Facet.corps.value)
-    sf = forms.SearchForm(initial={'facet': Facet.corps.value, 'relation_type': relation})
-    qf = forms.QueueForm(initial={'facet': Facet.corps.value},
+
+    relation = get_default_rel_type(AppClass.corps.value)
+    facet_vals = mappings.get_facet_queryset(AppClass.corps.value)
+
+    sf = forms.SearchForm(initial={'app_class': AppClass.corps.value, 'relation_type': relation})
+    qf = forms.QueueForm(initial={'app_class': AppClass.corps.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     images = get_images('images_others')  # record name in db query table
-    context = {'search': sf, 'images': images, 'priors': qf}
+    context = {'search': sf, 'images': images, 'priors': qf, 'app_class': AppClass.corps.value,
+               'facet': facet_vals}
     return render(request, 'discover/base_corps.html', context)
 
 
 def collections(request):
     from . import forms
-    from .enums import Facet
 
     # initialize session for queue management
     init_session(request)
-    relation = get_default_rel_type(Facet.colls.value)
-    sf = forms.SearchForm(initial={'facet': Facet.colls.value, 'relation_type': relation})
-    qf = forms.QueueForm(initial={'facet': Facet.colls.value},
+
+    relation = get_default_rel_type(AppClass.colls.value)
+    facet_vals = mappings.get_facet_queryset(AppClass.colls.value)
+
+    sf = forms.SearchForm(initial={'app_class': AppClass.colls.value, 'relation_type': relation})
+    qf = forms.QueueForm(initial={'app_class': AppClass.colls.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     # images = get_images('images_others')  # record name in db query table
-    context = {'search': sf, 'priors': qf}
+    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.colls.value}
     return render(request, 'discover/base_collections.html', context)
 
 
-def oralhistories(request):
+def oral_histories(request):
     from . import forms
 
     # initialize session for queue management
     init_session(request)
-    relation = get_default_rel_type(Facet.orals.value)
-    sf = forms.SearchForm(initial={'facet': Facet.orals.value, 'relation_type': relation})
-    qf = forms.QueueForm(initial={'facet': Facet.orals.value},
+
+    relation = get_default_rel_type(AppClass.orals.value)
+    facet_vals = mappings.get_facet_queryset(AppClass.orals.value)
+    sf = forms.SearchForm(initial={'app_class': AppClass.orals.value, 'relation_type': relation})
+    qf = forms.QueueForm(initial={'app_class': AppClass.orals.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     # images = get_images('images_others')  # record name in db query table
-    context = {'search': sf, 'priors': qf}
+    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.orals.value}
     return render(request, 'discover/base_orals.html', context)
 
 
@@ -205,7 +254,8 @@ def subjects(request):
     from . import forms
 
     init_session(request)
-    sf = forms.SearchForm(initial={'facet': Facet.subjs.value, 'relation_type': 'none'})
+
+    sf = forms.SearchForm(initial={'app_class': AppClass.subjs.value, 'relation_type': 'none'})
     context = {'search': sf}
     return render(request, 'discover/base_subjects.html', context)
 
@@ -214,8 +264,8 @@ def subjects_filtered(request):
     from .forms import SearchForm, RestrictSubjectForm
 
     try:
-        sf = SearchForm(initial={'facet': Facet.subjs.value, 'relation_type': 'none'})
-        rf = RestrictSubjectForm(initial={'facet': Facet.subjs.value})
+        sf = SearchForm(initial={'app_class': AppClass.subjs.value, 'relation_type': 'none'})
+        rf = RestrictSubjectForm(initial={'app_class': AppClass.subjs.value})
         return_sf = SearchForm(request.POST)
         if return_sf.is_valid():
             subjs = Subject.objects.all().filter(subjectlabel__icontains=return_sf.cleaned_data['search_text'])
@@ -230,15 +280,15 @@ def subjects_filtered(request):
         return render(request, 'discover/base_subjects_filtered.html', context)
 
 
-def item(request, item_code, facet):
+def item(request, item_code, app_class):
     from .forms import BackButtonForm
 
     bb_form = BackButtonForm()
     details = web_methods.get_item_details(item_code)
-    the_facet = facet
+    the_class = app_class
     the_item = details[0]
     context = {'details': details, 'item': the_item.item_label, 'itemdesc': the_item.item_desc,
-               'bb_form': bb_form, 'facet': the_facet}
+               'bb_form': bb_form, 'app_class': the_class}
     return render(request, 'discover/base_item.html', context)
 
 
@@ -246,6 +296,7 @@ def utilities(request):
     from . import db
     from .forms import WikiLoadForm
 
+    init_session(request)
     msgs = ""
     val = ''
     nf = WikiLoadForm()
@@ -285,6 +336,8 @@ def utilities(request):
 
 def about(request):
     from wikidataDiscovery import settings
+
+    init_session(request)
     ver = settings.APP_VERSION
     auth = settings.APP_AUTHOR
     email = settings.APP_EMAIL
@@ -297,32 +350,30 @@ def about(request):
 def process_search_form(sform, qset, rel_type_list):
     """Private function for form processing. Generic form handler for all views
     that use the search form. Initiates new search workflow for any query set."""
-    from django.db.models import Q
     from .web_methods import reduce_search_results
 
-    the_facet = sform.cleaned_data['facet']
+    the_class = sform.cleaned_data['app_class']
     rel_type_str = rel_type_list[0]
     if rel_type_str == 'instanceof':  # instanceof label is jargon
         rel_type_str = 'category'
 
-    if the_facet == Facet.colls.value:  # a temporary hack; to be replaced by faceted filtering tool.
-        filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
-                              Q(itemlabel__icontains=sform.cleaned_data['search_text']) |
-                              Q(colltypelabel__icontains=sform.cleaned_data['search_text']))
-    else:
-        filtset = qset.filter(Q(itemdesc__icontains=sform.cleaned_data['search_text']) |
-                              Q(itemlabel__icontains=sform.cleaned_data['search_text']))
+    search_str = sform.cleaned_data['search_text']
+    facet_list = sform.cleaned_data['facet_values']
+    facet_str = sform.cleaned_data['facet_labels']
+    show_all = sform.cleaned_data['show_all']
+    query_data = get_search_query(show_all, search_str, facet_list, facet_str, qset, the_class)
+    filtered_set = query_data['query']
+    search_label = query_data['search_label']
+    unique_set = reduce_search_results(filtered_set, the_class)
 
-    uniqueset = reduce_search_results(filtset, the_facet)
-
-    num = uniqueset.__len__()
-    the_string = "'" + sform.cleaned_data['search_text'] + "' + " + rel_type_str
-    return {'filtered': filtset, 'unique': uniqueset, 'num': num,
+    num = unique_set.__len__()
+    the_string = search_label + ". link=" + rel_type_str
+    return {'filtered': filtered_set, 'unique': unique_set, 'num': num,
             'search_str': the_string, 'choices': rel_type_list}
 
 
 def process_node_form(nsform, qset, session_key):
-    """Handles node form processing using any query set, a given facet,
+    """Handles node form processing using any query set, a given app class,
     and all relation type checkboxes selected by the user."""
     # generic node selection form handler for all views that use it
     from .web_methods import reduce_search_results
@@ -336,39 +387,52 @@ def process_node_form(nsform, qset, session_key):
             c = 'category'
         choices_temp += c + '|'
     choices_str = choices_temp[:choices_temp.__len__() - 1]
-    the_facet = nsform.cleaned_data['facet']
+    curr_class = nsform.cleaned_data['app_class']
+
+    # Get data from prior search request
+    mid_req = queue_mgr.get_queue_entry('middle', session_key)
+    form_type = mid_req['form_type']
 
     # filter acc to unique node, based on color type.
     # User may have NOT selected a node but only changed relation type options.
-    if not nsform.cleaned_data['node_id'] == '':  # user selected a node; new query.
+    if nsform.cleaned_data['node_id'].__len__() > 0:  # user selected a node; new query.
         the_label = nsform.cleaned_data['node_label']
-        filtset = set_node_query(nsform, qset)
+        filtset = mappings.get_node_queryset(nsform, qset)
     else:  # node frm is descendent of one of three search forms: search, subject, or a prev node.
-        mid_req = queue_mgr.get_queue_entry('middle', session_key)  # get prior search request
-        if mid_req['form_type'] == 'search':
-            string_to_use = mid_req['form_vals']['search_text']  # use the current search text
-            the_label = string_to_use
-            filtset = qset.filter(Q(itemdesc__icontains=string_to_use) |
-                                  Q(itemlabel__icontains=string_to_use))
-        elif mid_req['form_type'] == 'subject':
+        if form_type == 'search':
+            facet_vals = mid_req['form_vals']['facet_values']
+            facet_lbls = mid_req['form_vals']['facet_labels']
+            search_str = mid_req['form_vals']['search_text']
+            show_all = mid_req['form_vals']['show_all']
+            query_data = get_search_query(show_all, search_str, facet_vals, facet_lbls, qset, curr_class)
+            the_label = query_data['search_label']
+            filtset = query_data['query']
+        elif form_type == 'subject':
             the_label = mid_req['form_vals']['restrict_labels']
             filtset = qset.filter(subject_id__in=mid_req['form_vals']['restrict_text'])
         else:  # current form is descended form another node form; use 'prior_' fields.
-            if not mid_req['form_vals']['prior_subj_search'] == '':
+            prior_subject_search = mid_req['form_vals']['prior_subj_search']
+            prior_kw_search = mid_req['form_vals']['prior_kw_search']
+            prior_facet_values = mid_req['form_vals']['prior_facet_values']
+            prior_facet_labels = mid_req['form_vals']['prior_facet_labels']
+            prior_show_all = mid_req['form_vals']['prior_show_all']
+            if prior_subject_search.__len__() > 0:
                 the_label = mid_req['form_vals']['prior_subj_labels']
                 filtset = qset.filter(subject_id__in=mid_req['form_vals']['prior_subj_search'])
-            elif not mid_req['form_vals']['prior_kw_search'] == '':
-                search_str = mid_req['form_vals']['prior_kw_search']
-                the_label = search_str
-                filtset = qset.filter(Q(itemdesc__icontains=search_str) |
-                                      Q(itemlabel__icontains=search_str))
+            elif (prior_kw_search.__len__() > 0 or
+                  prior_facet_values.__len__() > 0 or
+                    prior_show_all):
+                query_data = get_search_query(prior_show_all, prior_kw_search, prior_facet_values,
+                                              prior_facet_labels, qset, curr_class)
+                the_label = query_data['search_label']
+                filtset = query_data['query']
             else:
                 the_label = mid_req['form_vals']['prior_node_label']
-                filtset = set_node_query(nsform, qset)
+                filtset = mappings.get_node_queryset(nsform, qset)
 
-    uniqueset = reduce_search_results(filtset, the_facet)
+    uniqueset = reduce_search_results(filtset, curr_class)
     num = uniqueset.__len__()
-    total_label = "'" + the_label + "' + " + choices_str
+    total_label = the_label + ". link=" + choices_str
 
     return {'filtered': filtset, 'unique': uniqueset, 'num': num,
             'search_str': total_label, 'choices': the_choices}
@@ -379,84 +443,45 @@ def process_restrictsubj_form(rsform, qset):
     # Posted from the Subjects page only. Processed by subjects_filtered and corp_filtered.
     from .web_methods import reduce_search_results
 
-    qcodes = rsform.cleaned_data['restrict_text'].split(',')
-    qcodes.remove('')  # remove empty member that causes trailing comma
-    search_str = rsform.cleaned_data['restrict_labels'].split(',')
-    search_str.remove('')
+    query_pair = get_list_and_string(rsform.cleaned_data['restrict_text'], rsform.cleaned_data['restrict_labels'])
 
-    filtset = qset.filter(subject_id__in=qcodes)
-    uniqueset = reduce_search_results(filtset, Facet.colls.value)
+    filtset = qset.filter(subject_id__in=query_pair['codes'])
+    uniqueset = reduce_search_results(filtset, AppClass.colls.value)
     num = uniqueset.__len__()
-    choice = get_default_rel_type(Facet.colls.value)  # subject form only supports collection results.
+    choice = get_default_rel_type(AppClass.colls.value)  # subject form only supports collection results.
     return {'filtered': filtset, 'unique': uniqueset, 'num': num,
-            'choices': [choice], 'search_str': str(search_str)}
+            'choices': [choice], 'search_str': query_pair['string'] + '. link= ' + choice}
 
 
-def process_invalid_forms(the_form):
-    from django.db.models.query import QuerySet
-    filterset = QuerySet()
-    uniqueset = QuerySet()
+def process_invalid_form() -> dict:
+    """Used for edge case in which all incoming forms in process_search are invalid. Returns
+     dict with empty values that mimic processed forms data."""
+    filtset = mappings.QuerySet()
+    uniqueset = mappings.QuerySet()
+    search_str = "error in search"
+    choices = []
     num = 0
-    search_str = ''
-    if the_form == 'people_filtered':
-        the_msg = "There was a problem with the search service."
-    elif the_form == 'corpbodies_filtered':
-        the_msg = "There was a problem with the search service for Corporate Bodies."
-    elif the_form == 'collections_filtered':
-        the_msg = "There was a problem with the search service for Collections."
-    else:
-        the_msg = "There was a problem with the search service for Oral Histories."
-
-    return {'filtered': filterset, 'unique': uniqueset, 'num': num, 'search_str': search_str, 'message': the_msg}
+    return {'filtered': filtset, 'unique': uniqueset, 'num': num,
+            'choices': choices, 'search_str': search_str}
 
 
-def set_node_query(nsform, qset):
-    """Used by process node form. Is separate because it may be called
-    twice during node form processing."""
-    if nsform.cleaned_data['node_id'] == '':
-        the_id = nsform.cleaned_data['prior_node_search']
-        the_color = nsform.cleaned_data['prior_color']
-    else:
-        the_id = nsform.cleaned_data['node_id']
-        the_color = nsform.cleaned_data['color_type']
-
-    if the_color == RelColor.item.value:
-        filtset = qset.filter(item_id__exact=the_id).order_by('item_id')
-    elif the_color == RelColor.occup.value:
-        filtset = qset.filter(occupation_id__exact=the_id)
-    elif the_color == RelColor.fow.value:
-        filtset = qset.filter(fieldofwork_id__exact=the_id)
-    elif the_color == RelColor.pob.value:
-        filtset = qset.filter(placeofbirth_id__exact=the_id)
-    elif the_color == RelColor.pod.value:
-        filtset = qset.filter(placeofdeath_id__exact=the_id)
-    elif the_color == RelColor.subj.value:
-        filtset = qset.filter(subject_id__exact=the_id)
-    elif the_color == RelColor.instanceof.value:
-        filtset = qset.filter(instanceof_id__exact=the_id)
-    else:
-        filtset = QuerySet()
-
-    return filtset
-
-
-def set_relation_types(facet: str) -> list:
+def set_relation_types(app_class: str) -> list:
     """Creates list for relation type options on the node form."""
     from .models import RelationType
 
-    the_set = RelationType.objects.filter(domain=facet)
+    the_set = RelationType.objects.filter(domain=app_class)
     rel_types = []
     for r in the_set:
         rel_types.append((r.relation_type, r.relation_type_label))
     return rel_types
 
 
-def process_choices(choices: list, facet) -> dict:
+def process_choices(choices: list, app_class) -> dict:
     """Used with returned node form to create a list of selected relationship
     types and a corresponding search string label. Called prior to process node form."""
     from .models import RelationType
     # get checkbox select order for domain from db; gets applied on template render
-    fac = RelationType.objects.filter(domain=facet)
+    fac = RelationType.objects.filter(domain=app_class)
     choice_sel = []
     alt_str = ''
     for c in choices:
@@ -469,42 +494,22 @@ def process_choices(choices: list, facet) -> dict:
     return {'checks': choice_sel, 'search_str': total_str}
 
 
-def set_query(facet):
-    """Returns the needed queryset objected based on the
-    facet value of the form being processed in search_processed"""
-    from . import models
-    if facet == Facet.people.value:
-        qry = models.Person.objects.all()
-    elif facet == Facet.corps.value:
-        qry = models.CorpBody.objects.all()
-    elif facet == Facet.colls.value:
-        qry = models.Collection.objects.all()
-    elif facet == Facet.orals.value:
-        qry = models.OralHistory.objects.all()
-    elif facet == Facet.subjs.value:  # this domain is used to find results in collections only.
-        qry = models.Collection.objects.all()
-    else:
-        qry = QuerySet()
-
-    return qry
-
-
-def get_default_rel_type(facet):
-    """Returns the top-of-list relation type for a given facet."""
+def get_default_rel_type(app_class):
+    """Returns the top-of-list relation type for a given app_class."""
     from .models import RelationType
-    check_set = RelationType.objects.get(domain=facet, list_order=0)
+    check_set = RelationType.objects.get(domain=app_class, list_order=0)
     return check_set.relation_type
 
 
-def get_prior_template_path(facet):
-    """Used to retrieve doc path based on facet of queue form in process_search."""
-    if facet == Facet.people.value:
+def get_prior_template_path(app_class):  # todo: move to mappings.py or implement with urls.py
+    """Used to retrieve doc path based on app_class of queue form in process_search."""
+    if app_class == AppClass.people.value:
         path = 'discover/base_people_filtered.html'
-    elif facet == Facet.corps.value:
+    elif app_class == AppClass.corps.value:
         path = 'discover/base_corps_filtered.html'
-    elif facet == Facet.colls.value:
+    elif app_class == AppClass.colls.value:
         path = 'discover/base_collections_filtered.html'
-    elif facet == Facet.orals.value:
+    elif app_class == AppClass.orals.value:
         path = 'discover/base_orals_filtered.html'
     else:  # based on subjects search
         path = 'discover/base_collections_filtered.html'
@@ -523,8 +528,53 @@ def init_session(request):
             request.session[i]['form_type'] = 'none'
             request.session[i]['form_vals'] = {}
             request.session[i]['form_vals']['data'] = 'empty'
-            request.session[i]['form_vals']['facet'] = 'none'
+            request.session[i]['form_vals']['app_class'] = 'none'
 
         request.session.save()
     else:
         pass
+
+
+def get_list_and_string(codes, string):
+    """Needed for search form data processing."""
+    qcodes = codes.split(',')
+    qcodes.remove('')  # remove empty member that causes trailing comma
+    search_str = string.split(',')
+    search_str.remove('')
+
+    return {'codes': qcodes, 'string': str(search_str)}
+
+
+def get_search_query(show_all, search_str, facet_list, facet_str, queryset, the_class) -> dict:
+    from django.db.models import Q
+    query_pair = get_list_and_string(facet_list, facet_str)
+    kw_arg = mappings.get_facet_filter_kwarg(the_class, query_pair['codes'])
+
+    n = 0
+    if search_str.__len__() > 0:
+        n += 1
+    if facet_list.__len__() > 0:
+        n += 2
+    if show_all:
+        n += 4
+
+    if n == 1:  # keyword only
+        filtset = queryset.filter(Q(itemdesc__icontains=search_str) |
+                                  Q(itemlabel__icontains=search_str))
+        the_string = search_str
+    elif n == 2:  # facet value(s) only
+        filtset = queryset.filter(**kw_arg)
+        the_string = query_pair['string']
+    elif n == 3:  # both keyword and facet values
+        fs1 = queryset.filter(Q(itemdesc__icontains=search_str) |
+                              Q(itemlabel__icontains=search_str))
+        filtset = fs1.filter(**kw_arg)
+        the_string = search_str + " & " + query_pair['string']
+    elif n == 4: # user clicked the "show all" checkbox
+        filtset = queryset
+        the_string = "All " + the_class
+    else:
+        filtset = queryset  # if all tests fail
+        the_string = "All " + the_class
+
+    return {'query': filtset, 'search_label': the_string}

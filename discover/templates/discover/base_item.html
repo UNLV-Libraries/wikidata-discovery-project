@@ -14,8 +14,8 @@
 <body>
 
 {% block main-content %}
-    <input type="hidden" id="facet" value="{{ facet}}">
-    <form id='back_button' action="/discover/{{ facet }}_filtered/" method="post">
+    <input type="hidden" id="app_class" value="{{ app_class }}">
+    <form id='back_button' action="/discover/{{ app_class }}_filtered/" method="post">
         {% csrf_token %}
         {{ bb_form }}
         <input type="submit" value="back to results">

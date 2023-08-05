@@ -2,25 +2,29 @@ from django import forms
 
 
 class SearchForm(forms.Form):
-    search_text = forms.CharField(label='Enter a word or phrase', max_length=200)
-    facet = forms.CharField(widget=forms.HiddenInput())
+    search_text = forms.CharField(required=False, label='Search for a word/phrase', max_length=200)
+    show_all = forms.BooleanField(required=False, widget=forms.CheckboxInput())
+    app_class = forms.CharField(widget=forms.HiddenInput())
     relation_type = forms.CharField(required=False, widget=forms.HiddenInput())
+    facet_values = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=500)
+    facet_labels = forms.CharField(required=False, widget=forms.HiddenInput(), max_length=500)
+    search_dirty_flag = forms.BooleanField(widget=forms.HiddenInput())  # required to set form to 'valid'
 
 
 class RestrictSubjectForm(forms.Form):
     restrict_labels = forms.CharField(label='', max_length=1000)
     restrict_text = forms.CharField(label='', max_length=1000)
-    facet = forms.CharField(widget=forms.HiddenInput())
+    app_class = forms.CharField(widget=forms.HiddenInput())
 
 
 class NodeSelectForm(forms.Form):
     color_type = forms.CharField(required=False, label='', max_length=20)
     node_label = forms.CharField(required=False, label='Search by Selected Node:', max_length=200)
     node_id = forms.CharField(required=False, label='', max_length=200)
-    relation_types = forms.MultipleChoiceField(required=False, label='Show or Hide Relation Types:',
+    relation_types = forms.MultipleChoiceField(required=False, label='Show links:',
                                                widget=forms.CheckboxSelectMultiple(attrs={'class': 'rel_row'}),
                                                choices=())
-    facet = forms.CharField(widget=forms.HiddenInput())
+    app_class = forms.CharField(widget=forms.HiddenInput())
     dirty_flag = forms.BooleanField(widget=forms.HiddenInput())  # required to set form to 'valid'
     prior_kw_search = forms.CharField(required=False, widget=forms.HiddenInput())
     prior_node_search = forms.CharField(required=False, widget=forms.HiddenInput())
@@ -28,11 +32,14 @@ class NodeSelectForm(forms.Form):
     prior_node_label = forms.CharField(required=False, widget=forms.HiddenInput())
     prior_subj_search = forms.CharField(required=False, widget=forms.HiddenInput())
     prior_subj_labels = forms.CharField(required=False, widget=forms.HiddenInput())
+    prior_facet_values = forms.CharField(required=False, widget=forms.HiddenInput())
+    prior_facet_labels = forms.CharField(required=False, widget=forms.HiddenInput())
+    prior_show_all = forms.BooleanField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         dynamic_choices = kwargs.pop('dynamic_choices', ())
         super().__init__(*args, **kwargs)
-        self.fields['relation_types'] = forms.MultipleChoiceField(required=False, label='Show Relation Types:',
+        self.fields['relation_types'] = forms.MultipleChoiceField(required=False, label='Show links:',
                                                                   widget=forms.CheckboxSelectMultiple(attrs={'class': 'rel-row'}),
                                                                   choices=dynamic_choices)
 
@@ -47,7 +54,7 @@ class WikiLoadForm(forms.Form):
 class QueueForm(forms.Form):
     run_qry = forms.ChoiceField(label='Run a previous search',
                                 choices=())
-    facet = forms.CharField(widget=forms.HiddenInput())
+    app_class = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         dynamic_choices = kwargs.pop('dynamic_choices', ())

@@ -2,8 +2,7 @@ from enum import Enum
 
 
 class RelColor(Enum):
-    """Controls evaluation of graph
-    node types by color."""
+    """Controls evaluation of graph node types by color."""
     item = '#f2f2f2'
     occup = '#ff8533'
     fow = '#e6e600'
@@ -13,11 +12,10 @@ class RelColor(Enum):
     instanceof = '#ff1a75'
 
 
-class Facet(Enum):
-    """Establishes allowable names in code for facets within the data domain. """
+class AppClass(Enum):
+    """Establishes allowable names in code for application classes within the data domain. """
     people = 'people'
     corps = 'corps'
     colls = 'collections'
     orals = 'orals'
     subjs = 'subjects'
-

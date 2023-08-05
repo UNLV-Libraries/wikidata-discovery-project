@@ -3,14 +3,23 @@
 	box-sizing: border-box;
 }
 
-.app-header h1 {
+.app_header {
+	background-color: white;
+}
+
+.app_header h1 {
 	color: black;
 	padding-left: 10px;
 }
 
-.app-footer {
-	display: flex;
-	justify-content: center;
+.app_footer {
+    position: fixed;
+    bottom: 0;
+    left: 15px;
+    right: 0;
+    height: 60px;
+	padding: 10px;
+	background-color: white;
 }
 
 .instructions {
@@ -49,6 +58,7 @@ p {
 	display: none;
 }
 
+/* SEARCH FORM ELEMENTS */
 #id_search_text {
 	width: 495px;
 	border: none;
@@ -56,6 +66,12 @@ p {
 	background-color: lightgrey;
 }
 
+#search_submit_span {
+	float: right;
+	padding-right: 100px;
+}
+
+/* SEARCH HISTORY QUEUE ELEMENTS */
 #id_run_qry {
 	height: 24px;
 	width: 500px;
@@ -73,7 +89,7 @@ p {
 	position: relative;
 }
 
-
+/* NODE FORM ELEMENTS */
 #node_form {
 	display: block;
 }
@@ -112,6 +128,13 @@ input.rel-row {
 	clear: none;
    }
 
+#loading_div {
+	float: left;
+	position: relative;
+	left: 30px;
+	bottom: -60px;
+}
+
 /* Search by Subjects form */
 #id_restrict_text, #id_restrict_labels {
 	display: none;
@@ -126,22 +149,96 @@ input.rel-row {
 	width: 750px;
 }
 
-#selection_label {
+/* Facet picker controls */
+.fp_wrapper {
+	display: none;
+	position: absolute;
+	background-color: #fefefe;
+	margin: 2px;
+	padding: 2px;
+	border: 1px solid #888;
+	width: 410px;
+	height: 200px;
+	-moz-border-radius: 6px;
+  	-webkit-border-radius: 6px;
+  	border-radius: 6px;
+	z-index: 2;
+}
+
+.facet_picker {
+	width: 392px;
+	height: 150px;
+	overflow: auto;
 
 }
 
-/* The Modal (background) */
+#fld_label {
+    float: left;
+    width: 165px;
+    text-align: left;
+}
+
+.fld_wrapper {
+	float: left;
+	margin: 5px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: dimgrey;
+	color: dimgrey;
+	font-style: italic;
+	width: 495px;
+}
+
+#typeahead {  /* filter input control */
+
+}
+
+#facet_labels_div {
+	padding: 5px;
+}
+
+#close_btn {
+  	color: #aaa;
+  	float: right;
+  	margin: 2px;
+	font-size: 24px;
+  	font-weight: bold;
+}
+
+#close_btn:hover,
+#close_btn:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#open_btn {
+  	color: #aaa;
+  	float: right;
+  	margin: 2px;
+	font-size: 24px;
+  	font-weight: bold;
+}
+
+#open_btn:hover,
+#open_btn:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* MODAL & Graph Column controls */
 .modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 2; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 2; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
 /* Modal Content/Box */
@@ -152,10 +249,9 @@ input.rel-row {
   border: 1px solid #888;
   width: 95%; /* Could be more or less, depending on screen size */
 	height: 95%;
-
 }
 
-/* The Close Button */
+/* The Close & Enlarge Buttons */
 .close {
   color: #aaa;
   float: right;
@@ -180,6 +276,10 @@ input.rel-row {
 	height: 500px;
 }
 
+#enlarger {  /* span button for enlarging graph */
+	margin: 2px;
+	padding: 2px;
+}
 #col-graph-parent {
 	margin: 2px;
 	padding: 2px;
@@ -197,7 +297,6 @@ input.rel-row {
 #graph_tooltip {
 	width: fit-content;
 	position: absolute;
-  	/* visibility: visible; */
 	display: none;
   	padding: 5px;
   	white-space: break-spaces;
@@ -256,6 +355,5 @@ input.rel-row {
 	.page-side {
 		float: left;
 		width: 40%;
-		/* border-left: 1px solid lightgray; */
 	}
 }

@@ -1,6 +1,7 @@
 import datetime
 import logging
-the_log = logging.getLogger(__name__)
+
+# the_log = logging.getLogger(__name__)
 
 
 def catch_err(e, proc=None):
@@ -8,7 +9,8 @@ def catch_err(e, proc=None):
     # generic handler for error messages and logging
     from django.utils.safestring import mark_safe
     dt = datetime.datetime.now()
-    global the_log
+    # global the_log
+    the_log = logging.getLogger(__name__)
     try:
         # e contains Exception
         if e.args[0] == 1064:  # bad search string that SQL doesn't like.

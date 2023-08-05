@@ -74,9 +74,12 @@ function initialize(net) {
       let s = document.getElementById('id_node_id');
       s.value = params['nodes'][0];  //set node id field to curr selection
       //clear prior kw and subject search vals. New node searches now descended from curr node search.
-      document.getElementById('id_prior_kw_search').value = ""; //ensure kw search is switched off.
+      document.getElementById('id_prior_kw_search').value = ""; //ensure kw-facet search is switched off.
+      document.getElementById('id_prior_facet_values').value = "";
+      document.getElementById('id_prior_facet_labels').value = "";
+      document.getElementById('id_prior_show_all').value = false;
       document.getElementById('id_prior_subj_search').value = ""; //ensure subj search is switched off.
-      document.getElementById('id_prior_subj_labels').value = ""; //ensure subj label is empty.
+      document.getElementById('id_prior_subj_labels').value = "";
       document.getElementById('id_prior_node_search').value = params['nodes'][0]; //new node search; prior=current
       //set label and color data for processing in views.process_search.
       let label_data = getLabel(params['nodes'][0]);
@@ -165,7 +168,7 @@ function getLabel(pitem_id) {
 function moveGraphToModal() {
     let c = document.getElementById('col-graph-parent');
     let m = document.getElementById('mod-graph-parent');
-    let v = document.getElementById('graph_canvas')
+    let v = document.getElementById('graph_canvas');
     if (c.childElementCount > 0) {
         m.appendChild(c.lastChild);
         }
@@ -185,7 +188,7 @@ function moveGraphToColumn() {
     if (m.childElementCount > 0) {
         c.appendChild(m.lastChild);
     }
-    v.style.height = '439px';
+    v.style.height = '436px';
     centerGraph();
 }
 
@@ -200,10 +203,10 @@ function anchorForTooltip(label, href_val) {
 }
 
 function anchorForDetails(item_id) {
-    let curr_facet = document.getElementById('id_facet').value;
+    let curr_app_class = document.getElementById('id_app_class').value;
     let curr_color = getColorType(item_id);
     if (curr_color === '#f2f2f2') {
-        let url = '/discover/' + curr_facet + '/item/' + item_id;
+        let url = '/discover/' + curr_app_class + '/item/' + item_id;
         let newA = document.createElement("a");
         let br = document.createElement("br");
         newA.href = url;
@@ -213,13 +216,14 @@ function anchorForDetails(item_id) {
     }
 }
 function mapPropertyLabel (prop) {
+    //todo: move this to a dict populated from the view function and managed in mappings.py
     let dict = {
         itemlabel: "name", donatedbylabel: "donor", colltypelabel: "type of",
         inventorynum: "inventory #", describedat: "described at",
         instanceoflabel: "type", inception: "inception", dissolved: "dissolved",
-        locationlabel: "location", image: "image", dob: "date born", placeofbirth: "place born",
-        dateofdeath: "date died", placeofdeath: "place died", mother: "mother", father: "father",
-        spouse: "spouse", child: "child", relative: "relative"
+        locationlabel: "location", image: "image", dob: "date born", placeofbirthlabel: "place born",
+        dateofdeath: "date died", placeofdeathlabel: "place died", motherlabel: "mother", fatherlabel: "father",
+        spouselabel: "spouse", childlabel: "child", relativelabel: "relative"
     };
     let label = dict[prop];
     if (!label) {

@@ -6,6 +6,25 @@ from discover.wd_utils import catch_err
 from discover import sparql
 
 
+def cache_all():
+    msgs = ''
+    n = cache_collections()
+    msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
+    n = cache_corp_bodies()
+    msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
+    n = cache_oral_histories()
+    msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
+    n = cache_people()
+    msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
+    n = cache_subjects()
+    msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+
+    log = open('issue.log', 'a')
+    log.write(msgs)
+    log.close()
+    return msgs
+
+
 def cache_people():
 
     try:
@@ -262,31 +281,36 @@ def cache_oral_histories():
 def write_oral_histories(json_dict):
     from discover.models import OralHistory
     import re
+
     n = 0
-    OralHistory.objects.all().delete()
-    for r in json_dict['results']['bindings']:
-        o = OralHistory()
+    c = 0
+    try:
+        OralHistory.objects.all().delete()
+        for r in json_dict['results']['bindings']:
+            o = OralHistory()
+            item_raw = r.get('item', {}).get('value')
+            o.item_id = re.split(r'/', item_raw).pop()
+            o.itemlabel = r.get('itemLabel', {}).get('value')[:100]
+            oh = r.get('oralHistory', {}).get('value')
+            if oh:
+                o.itemdesc = oh[:200]  # if data sourced from oral hist entry, use 'oralHistory' value
+            else:
+                o.itemdesc = r.get('itemDescription', {}).get('value')[:200]  # use in case oral hist text not present.
+            subj = supply_val(r.get('subject', {}).get('value'))
+            if subj:
+                o.subject_id = re.split(r'/', subj).pop()
+                o.subjectlabel = r.get('subjectLabel', {}).get('value')
+            o.inventorynum = r.get('inventoryNum', {}).get('value')
+            o.describedat = r.get('describedAt', {}).get('value')
+            o.save()
+            n += 1
 
-        item_raw = r.get('item', {}).get('value')
-        o.item_id = re.split(r'/', item_raw).pop()
-        o.itemlabel = r.get('itemLabel', {}).get('value')
-        oh = r.get('oralHistory', {}).get('value')
-        if oh:
-            o.itemdesc = oh
-        else:
-            o.itemdesc = r.get('itemDescription', {}).get('value')  # use in case oral history text not present.
-        subj = supply_val(r.get('subject', {}).get('value'))
-        if subj:
-            o.subject_id = re.split(r'/', subj).pop()
-            o.subjectlabel = r.get('subjectLabel', {}).get('value')
-        o.inventorynum = r.get('inventoryNum', {}).get('value')
-        o.describedat = r.get('describedAt', {}).get('value')
-        o.save()
-        n += 1
+        c = OralHistory.objects.count()
 
-    c = OralHistory.objects.count()
-
-    return [c, n]
+        return [c, n]
+    except Exception as err:
+        catch_err(err, 'db.write_oral_histories')
+        return [c, n]
 
 
 def supply_val(val):

@@ -5,8 +5,6 @@
 # from django.http.request import HttpRequest
 from django.contrib.sessions.backends.db import SessionStore
 from django import forms
-from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory
 from .wd_utils import catch_err
 
 
@@ -25,8 +23,12 @@ def update_queue(form_type, form: forms.Form, session_key):
             sess['top']['form_type'] = form_type
             sess['top']['form_vals'] = {}
             sess['top']['form_vals']['search_text'] = form.cleaned_data['search_text']
-            sess['top']['form_vals']['facet'] = form.cleaned_data['facet']
+            sess['top']['form_vals']['app_class'] = form.cleaned_data['app_class']
             sess['top']['form_vals']['relation_type'] = form.cleaned_data['relation_type']
+            sess['top']['form_vals']['facet_values'] = form.cleaned_data['facet_values']
+            sess['top']['form_vals']['facet_labels'] = form.cleaned_data['facet_labels']
+            sess['top']['form_vals']['search_dirty_flag'] = form.cleaned_data['search_dirty_flag']
+            sess['top']['form_vals']['show_all'] = form.cleaned_data['show_all']
         elif form_type == 'node':
             form_choices = '|'.join(form.cleaned_data['relation_types'])
             sess['top'] = {}
@@ -36,36 +38,39 @@ def update_queue(form_type, form: forms.Form, session_key):
             sess['top']['form_vals']['node_label'] = form.cleaned_data['node_label']
             sess['top']['form_vals']['relation_types'] = form_choices
             sess['top']['form_vals']['color_type'] = form.cleaned_data['color_type']
-            sess['top']['form_vals']['facet'] = form.cleaned_data['facet']
+            sess['top']['form_vals']['app_class'] = form.cleaned_data['app_class']
             sess['top']['form_vals']['prior_kw_search'] = form.cleaned_data['prior_kw_search']
+            sess['top']['form_vals']['prior_facet_values'] = form.cleaned_data['prior_facet_values']
+            sess['top']['form_vals']['prior_facet_labels'] = form.cleaned_data['prior_facet_labels']
             sess['top']['form_vals']['prior_subj_search'] = form.cleaned_data['prior_subj_search']
             sess['top']['form_vals']['prior_subj_labels'] = form.cleaned_data['prior_subj_labels']
             sess['top']['form_vals']['prior_node_search'] = form.cleaned_data['prior_node_search']
             sess['top']['form_vals']['prior_color'] = form.cleaned_data['prior_color']
             sess['top']['form_vals']['prior_node_label'] = form.cleaned_data['prior_node_label']
             sess['top']['form_vals']['dirty_flag'] = form.cleaned_data['dirty_flag']
-
+            sess['top']['form_vals']['prior_show_all'] = form.cleaned_data['prior_show_all']
         elif form_type == 'subject':
             sess['top'] = {}
             sess['top']['form_type'] = form_type
             sess['top']['form_vals'] = {}
             sess['top']['form_vals']['restrict_text'] = form.cleaned_data['restrict_text']
             sess['top']['form_vals']['restrict_labels'] = form.cleaned_data['restrict_labels']
-            sess['top']['form_vals']['facet'] = form.cleaned_data['facet']
+            sess['top']['form_vals']['app_class'] = form.cleaned_data['app_class']
         else:
-            print('Uh oh!')
+            pass  # todo: raise error here.
 
         sess.save()
 
 
-def create_request(session_key, queue_key, bypass):
+def create_request(session_key, queue_key):
     """Places form values from queue into a new request object
     and returns the object for use in view functions."""
-    from . import forms
-    from .enums import Facet
+    from .enums import AppClass
+    from django.contrib.auth.models import AnonymousUser
+    from django.test import RequestFactory
 
     try:
-        frm = object
+
         factory = RequestFactory()
         sess = SessionStore(session_key=session_key)
         form_data = sess[queue_key]
@@ -77,14 +82,14 @@ def create_request(session_key, queue_key, bypass):
             choices = form_data['form_vals']['relation_types']
             form_data['form_vals']['relation_types'] = choices.split('|')
 
-        # set request url
-        if form_data['form_vals']['facet'] == Facet.people.value:
+        # set request url todo: move this functionality to mappings.py OR implement using urls.py
+        if form_data['form_vals']['app_class'] == AppClass.people.value:
             url = '/discover/people_filtered/'
-        elif form_data['form_vals']['facet'] == Facet.corps.value:
+        elif form_data['form_vals']['app_class'] == AppClass.corps.value:
             url = '/discover/corps_filtered/'
-        elif form_data['form_vals']['facet'] == Facet.colls.value:
+        elif form_data['form_vals']['app_class'] == AppClass.colls.value:
             url = '/discover/collections_filtered/'
-        elif form_data['form_vals']['facet'] == Facet.orals.value:
+        elif form_data['form_vals']['app_class'] == AppClass.orals.value:
             url = '/discover/orals_filtered/'
 
         # create request
@@ -92,26 +97,9 @@ def create_request(session_key, queue_key, bypass):
                                       form_data['form_vals'], secure=True)
         request.user = AnonymousUser()
 
-        # create form based on form type for update_queue function.
-        if form_data['form_type'] == 'search':
-            frm = forms.SearchForm(request.POST)
-        elif form_data['form_type'] == 'node':
-            frm = forms.NodeSelectForm(request.POST)
-        elif form_data['form_type'] == 'subject':
-            frm = forms.RestrictSubjectForm(request.POST)
-
-        # if not bypass:
-            # update_queue(form_data['form_type'], frm, session_key)
-
         return request
     except Exception as e:
         catch_err(e, 'queue_mgr.create_request')
-
-
-# def get_middle_request(session_key):
-    """Returns data from most recent prior search without updating the queue."""
-#    sess = SessionStore(session_key=session_key)
-#    return sess['middle']
 
 
 def get_queue_entry(position, session_key):
@@ -124,81 +112,57 @@ def get_queue_list(session_key) -> list:
     """Builds a list of prior searches to show in the
     prior searches select box on web pages."""
     sess = SessionStore(session_key=session_key)
-    top_rel_types = ''
-    mid_rel_types = ''
-    bottom_rel_types = ''
+    q_positions = ['top', 'middle', 'bottom']
+    the_choices = [('none', ' ---- ')]
+
     try:
-        if sess['top']['form_type'] == 'search':
-            top_search_key = 'search_text'
-            top_facet = sess['top']['form_vals']['facet']
-            top_rel_types = ' + ' + sess['top']['form_vals']['relation_type']
-        elif sess['top']['form_type'] == 'node':
-            if sess['top']['form_vals']['prior_node_search'] == '':  # no previous node search
-                top_search_key = 'prior_kw_search'  # use the old key-phrase search instead
-                top_rel_types = ' + ' + sess['top']['form_vals']['relation_types']
+        for pos in q_positions:
+            if sess[pos]['form_type'] == 'search':
+                search_str = make_search_label(sess[pos]['form_vals']['search_text'],
+                                               sess[pos]['form_vals']['facet_labels'])
+                the_class = sess[pos]['form_vals']['app_class']
+                rel_types = sess[pos]['form_vals']['relation_type']
+            elif sess[pos]['form_type'] == 'node':
+                if sess[pos]['form_vals']['prior_node_search'] == '':  # no previous node search
+                    search_str = make_search_label(sess[pos]['form_vals']['prior_kw_search'],
+                                                   sess[pos]['form_vals']['prior_facet_labels'])
+                    rel_types = sess[pos]['form_vals']['relation_types']
+                else:
+                    search_str = sess[pos]['form_vals']['prior_node_label']  # use the old label for node search
+                    rel_types = sess[pos]['form_vals']['relation_types']
+                the_class = sess[pos]['form_vals']['app_class']
+            elif sess[pos]['form_type'] == 'subject':
+                the_class = 'subjects'
+                search_str = sess[pos]['form_vals']['restrict_labels']
+                rel_types = 'subject'
             else:
-                top_search_key = 'prior_node_label'  # use the old label for node search
-                top_rel_types = ' + ' + sess['top']['form_vals']['relation_types']
-            top_facet = sess['top']['form_vals']['facet']
-        elif sess['top']['form_type'] == 'subject':
-            top_facet = 'subjects'
-            top_search_key = 'restrict_labels'
-        else:
-            top_search_key = 'data'  # empty form stub created on views.init_session.
-            top_facet = ''
+                search_str = 'data'  # empty form stub created on views.init_session.
+                the_class = ''
+                rel_types = ''
 
-        if sess['middle']['form_type'] == 'search':
-            mid_search_key = 'search_text'
-            mid_facet = sess['middle']['form_vals']['facet']
-            mid_rel_types = ' + ' + sess['middle']['form_vals']['relation_type']
-        elif sess['middle']['form_type'] == 'node':
-            if sess['middle']['form_vals']['prior_node_search'] == '':  # no previous node search
-                mid_search_key = 'prior_kw_search'  # use the old key-phrase search instead
-                mid_rel_types = ' + ' + sess['middle']['form_vals']['relation_types']
-            else:
-                mid_search_key = 'prior_node_label'  # use the old label from the old node search
-                mid_rel_types = ' + ' + sess['middle']['form_vals']['relation_types']
-            mid_facet = sess['middle']['form_vals']['facet']
-        elif sess['middle']['form_type'] == 'subject':
-            mid_search_key = 'restrict_labels'
-            mid_facet = 'subjects'
-        else:
-            mid_search_key = 'data'
-            mid_facet = ''
-
-        if sess['bottom']['form_type'] == 'search':
-            bottom_search_key = 'search_text'
-            bottom_facet = sess['bottom']['form_vals']['facet']
-            bottom_rel_types = ' + ' + sess['bottom']['form_vals']['relation_type']
-        elif sess['bottom']['form_type'] == 'node':
-            if sess['bottom']['form_vals']['prior_node_search'] == '':  # no previous node search
-                bottom_search_key = 'prior_kw_search'  # use the old key-phrase search instead
-                bottom_rel_types = ' + ' + sess['bottom']['form_vals']['relation_types']
-            else:
-                bottom_search_key = 'prior_node_label'  # use the old label from the old node search
-                bottom_rel_types = ' + ' + sess['bottom']['form_vals']['relation_types']
-            bottom_facet = sess['bottom']['form_vals']['facet']
-        elif sess['bottom']['form_type'] == 'subject':
-            bottom_search_key = 'restrict_labels'
-            bottom_facet = 'subjects'
-        else:
-            bottom_search_key = 'data'
-            bottom_facet = ''
-
-        the_choices = [('none', ' ---- ')]
-        # Don't add slugs -- those that ='data' -- from queue initialization to pick list
-        if not top_search_key == 'data':
-            the_choices.append(('top', top_facet + ": " +
-                                sess['top']['form_vals'][top_search_key][:50] + '...' + top_rel_types))
-
-        if not mid_search_key == 'data':
-            the_choices.append(('middle', mid_facet + ": " +
-                                sess['middle']['form_vals'][mid_search_key][:50] + '...' + mid_rel_types))
-
-        if not bottom_search_key == 'data':
-            the_choices.append(('bottom', bottom_facet + ": " +
-                                sess['bottom']['form_vals'][bottom_search_key][:50] + '...' + bottom_rel_types))
+            # Don't add placeholders -- those that ='data' -- from queue initialization to pick list
+            if not search_str == 'data':
+                the_choices.append((pos, the_class + ": " + search_str[:50] + '. link=' + rel_types))
 
         return the_choices
     except Exception as e:
         catch_err(e, 'queue_mgr.get_queue_list')
+
+
+def make_search_label(search_text, facet_labels):
+    """Formats a search string label based on the terms and/or facet
+    values used."""
+    n = 0
+    if search_text.__len__() > 0:
+        n += 1
+    if facet_labels.__len__() > 0:
+        n += 2
+
+    if n == 1:
+        return search_text
+    elif n == 2:
+        return facet_labels
+    elif n == 3:
+        return search_text + " & " + facet_labels
+    else:
+        return "All"

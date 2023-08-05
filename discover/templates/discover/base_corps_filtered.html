@@ -2,17 +2,30 @@
 {% load static %}
 
 {% block head-script %}
-    <script type='text/javascript' src="{% static 'filtered_head.js' %}"></script>
-     <script type='text/javascript'>
-        $(document).ready(function () {
-            $('.site-menu ul #corps a').css('background-color', '#9c1616');
-        });
-    </script>
-
+    <script type='text/javascript' src="{% static 'page_controls.js' %}"></script>
+    <script type='text/javascript' src="{% static 'facet_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
+    <script type="text/javascript"> let app_class = '{{ app_class }}';</script>
 {% endblock %}
-{% block header2 %}Search Results: <i>"{{ string }}"</i> {% endblock %}
+{% block header2 %}Search Results for: <i>{{ string }}</i> {% endblock %}
 
 {% block main-content %}
+        <!-- pop-up facet value picker control -->
+    <div class="fp_wrapper" id="fp_wrapper_id">FILTER <span id="close_btn" onclick="hideFacetPicker()">&times;</span>
+        <input id="typeahead" type="text">
+        <div class="facet_picker" id="facet_picker_id">
+            <table>
+            {% for v in facet %}
+                <tr class="picker_row">
+                   <td> <form><input id="{{ v.facet_id }}" type="checkbox"
+                                      name="checkbox" onchange="handleFacetCheck('{{ v.facet_id }}')"></form></td>
+                    <td id="{{ v.facet_id }}_label">{{ v.facet_label }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+
     <!-- The Modal -->
     <div id="modal_graph" class="modal">
       <!-- Modal content -->
@@ -22,10 +35,27 @@
             <div id="mod-graph-parent"><div id="graph_canvas"></div></div>
         </div>
     </div>
-    <form action="/discover/corps_filtered/" method="post">
+
+    <form id="search_form" action="/discover/corps_filtered/" method="post">
         {% csrf_token %}
-        {{ search }}
-    <input type="submit" value="SEARCH">
+        <span id="search_submit_span">
+            <button id="search_submit" type="submit" value="SEARCH">SEARCH</button>
+        </span>
+        {% for field in search %}
+            {% if field.name == 'search_text' %}
+                <div class="search_field">{{ field.label }}: {{ field }}</div>
+            {% elif field.name == 'show_all' %}
+                <div class="search_field">{{ field.label }}: {{ field }}</div>
+            {% else %}
+                {{ field }}
+            {% endif %}
+        {% endfor %}
+        <br>
+        <label id="fld_label" for="fld_wrapper_id">Search by categories: </label>
+        <div class="fld_wrapper" id="fld_wrapper_id"><span id="open_btn" onclick="showFacetPicker()">+</span>
+            <div id="facet_labels_div">[none selected]</div>
+        </div>
+
     </form>
     <hr class="separator" />
     <form action="/discover/corps_filtered/" method="post">
@@ -45,7 +75,7 @@
             </tr>
             {% for c in unique_list %}
                 <tr>
-                    <td><a href="/discover/{{ facet }}/item/{{ c.getitemid }}">details</a></td>
+                    <td><a href="/discover/{{ app_class }}/item/{{ c.getitemid }}">details</a></td>
                     <td>{{ c.getlabel }}</td>
                     <td>{{ c.getdesc }}</td>
                 </tr>
@@ -78,7 +108,7 @@
 
    </form>
     <br>
-    <div id="loading_div" style="font-size: large">GRAPH IS LOADING...
+    <div id="loading_div" style="font-size: large">LOADING...
         <img id="loading" alt="loading-in-progress image"  src="{% static 'Stampede.gif' %}">
     </div>
     <div id="graph_tooltip"></div>

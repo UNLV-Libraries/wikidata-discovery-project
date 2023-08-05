@@ -13,15 +13,15 @@ import os
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.16'
+APP_VERSION = 'dev.17'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
 APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
-SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://linkedin.com/andre_hulet; andre.hulet@unlv.edu)'
+SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = False
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -117,11 +117,10 @@ USE_TZ = True
 
 # SESSION SETTINGS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 604800  # 7 days, in seconds
 
-# Static files (CSS, JavaScript, Images)
-
+# STATIC FILES (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = '/data/www/wd_static/'
 
@@ -154,6 +153,7 @@ LOGGING = {
             "level": "ERROR",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "issue.log",
+            "formatter": "verbose",
         },
     },
     "loggers": {
@@ -168,6 +168,12 @@ LOGGING = {
             "propagate": True,
         },
     },
+    "formatters": {
+        "verbose": {
+            "format": "{asctime} {levelname} {name} {module} {process:d} {message}",
+            "style": "{",
+        }
+    }
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
