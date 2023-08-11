@@ -216,16 +216,7 @@ function anchorForDetails(item_id) {
     }
 }
 function mapPropertyLabel (prop) {
-    //todo: move this to a dict populated from the view function and managed in mappings.py
-    let dict = {
-        itemlabel: "name", donatedbylabel: "donor", colltypelabel: "type of",
-        inventorynum: "inventory #", describedat: "described at",
-        instanceoflabel: "type", inception: "inception", dissolved: "dissolved",
-        locationlabel: "location", image: "image", dob: "date born", placeofbirthlabel: "place born",
-        dateofdeath: "date died", placeofdeathlabel: "place died", motherlabel: "mother", fatherlabel: "father",
-        spouselabel: "spouse", childlabel: "child", relativelabel: "relative"
-    };
-    let label = dict[prop];
+    let label = property_labels[prop];
     if (!label) {
         return prop;
     } else {

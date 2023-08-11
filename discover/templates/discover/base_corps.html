@@ -50,17 +50,22 @@
     </form>
 <br>
     <div id="errors"> {{ errors }}</div>
-    <p class="instructions">Use the search bar to look for corporate bodies by type of business, name, or
-            other descriptive details. For example, type "newspaper" or "casino", or a location
-            like "las vegas". You can type all or part of a specific name, like "wadsworth," for the Wadsworth
-        Dispatch.</p>
-            {% if images %}
-            {% for i in images %}
-                <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="400" height="250"
-                     loading="lazy" title="{{ i.itemlabel }}: {{ i.itemdesc }}">
-            {% endfor %}
-            <div><i>[images: Wikimedia Commons]</i></div>
-            {% endif %}
+    <p class="instructions">Use the search bar and filter tools to look for corporate bodies
+        and their organization categories. For example, select one or more categories from the filter tool.
+        To find corporate bodies based on their names and
+        descriptions, type all or part of a name, like "wadsworth", in the search bar. You also can combine
+        keywords and filter settings: type a phrase like "vegas" and then select one or more subjects (like
+        all subjects with "lgbtq") to see if any of those subjects are related to corporate bodies related to
+        Las Vegas.
+    </p>
+
+    {% if images %}
+    {% for i in images %}
+        <img src="{{ i.image }}" alt="{{ i.itemlabel }}" width="400" height="250"
+             loading="lazy" title="{{ i.itemlabel }}: {{ i.itemdesc }}">
+    {% endfor %}
+    <div><i>[images: Wikimedia Commons]</i></div>
+    {% endif %}
 
 {% endblock %}
 {% block side-map %}

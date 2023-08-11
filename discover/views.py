@@ -10,7 +10,6 @@ from . import mappings
 
 def home(request):
     from .web_methods import get_chart
-
     init_session(request)
 
     chart_io_dict = get_chart('stats_instanceof_count')
@@ -24,13 +23,14 @@ def process_search(request):
     """Processes and renders search results for all app classes.
     Callable by search form, node-select form, subject forms, and queue form."""
     from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm
+    import json
+    from django.utils.safestring import mark_safe
 
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
     file_path = url_path.split('/')
     final_path = file_path[0] + '/base_' + file_path[1] + '.html'
     error_msg = ''
-    curr_class = ''
     bypass_large_graph = 0
     bypass_queue = False
 
@@ -42,8 +42,8 @@ def process_search(request):
             pos = rtn_qform.cleaned_data['run_qry']
             q_item = queue_mgr.get_queue_entry(pos, request.session.session_key)
             curr_class = q_item['form_vals']['app_class']
-            final_path = get_prior_template_path(curr_class)
-            curr_request = queue_mgr.create_request(request.session.session_key, pos)
+            final_path = mappings.get_prior_template_path(curr_class)
+            curr_request = queue_mgr.create_request(request.session.session_key, pos, url_path)
         else:
             curr_request = request
 
@@ -52,7 +52,7 @@ def process_search(request):
         if bbf.is_valid():
             bypass_queue = True
             bypass_large_graph = 1
-            curr_request = queue_mgr.create_request(request.session.session_key, 'top')
+            curr_request = queue_mgr.create_request(request.session.session_key, 'top', url_path)
 
         # attempt to hydrate all search forms based on POST data. Only one will be valid.
         rtn_search_frm = SearchForm(curr_request.POST)
@@ -131,6 +131,9 @@ def process_search(request):
             results = process_invalid_form()  # pass empty set
             graph_data = graph.load_graph(results, the_checks, curr_class)
 
+        # obtain property label dict and render as JSON for property tooltip labels.
+        prop_labels = mark_safe(json.dumps(mappings.PROP_LABEL_DICT, separators=(",", ":")))
+
         # obtain facet values list for faceted search
         facet_vals = mappings.get_facet_queryset(curr_class)
 
@@ -151,7 +154,8 @@ def process_search(request):
         context = {'app_class': curr_class, 'unique_list': results['unique'], 'search': sform, 'priors': qform,
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
-                   'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks, 'errors': error_msg}
+                   'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks,
+                   'prop_labels': prop_labels, 'errors': error_msg}
 
         return render(request, final_path, context)
 
@@ -330,6 +334,11 @@ def utilities(request):
         n = db.cache_subjects()
         msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
 
+    # add any messages to issue log
+    log = open('issue.log', 'a')
+    log.write(msgs)
+    log.close()
+
     context = {'form': nf, 'messages': msgs}
     return render(request, 'discover/base_utilities.html', context)
 
@@ -501,27 +510,12 @@ def get_default_rel_type(app_class):
     return check_set.relation_type
 
 
-def get_prior_template_path(app_class):  # todo: move to mappings.py or implement with urls.py
-    """Used to retrieve doc path based on app_class of queue form in process_search."""
-    if app_class == AppClass.people.value:
-        path = 'discover/base_people_filtered.html'
-    elif app_class == AppClass.corps.value:
-        path = 'discover/base_corps_filtered.html'
-    elif app_class == AppClass.colls.value:
-        path = 'discover/base_collections_filtered.html'
-    elif app_class == AppClass.orals.value:
-        path = 'discover/base_orals_filtered.html'
-    else:  # based on subjects search
-        path = 'discover/base_collections_filtered.html'
-
-    return path
-
-
 def init_session(request):
     """Initializes browser session for storing prior search terms."""
     iterate = ['top', 'middle', 'bottom']
 
-    if not request.session.session_key:
+    if not request.session.session_key:  # if key doesn't exist in the backend...
+        request.session.flush()      # Deletes any prior sess data and the browser cookie.
         request.session.create()
         for i in iterate:
             request.session[i] = {}

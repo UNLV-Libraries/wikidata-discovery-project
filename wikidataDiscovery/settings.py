@@ -13,7 +13,7 @@ import os
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.17'
+APP_VERSION = 'dev.17.1'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -26,10 +26,10 @@ DEBUG = True
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = get_django_key()
+SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
 
-ALLOWED_HOSTS = ['127.0.1.1', 'localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu']
-
+ALLOWED_HOSTS = ['localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
+                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu']
 
 # Application definition
 INSTALLED_APPS = [
@@ -57,8 +57,7 @@ ROOT_URLCONF = 'wikidataDiscovery.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -177,4 +176,6 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 

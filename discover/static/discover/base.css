@@ -194,14 +194,15 @@ input.rel-row {
 }
 
 #facet_labels_div {
-	padding: 5px;
+	padding: 2px;
 }
 
 #close_btn {
   	color: #aaa;
   	float: right;
-  	margin: 2px;
-	font-size: 24px;
+	padding: 2px;
+  	/* margin: 2px; */
+	font-size: 18px;
   	font-weight: bold;
 }
 
@@ -216,7 +217,8 @@ input.rel-row {
   	color: #aaa;
   	float: right;
   	margin: 2px;
-	font-size: 24px;
+	padding: 2px;
+	font-size: 18px;
   	font-weight: bold;
 }
 

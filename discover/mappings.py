@@ -17,6 +17,16 @@ COLL_PROPERTIES = ['itemlabel', 'donatedbylabel', 'colltypelabel', 'inventorynum
 
 ORAL_PROPERTIES = ['itemlabel', 'inventorynum', 'describedat']
 
+# Define in-graph labels for each property listed above.
+PROP_LABEL_DICT = {
+    "itemlabel": "name", "donatedbylabel": "donor", "colltypelabel": "type of",
+    "inventorynum": "inventory #", "describedat": "described at",
+    "instanceoflabel": "type", "inception": "inception", "dissolved": "dissolved",
+    "locationlabel": "location", "image": "image", "dob": "date born", "placeofbirthlabel": "place born",
+    "dateofdeath": "date died", "placeofdeathlabel": "place died", "motherlabel": "mother", "fatherlabel": "father",
+    "spouselabel": "spouse", "childlabel": "child", "relativelabel": "relative"
+    }
+
 FACETS = {AppClass.colls.value: 'subject_id',
           AppClass.corps.value: 'instanceof_id',
           AppClass.orals.value: 'subject_id',
@@ -117,7 +127,7 @@ def get_search_queryset(app_class) -> QuerySet:
         qry = models.Collection.objects.all()
     elif app_class == AppClass.orals.value:
         qry = models.OralHistory.objects.all()
-    elif app_class == AppClass.subjs.value:  # todo: update to support redirect to selected app class based on subject.
+    elif app_class == AppClass.subjs.value:  # todo: redesign or refactor out of GLAM app.
         qry = models.Collection.objects.all()
     else:
         qry = QuerySet()
@@ -194,3 +204,20 @@ def get_facet_filter_kwarg(app_class, qcode_list) -> dict:
     kwarg_dict = {kwarg: qcode_list}
 
     return kwarg_dict
+
+
+def get_prior_template_path(app_class):
+    """Used to retrieve doc path based on app_class of queue form in process_search."""
+    if app_class == AppClass.people.value:
+        path = 'discover/base_people_filtered.html'
+    elif app_class == AppClass.corps.value:
+        path = 'discover/base_corps_filtered.html'
+    elif app_class == AppClass.colls.value:
+        path = 'discover/base_collections_filtered.html'
+    elif app_class == AppClass.orals.value:
+        path = 'discover/base_orals_filtered.html'
+    else:  # based on subjects search
+        path = 'discover/base_collections_filtered.html'
+
+    return path
+

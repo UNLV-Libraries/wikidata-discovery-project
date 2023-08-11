@@ -1,34 +1,31 @@
-"""Scheduler continuously runs on its own thread while executing any pending jobs at each
-elapsed time interval (seconds).
-"""
 import threading
 import time
 import schedule
 from discover import db
 from wikidataDiscovery import logs
-import datetime
 
 
-def run_in_background(interval=60):
+def run_continuously(interval=120):
+    """Function is called during startup in the wsgi.py file.  Every 120 seconds, it checks
+    for scheduled jobs defined with the external 'schedule' library and executes them on a background thread.
+    """
     cease_continuous_run = threading.Event()
 
-    class SchedulingThread(threading.Thread):
+    class ScheduleThread(threading.Thread):
         @classmethod
         def run(cls):
             while not cease_continuous_run.is_set():
                 schedule.run_pending()
                 time.sleep(interval)
 
-    continuous_thread = SchedulingThread()
+    continuous_thread = ScheduleThread()
     continuous_thread.start()
     return cease_continuous_run
 
 
 # Job: cache all app wikidata in backend.
 def cache_wikidata():
-    dt = datetime.datetime.now()
     m = db.cache_all()
-    print(str(dt) + ': ' + m)
 
 
 # Job: rotate logs, making issue.log issue.log.1, etc.
@@ -36,12 +33,15 @@ def rotate_logs():
     logs.rotate_logs()
 
 
-# list of jobs that will run
-schedule.every().day.at('23:58').do(cache_wikidata)
-schedule.every().day.at('00:05').do(rotate_logs)
+def background_job():
+    print('Hello from the background thread')
 
-# Start the background thread
-stop_run_continuously = run_in_background()
+
+# Use schedule module to define jobs for specific times
+schedule.every().day.at('23:55').do(cache_wikidata)
+schedule.every().day.at('00:01').do(rotate_logs)
+# schedule.every(10).seconds.do(background_job)
+
 
 # Stop the background thread
 # stop_run_continuously.set()

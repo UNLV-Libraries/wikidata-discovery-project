@@ -49,3 +49,37 @@ UNION
   }
 SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }ORDER BY ASC (?inventoryNum)
+
+# CANDIDATE FOR UPDATED ITEM QUERY
+select ?item ?itemLabel ?itemDescription ?prop ?propLabel ?oraw ?oValue ?title  ?inventoryNum ?describedAt
+where {
+  { # get literal object values only
+   VALUES ?item {wd:Q111250737} .  #entity passed into the query
+  ?item ?praw ?oraw .
+  ?prop wikibase:directClaim ?praw .
+   BIND (?oraw as ?oValue) .
+   filter(isLiteral(?oraw))
+  }
+  UNION
+  { # get url object values
+  VALUES ?item {wd:Q111250737} . #entity passed into the query
+  ?item ?praw ?oraw .
+  ?prop wikibase:directClaim ?praw .
+   BIND (?oraw as ?oValue) .
+  filter(substr(str(?oraw),1,5)="https")
+  }
+  UNION
+  { # get URI objects with english labels
+   VALUES ?item {wd:Q111250737} . #entity passed into the query
+  ?item ?praw ?oraw .
+  ?prop wikibase:directClaim ?praw .
+    ?item p:P485 ?archivesAt .
+  ?archivesAt ps:P485 wd:Q73644758 .
+  OPTIONAL {?archivesAt pq:P1810 ?title } .
+  OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
+  OPTIONAL {?archivesAt pq:P973 ?describedAt } .
+  ?oraw rdfs:label ?oValue . FILTER (lang(?oValue)="en")
+    }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+ORDER BY ?propLabel

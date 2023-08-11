@@ -16,7 +16,6 @@ def load_graph(dataset, relation_types, app_class):
         relation_dict = {}  # takes relation type node data
         props_dict = {}  # takes properties data
         edge_dict = {}  # takes edge data
-        # node_dict = {}
         eval_dict = {}  # special dict for duplicate node id problem. See below.
 
         node_list = []
@@ -39,7 +38,6 @@ def load_graph(dataset, relation_types, app_class):
         for k, v in item_dict.items():
             obj1 = {"id": k, "label": v[:20] + '.', "shape": "ellipse", "color": RelColor.item.value}
             node_list.append(obj1)
-            # node_dict[k] = v
 
         # put unique relation nodes in list
         for k, v in relation_dict.items():
