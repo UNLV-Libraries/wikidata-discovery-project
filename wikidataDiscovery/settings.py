@@ -124,12 +124,12 @@ STATIC_URL = 'static/'
 STATIC_ROOT = '/data/www/wd_static/'
 
 STATICFILES_DIRS = [
-    '/home/ed/PycharmProjects/wikidataDiscovery/discover/static/discover/',
-    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/vis-network/standalone/umd/',
-    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/vis-network/dist/dist/',
-    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/underscore/',
-    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/jquery/dist',
-    '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/chart.js/dist',
+    str(BASE_DIR / 'discover/static/discover/'),
+    str(BASE_DIR / 'node_modules/vis-network/standalone/umd/'),
+    str(BASE_DIR / 'node_modules/vis-network/dist/dist/'),
+    str(BASE_DIR / 'node_modules/underscore/'),
+    str(BASE_DIR / 'node_modules/jquery/dist'),
+    str(BASE_DIR / 'node_modules/chart.js/dist'),
 ]
 
 STATICFILES_FINDERS = [
