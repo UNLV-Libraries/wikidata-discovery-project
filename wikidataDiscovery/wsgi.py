@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/
 import os
 
 from django.core.wsgi import get_wsgi_application
-from . import scheduler
+from wikidataDiscovery import scheduler
 # from django.contrib.auth.handlers.modwsgi import check_password
 # from django.core.handlers.wsgi import WSGIHandler
 
