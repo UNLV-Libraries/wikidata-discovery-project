@@ -1,6 +1,5 @@
 #PEOPLE PROFILE--ABOUT
-SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel 
-?motherLabel ?fatherLabel ?siblingLabel ?spouseLabel ?childLabel ?relativeLabel ?attendedLabel ?educatedAtLabelLabel ?educatedAt_startTime ?educatedAt_endTime ?collection ?inventoryNum ?describedAt
+SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel ?motherLabel ?fatherLabel ?siblingLabel ?spouseLabel ?childLabel ?relativeLabel
 WHERE
 {
  {
@@ -15,11 +14,6 @@ WHERE
   OPTIONAL {?item wdt:P570 ?dateOfDeath } .
   OPTIONAL {?item wdt:P106 ?occupation } .
   OPTIONAL {?item wdt:P101 ?fieldOfWork } .
-  OPTIONAL {?item p:P69 ?educatedAt .
-            ?educatedAt ps:P69 ?attended .
-            ?educatedAt pq:P580 ?educatedAt_startTime .
-            ?educatedAt pq:P582 ?educatedAt_endTime
-           } .
 
   #====  OPTIONAL FAMILY DATA ABOUT PERSON ====
   OPTIONAL {?item wdt:P25 ?mother } .
@@ -29,87 +23,5 @@ WHERE
   OPTIONAL {?item wdt:P40 ?child } .
   OPTIONAL {?item wdt:P1038 ?relative } .
  }
-UNION
- {
-  SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel 
-?motherLabel ?fatherLabel ?siblingLabel ?spouseLabel ?childLabel ?relativeLabel ?attendedLabel ?educatedAtLabelLabel ?educatedAt_startTime ?educatedAt_endTime ?collection ?inventoryNum ?describedAt
-  WHERE
-  { 
-   ?item wdt:P31 wd:Q5 .
-    
-   #====  OPTIONAL ARCHIVES AT PROPERTY AND QUALIFIERS ==== 
-   ?item p:P485 ?archivesAt .
-   ?archivesAt ps:P485 wd:Q73644758 .
-   OPTIONAL {?archivesAt pq:P1810 ?collection } .
-   OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
-   OPTIONAL {?archivesAt pq:P973 ?describedAt } .   
-   
-   #====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
-   OPTIONAL {?item wdt:P18 ?image }.
-   OPTIONAL {?item wdt:P19 ?placeOfBirth } .
-   OPTIONAL {?item wdt:P20 ?placeOfDeath } .
-   OPTIONAL {?item wdt:P569 ?dateOfBirth } .
-   OPTIONAL {?item wdt:P570 ?dateOfDeath } .
-   OPTIONAL {?item wdt:P106 ?occupation } .
-   OPTIONAL {?item wdt:P101 ?fieldOfWork } .
-   OPTIONAL {?item p:P69 ?educatedAt .
-            ?educatedAt ps:P69 ?attended .
-            ?educatedAt pq:P580 ?educatedAt_startTime .
-            ?educatedAt pq:P582 ?educatedAt_endTime
-            } .
-
-  #====  OPTIONAL FAMILY DATA ABOUT PERSON ====
-  OPTIONAL {?item wdt:P25 ?mother } .
-  OPTIONAL {?item wdt:P22 ?father } .
-  OPTIONAL {?item wdt:P3373 ?sibling } .
-  OPTIONAL {?item wdt:P26 ?spouse } .
-  OPTIONAL {?item wdt:P40 ?child } .
-  OPTIONAL {?item wdt:P1038 ?relative } .
-   
-  }  
- }
-UNION
- {
-  SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel 
-?motherLabel ?fatherLabel ?siblingLabel ?spouseLabel ?childLabel ?relativeLabel ?attendedLabel ?educatedAtLabelLabel ?educatedAt_startTime ?educatedAt_endTime ?oralHistory ?inventoryNum ?describedAt 
-WHERE
-{ 
- {
-  ?item wdt:P31 wd:Q5 .
-  
-  #====  OPTIONAL ORAL HISTORY AT PROPERTY AND QUALIFIERS ==== 
-  ?item p:P9600 ?oralHistoryAt .
-  ?oralHistoryAt ps:P9600 wd:Q73644758 .
-  OPTIONAL {?oralHistoryAt pq:P1810 ?oralHistory } .
-  OPTIONAL {?oralHistoryAt pq:P217 ?inventoryNum } .
-  OPTIONAL {?oralHistoryAt pq:P973 ?describedAt } .
-  FILTER (REGEX(STR(?describedAt),"^http://n2t.net/")) 
-  
-  #====  OPTIONAL ATTRIBUTES ABOUT PERSON ====
-  OPTIONAL {?item wdt:P18 ?image }.
-  OPTIONAL {?item wdt:P19 ?placeOfBirth } .
-  OPTIONAL {?item wdt:P20 ?placeOfDeath } .
-  OPTIONAL {?item wdt:P569 ?dateOfBirth } .
-  OPTIONAL {?item wdt:P570 ?dateOfDeath } .
-  OPTIONAL {?item wdt:P106 ?occupation } .
-  OPTIONAL {?item wdt:P101 ?fieldOfWork } .
-  OPTIONAL {?item p:P69 ?educatedAt .
-            ?educatedAt ps:P69 ?attended .
-            ?educatedAt pq:P580 ?educatedAt_startTime .
-            ?educatedAt pq:P582 ?educatedAt_endTime
-           } .
-
-  #====  OPTIONAL FAMILY DATA ABOUT PERSON ====
-  OPTIONAL {?item wdt:P25 ?mother } .
-  OPTIONAL {?item wdt:P22 ?father } .
-  OPTIONAL {?item wdt:P3373 ?sibling } .
-  OPTIONAL {?item wdt:P26 ?spouse } .
-  OPTIONAL {?item wdt:P40 ?child } .
-  OPTIONAL {?item wdt:P1038 ?relative } .   
- } 
-}
- }  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
-  
-  
-  
+SERVICE wikibase:label { bd:serviceParam wikibase:language "en" } .
 }

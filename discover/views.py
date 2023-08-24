@@ -23,6 +23,7 @@ def process_search(request):
     """Processes and renders search results for all app classes.
     Callable by search form, node-select form, subject forms, and queue form."""
     from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm
+    from .geog import get_geo_properties
     import json
     from django.utils.safestring import mark_safe
 
@@ -137,6 +138,9 @@ def process_search(request):
         # obtain facet values list for faceted search
         facet_vals = mappings.get_facet_queryset(curr_class)
 
+        # create lat/lon coordinate queryset for relevant app classes
+        coords = get_geo_properties(results['filtered'], curr_class)
+
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
                                          'prior_facet_values': prior_facet_values,
@@ -155,7 +159,7 @@ def process_search(request):
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
                    'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks,
-                   'prop_labels': prop_labels, 'errors': error_msg}
+                   'prop_labels': prop_labels, 'coords': coords, 'errors': error_msg}
 
         return render(request, final_path, context)
 
@@ -356,6 +360,12 @@ def about(request):
     return render(request, 'discover/base_about.html', context)
 
 
+def test_map(request):
+    path = '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/ol/'
+    context = {'path': path}
+    return render(request, 'discover/base_test_map.html', context)
+
+
 def process_search_form(sform, qset, rel_type_list):
     """Private function for form processing. Generic form handler for all views
     that use the search form. Initiates new search workflow for any query set."""
@@ -386,7 +396,6 @@ def process_node_form(nsform, qset, session_key):
     and all relation type checkboxes selected by the user."""
     # generic node selection form handler for all views that use it
     from .web_methods import reduce_search_results
-    from django.db.models import Q
 
     # get selected checkboxes for relation types in graph; grab other needed values
     the_choices = nsform.cleaned_data['relation_types']
@@ -564,7 +573,7 @@ def get_search_query(show_all, search_str, facet_list, facet_str, queryset, the_
                               Q(itemlabel__icontains=search_str))
         filtset = fs1.filter(**kw_arg)
         the_string = search_str + " & " + query_pair['string']
-    elif n == 4: # user clicked the "show all" checkbox
+    elif n == 4:  # user clicked the "show all" checkbox
         filtset = queryset
         the_string = "All " + the_class
     else:

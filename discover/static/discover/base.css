@@ -316,6 +316,13 @@ input.rel-row {
   	z-index: 3;
 }
 
+/* ==== geo map settings */
+#test_map {
+	width: 90%;
+	height: 400px;
+	border: 1px solid black;
+}
+
 /*===NAVIGATION MENU===*/
 .site-menu ul {
 	display: flex;

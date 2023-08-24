@@ -29,6 +29,10 @@ class Item:
     prop_label = ''
     value_code = ''
     value_label = ''
+    qual_code = ''
+    qual_label = ''
+    qual_value_code = ''
+    qual_value_label = ''
     has_url = True
 
     def __init__(self, item_code):
@@ -130,48 +134,60 @@ def load_images(the_dict):
 
 def load_item_details(the_dict):
     """private method to create item objects passed to the view layer."""
-    # Binds only to the "item" query saved in discover_wdquery.
+    # Binds only to the "item" query saved in the database in discover_wdquery.
     import re
 
     item_set = []
-    for r in the_dict["results"]["bindings"]:
-        # base query includes item (Q code) label, the property, English language prop value
-        item_raw = r.get("item", {}).get("value")
-        i = Item(re.split(r'/', item_raw).pop())
-        i.item_label = r.get("itemLabel", {}).get("value")
-        i.item_desc = r.get('itemDescription', {}).get('value')
-        prop_raw = r.get("prop", {}).get("value")
-        prop_code = re.split(r'/', prop_raw).pop()
-        i.prop_code = prop_code
-        i.prop_label = r.get("propLabel", {}).get("value")
-        i.value_code = r.get("oraw", {}).get("value")
+    try:
+        for r in the_dict["results"]["bindings"]:
+            # base query includes item (Q code) label, the property, English language prop value
+            item_raw = r.get("item", {}).get("value")
+            i = Item(re.split(r'/', item_raw).pop())
+            i.item_label = r.get("itemLabel", {}).get("value")
+            i.item_desc = r.get('itemDescription', {}).get('value')
+            prop_raw = r.get("wdprop", {}).get("value")
+            prop_code = re.split(r'/', prop_raw).pop()
+            i.prop_code = prop_code
+            i.prop_label = r.get("wdpropLabel", {}).get("value")
+            i.value_code = r.get("pso", {}).get("value")
+            qual_raw = r.get("wdpq", {}).get("value")
+            if qual_raw:
+                i.qual_code = re.split(r'/', qual_raw).pop()
+                i.qual_label = r.get('wdpqLabel', {}).get('value')
+            qual_val_raw = r.get("pqo", {}).get("value")
+            if qual_val_raw:
+                i.qual_value_code = re.split(r'/', qual_val_raw).pop()
+                i.qual_value_label = r.get('pqoLabel', {}).get('value')
 
-        # format item authority codes or other 'https' values for web retrieval
-        if prop_code == 'P8091':
-            i.value_label = 'http://n2t.net/' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P244':
-            i.value_label = 'http://id.loc.gov/authorities/names/' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P214':
-            i.value_label = 'http://viaf.org/viaf/' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P2163':
-            i.value_label = 'https://experimental.worldcat.org/fast/' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P646':
-            i.value_label = 'https://www.google.com/search?kgmid=' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P8189':
-            i.value_label = 'http://uli.nli.org.il/F/?func=find-b&local_base=NLX10&find_code=UID&request=' \
-                            + r.get("oValue", {}).get("value")
-        elif prop_code == 'P3430':
-            i.value_label = 'https://snaccooperative.org/ark:/99166/' + r.get("oValue", {}).get("value")
-        elif prop_code == 'P973':  # 'described at URL'
-            i.value_label = r.get("oValue", {}).get("value")  # value is already http-formatted.
-        elif prop_code == 'P2671':
-            i.value_label = 'https://www.google.com/search?kgmid=' + r.get("oValue", {}).get("value")
-        else:
-            i.value_label = r.get("oValue", {}).get("value")
-            i.has_url = False
-        item_set.append(i)
+            # format item authority codes or other 'https' values for web retrieval
+            if prop_code == 'P8091':
+                i.value_label = 'http://n2t.net/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P244':
+                i.value_label = 'http://id.loc.gov/authorities/names/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P214':
+                i.value_label = 'http://viaf.org/viaf/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P2163':
+                i.value_label = 'https://experimental.worldcat.org/fast/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P646':
+                i.value_label = 'https://www.google.com/search?kgmid=' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P8189':
+                i.value_label = 'http://uli.nli.org.il/F/?func=find-b&local_base=NLX10&find_code=UID&request=' \
+                                + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P3430':
+                i.value_label = 'https://snaccooperative.org/ark:/99166/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P973':  # 'described at URL'
+                i.value_label = r.get("psoLabel", {}).get("value")  # value is already http-formatted.
+            elif prop_code == 'P2671':
+                i.value_label = 'https://www.google.com/search?kgmid=' + r.get("psoLabel", {}).get("value")
+            else:
+                i.value_label = r.get("psoLabel", {}).get("value")
+                i.has_url = False
+            item_set.append(i)
 
-    return item_set
+        return item_set
+    except Exception as e:
+        catch_err(e, 'web_methods.load_item_details')
+        return item_set
 
 
 def get_item_details(qcode):

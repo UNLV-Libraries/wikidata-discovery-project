@@ -5,6 +5,7 @@
     "chart.js": "^4.3.0",
     "discover": "^0.4.3",
     "jquery": "^3.7.0",
+    "ol": "^7.5.0",
     "underscore": "^1.13.6",
     "vis-network": "^9.1.6"
   }

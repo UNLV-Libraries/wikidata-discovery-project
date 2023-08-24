@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}WikiframeVG - Wikidata Discovery Tool{% endblock %}</title>
-    <link rel='stylesheet' type='text/css' media='screen' href="{% static 'vis-network.min.css' %}">
-    <link rel='stylesheet' type='text/css' media='screen' href="{% static 'base.css' %}">
-    <link rel='icon' href="{% static 'unlv.ico' %}"/>
-    <script type='module' src="{% static 'vis-network.min.js' %}"></script>
-    <script type='text/javascript' src="{% static 'underscore.js' %}"></script>
-    <script type='text/javascript' src="{% static 'jquery.min.js' %}"></script>
+    <link rel='stylesheet' type='text/css' media='screen' href="{% static 'external/vis-network.min.css' %}">
+    <link rel='stylesheet' type='text/css' media='screen' href="{% static 'discover/base.css' %}">
+    <link rel='icon' href="{% static 'discover/unlv.ico' %}"/>
+    <script type='text/javascript' src="{% static 'external/vis-network.min.js' %}"></script>
+    <script type='text/javascript' src="{% static 'external/underscore.js' %}"></script>
+    <script type='text/javascript' src="{% static 'external/jquery.min.js' %}"></script>
     {% block head-script %}{% endblock %}
 </head>
 
@@ -56,7 +56,7 @@
 
 <footer class="app_footer">
     <div id="wikidata_stamp">
-        <img src="{% static 'wikidata_stamp.png' %}"
+        <img src="{% static 'discover/wikidata_stamp.png' %}"
      alt="powered-by-Wikidata graphic" width="160" height="40" title="powered by Wikidata">
     </div>
 </footer>

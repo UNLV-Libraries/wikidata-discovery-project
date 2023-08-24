@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block head-script %}
-    <script type='text/javascript' src="{% static 'page_controls.js' %}"></script>
-    <script type='text/javascript' src="{% static 'facet_functions.js' %}"></script>
-    <script type='text/javascript' src="{% static 'graph_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'discover/page_controls.js' %}"></script>
+    <script type='text/javascript' src="{% static 'discover/facet_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
     <script type="text/javascript"> let app_class = '{{ app_class }}';</script>
 
 {% endblock %}
@@ -114,7 +114,7 @@
    </form>
     <br>
     <div id="loading_div" style="font-size: large">LOADING...
-        <img id="loading" alt="loading-in-progress image"  src="{% static 'Stampede.gif' %}">
+        <img id="loading" alt="loading-in-progress image"  src="{% static 'discover/Stampede.gif' %}">
     </div>
     <div id="graph_tooltip"></div>
     <div id="colWrapper" class="col-graph-wrapper">

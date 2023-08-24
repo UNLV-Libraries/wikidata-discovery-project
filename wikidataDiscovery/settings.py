@@ -10,10 +10,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.17.3'
+APP_VERSION = 'dev.17.4'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -21,7 +22,7 @@ APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = False
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,9 +30,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
 
 ALLOWED_HOSTS = ['localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
-                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu']
+                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe']
 
-# Application definition
+# Establish MIME types
+mimetypes.add_type('text/javascript', '.js', True)
+mimetypes.add_type('text/css', '.css', True)
+
+# Application definitions
 INSTALLED_APPS = [
     'discover.apps.DiscoverConfig',
     'django.contrib.admin',
@@ -124,12 +129,15 @@ STATIC_URL = 'static/'
 STATIC_ROOT = '/data/www/wd_static/'
 
 STATICFILES_DIRS = [
-    str(BASE_DIR / 'discover/static/discover/'),
-    str(BASE_DIR / 'node_modules/vis-network/standalone/umd/'),
-    str(BASE_DIR / 'node_modules/vis-network/dist/dist/'),
-    str(BASE_DIR / 'node_modules/underscore/'),
-    str(BASE_DIR / 'node_modules/jquery/dist'),
-    str(BASE_DIR / 'node_modules/chart.js/dist'),
+    str(BASE_DIR / 'discover/static/discover'),
+    str(BASE_DIR / 'discover/static/external'),
+    # '/data/www/wd_static',
+    # str(BASE_DIR / 'node_modules/vis-network/standalone/umd/'),
+    # str(BASE_DIR / 'node_modules/vis-network/dist/dist/'),
+    # str(BASE_DIR / 'node_modules/underscore/'),
+    # str(BASE_DIR / 'node_modules/jquery/dist/'),
+    # str(BASE_DIR / 'node_modules/chart.js/dist/'),
+    # str(BASE_DIR / 'node_modules/ol/')
 ]
 
 STATICFILES_FINDERS = [
@@ -176,6 +184,5 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 

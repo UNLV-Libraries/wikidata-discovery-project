@@ -1,30 +1,25 @@
-# Returns triples for an entity. Shows object values that are literal, are URLs, or have English Language labels.
-# This query mimicks the wikidata item page and should be used to show all details for an item.
+SELECT ?item ?itemLabel ?itemDescription ?wdprop ?wdpropLabel ?pso ?psoLabel ?wdpq ?wdpqLabel ?pqo ?pqoLabel
+WHERE {
+  VALUES ?item {wd:Q78251101}
 
-select ?item ?itemLabel ?itemDescription ?prop ?propLabel ?oraw ?oValue
-where {
-  { # get literal object values only
-   VALUES ?item {wd:Q111250737} .  #entity passed into the query
-  ?item ?praw ?oraw .
-  ?prop wikibase:directClaim ?praw .
-   BIND (?oraw as ?oValue) .
-   filter(isLiteral(?oraw))
-  }
-  UNION
-  { # get url object values
-  VALUES ?item {wd:Q111250737} . #entity passed into the query
-  ?item ?praw ?oraw .
-  ?prop wikibase:directClaim ?praw .
-   BIND (?oraw as ?oValue) .
-  filter(substr(str(?oraw),1,5)="https")
-  }
-  UNION
-  { # get URI objects with english labels
-   VALUES ?item {wd:Q111250737} . #entity passed into the query
-  ?item ?praw ?oraw .
-  ?prop wikibase:directClaim ?praw .
-  ?oraw rdfs:label ?oValue . FILTER (lang(?oValue)="en")
-    }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-}
-ORDER BY ?propLabel
+  # 1) return all 1st-order nodes & literals for the item
+  ?item ?p ?statement .
+
+  # 2) get all predicate/object values (sub-nodes & literals) for all
+  # 1st order nodes pointing inside and outside of wikidata graph
+  ?statement ?psp ?pso .
+
+  # 3) use :claim to return only statements in wikibase/data model
+  # (includes most namespaces: rdf, prov, ps...)
+  ?wdprop wikibase:claim ?p .
+
+  # 4) use :statementProperty to get only
+  # props in the ps namespace EXCEPT FOR pq
+  ?wdprop wikibase:statementProperty ?psp .
+
+  # 5) use :qualifier to add pq namespace (not sure why this doesn't
+  # happen in 4).
+  OPTIONAL { ?statement ?pqp ?pqo . ?wdpq wikibase:qualifier ?pqp . }
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+} ORDER BY ?wdpropLabel

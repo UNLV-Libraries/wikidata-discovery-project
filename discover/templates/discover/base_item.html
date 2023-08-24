@@ -1,6 +1,6 @@
 {% extends 'discover/base.html' %}
 
-{% load url_target_blank %}
+{% load format_date %}
 {% block head-script %}
     <script type="text/javascript">
         window.onload = function () {
@@ -44,9 +44,20 @@
                     {% if d.has_url == True %}
                         <td><a href="{{ d.value_label }}" target="_blank">{{ d.value_code }}</a></td>
                     {% else %}
-                        <td>{{ d.value_label }}</td>
+                        <td>{{ d.value_label|format_date }}</td>
                     {% endif %}
                 </tr>
+                {% if d.qual_code %}
+                    <tr>
+                        <td><i></i></td>
+                        <td><i>qual: {{ d.qual_label }}</i></td>
+                        {% if d.qual_code == 'P973' %}
+                            <td><a href="{{ d.qual_value_label }}" target="_blank">{{ d.qual_value_label }}</a></td>
+                        {% else %}
+                            <td><i>{{ d.qual_value_label|format_date }}</i></td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
             {% endfor %}
         </table>
     {% else %}

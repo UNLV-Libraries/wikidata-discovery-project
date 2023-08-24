@@ -1,0 +1,53 @@
+{% extends "discover/base.html" %}
+{% load static %}
+
+{% block head-script %}
+<script type="text/javascript" src="{% static 'external/ol.js' %}"></script>
+<link rel="stylesheet" type='text/css' media='screen' href="{% static 'external/ol.css' %}">
+
+{% endblock %}
+
+{% block main-content %}
+    <div id="test_map"></div>
+{% endblock %}
+
+<script>
+{% block page-script %}
+    let point = new ol.geom.Point([-115.176468, 36.188110]);
+    let point_feature = new ol.Feature({
+        geometry: point,
+        name: 'Las Vegas',
+    });
+
+    let vect_source = new ol.source.Vector({
+        features: [point_feature],
+    });
+
+    let vect_layer = new ol.layer.Vector({
+      source: vect_source,
+      style: {
+        'fill-color': 'rgba(255, 255, 255, 0.2)',
+        'stroke-color': '#276011',
+        'stroke-width': 2,
+        'circle-radius': 7,
+        'circle-fill-color': '#276011',
+      },
+    });
+    let osm_source = new ol.source.OSM();
+    let osm_layer = new ol.layer.Tile({source: osm_source});
+
+    let map_view = new ol.View({
+        projection: 'EPSG:4326',
+        center: [-115.176468, 36.188110],
+        zoom: 8,
+    });
+
+    const map = new ol.Map({
+      layers: [
+        osm_layer, vect_layer,
+        ],
+      view: map_view,
+      target: 'test_map',
+    });
+{% endblock %}
+</script>

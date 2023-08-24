@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block head-script %}
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="{% static 'external/chart.umd.js' %}"></script>
     <script type="text/javascript">
         window.onload = function () {
             $('.site-menu ul #home a').css('background-color', '#9c1616');
