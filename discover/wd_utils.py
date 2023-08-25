@@ -1,6 +1,6 @@
 import datetime
 import logging
-
+from wikidataDiscovery.settings import BASE_DIR
 
 # the_log = logging.getLogger(__name__)
 
@@ -23,3 +23,17 @@ def catch_err(e, proc=None):
     except Exception as internal_e:
         the_log.error(str(dt) + ": " + str(internal_e.args) + ", " + str(internal_e.args[0]) + " " + proc)
         return "There was an error while handling an application exception. Contact your administrator."
+
+
+def update_cache_log(msg):
+    val = False
+    try:
+        file_loc = str(BASE_DIR / 'cache.log')
+        log = open(file_loc, 'a')
+        log.write(str(datetime.datetime.now()) + ": " + msg)
+        log.close()
+        val = True
+        return val
+    except Exception as e:
+        catch_err(e, 'wd_utils.update_cache_log')
+        return val

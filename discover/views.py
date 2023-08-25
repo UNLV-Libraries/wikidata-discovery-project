@@ -303,45 +303,49 @@ def item(request, item_code, app_class):
 def utilities(request):
     from . import db
     from .forms import WikiLoadForm
+    from .wd_utils import update_cache_log
 
     init_session(request)
     msgs = ""
-    val = ''
     nf = WikiLoadForm()
     cf = WikiLoadForm(request.POST)
     if cf.is_valid():
         val = cf.cleaned_data['run_it']
-    if val == '1':
-        n = db.cache_collections()
-        msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
-        n = db.cache_corp_bodies()
-        msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
-        n = db.cache_oral_histories()
-        msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
-        n = db.cache_people()
-        msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
-        n = db.cache_subjects()
-        msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
-    elif val == '2':
-        n = db.cache_people()
-        msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
-    elif val == '3':
-        n = db.cache_corp_bodies()
-        msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
-    elif val == '4':
-        n = db.cache_collections()
-        msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
-    elif val == '5':
-        n = db.cache_oral_histories()
-        msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
-    elif val == '6':
-        n = db.cache_subjects()
-        msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+        try:
+            if val == '1':
+                n = db.cache_collections()
+                msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
+                n = db.cache_corp_bodies()
+                msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
+                n = db.cache_oral_histories()
+                msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
+                n = db.cache_people()
+                msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
+                n = db.cache_subjects()
+                msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+            elif val == '2':
+                n = db.cache_people()
+                msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
+            elif val == '3':
+                n = db.cache_corp_bodies()
+                msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
+            elif val == '4':
+                n = db.cache_collections()
+                msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
+            elif val == '5':
+                n = db.cache_oral_histories()
+                msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
+            elif val == '6':
+                n = db.cache_subjects()
+                msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
 
-    # add any messages to issue log
-    log = open('issue.log', 'a')
-    log.write(msgs)
-    log.close()
+            # add any messages to issue log
+            update_cache_log(msgs)
+
+        except Exception as e:
+            catch_err(e, 'views.utilities')
+    else:
+        pass
 
     context = {'form': nf, 'messages': msgs}
     return render(request, 'discover/base_utilities.html', context)

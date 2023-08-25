@@ -3,6 +3,7 @@ import time
 import schedule
 from discover import db
 from wikidataDiscovery import logs
+from .wd_utils import update_cache_log
 
 
 def run_continuously(interval=120):
@@ -25,7 +26,8 @@ def run_continuously(interval=120):
 
 # Job: cache all app wikidata in backend.
 def cache_wikidata():
-    m = db.cache_all()
+    msgs = db.cache_all()
+    update_cache_log(msgs)
 
 
 # Job: rotate logs, making issue.log issue.log.1, etc.

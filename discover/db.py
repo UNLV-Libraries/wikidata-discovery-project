@@ -7,6 +7,7 @@ from discover import sparql
 
 
 def cache_all():
+
     msgs = ''
     n = cache_collections()
     msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
@@ -19,9 +20,6 @@ def cache_all():
     n = cache_subjects()
     msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
 
-    log = open('issue.log', 'a')
-    log.write(msgs)
-    log.close()
     return msgs
 
 
