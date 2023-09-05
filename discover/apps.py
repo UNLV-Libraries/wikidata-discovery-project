@@ -7,6 +7,5 @@ class DiscoverConfig(AppConfig):
 
     def ready(self):  # overrides AppConfig.ready method
         from . import scheduler
-        run = scheduler.run_continuously()
-        if run:
-            print("Scheduler is running.")
+        scheduler.run_monitor()
+

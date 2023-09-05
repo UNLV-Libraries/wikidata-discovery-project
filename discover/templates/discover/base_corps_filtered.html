@@ -5,12 +5,15 @@
     <script type='text/javascript' src="{% static 'discover/page_controls.js' %}"></script>
     <script type='text/javascript' src="{% static 'discover/facet_functions.js' %}"></script>
     <script type='text/javascript' src="{% static 'discover/graph_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'discover/geog_functions.js' %}"></script>
+    <script type='text/javascript' src="{% static 'external/ol.js' %}"></script>
+    <link rel="stylesheet" type='text/css' media='screen' href="{% static 'external/ol.css' %}">
     <script type="text/javascript"> let app_class = '{{ app_class }}';</script>
 {% endblock %}
 {% block header2 %}Search Results for: <i>{{ string }}</i> {% endblock %}
 
 {% block main-content %}
-        <!-- pop-up facet value picker control -->
+    <!-- pop-up facet value picker control -->
     <div class="fp_wrapper" id="fp_wrapper_id">FILTER <span id="close_btn" onclick="hideFacetPicker()">&times;</span>
         <input id="typeahead" type="text">
         <div class="facet_picker" id="facet_picker_id">
@@ -26,15 +29,34 @@
         </div>
     </div>
 
-    <!-- The Modal -->
+    <!-- Modal for enlarged graph view -->
     <div id="modal_graph" class="modal">
-      <!-- Modal content -->
         <div id="modalWrapper" class="modal-wrapper">
             <strong>GRAPH</strong> (EXPANDED VIEW - zoom, pan, select. Close for a new search.)
             <span id="closer" class="close">&times;</span>
             <div id="mod-graph-parent"><div id="graph_canvas"></div></div>
         </div>
     </div>
+        <!-- Modal for GIS map -->
+    <div id="map_wrapper">
+    <div id="results_map"></div>
+    <div id="legend"><span id="map_closer" class="map_btn" onclick="toggleMapView(false)">&times;</span>
+    <table>
+        <tr>
+            <td><strong>Legend</strong></td>
+        </tr>
+        {% for l in layer_objects %}
+            <tr>
+                <td class="l_col1"><input type="checkbox" id="{{ l.instanceoflabel }}"
+                               onchange="handleLegendCheck('{{ l.instanceof_id }}')" checked /></td>
+                <td class="l_col2"><span class="legend_span"
+                                         style="background-color: {{ l.color_code }};">__</span></td>
+                <td class="l_col3">{{ l.instanceoflabel }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+</div>
 
     <form id="search_form" action="/discover/corps_filtered/" method="post">
         {% csrf_token %}
@@ -84,13 +106,18 @@
     {% else %}
         <p>No corporate bodies returned from your search.</p>
     {% endif %}
-    <div id="geog_data">{{ coords }}</div>
+    <!-- <div id="geog_data">{{ coords }}</div>
+    <div id="layer_data">{{ layers }}</div> -->
 {% endblock %}
 
 {% block main-graph %}
     <div id="property_data">{{ properties }}</div>
 {% endblock %}
-{% block side-content %}<div><strong>EXPLORE GRAPH (zoom, pan, select)</strong></div>{% endblock %}
+{% block side-content %}
+    <div><strong>EXPLORE GRAPH (zoom, pan, select)</strong>
+    <span id="map_opener" class="map_btn" onclick="toggleMapView(true)">SHOW MAP</span>
+    </div>
+{% endblock %}
 {% block side-map %}
     <form id='node_form' action="/discover/corps_filtered/" method="post">
         {% csrf_token %}
@@ -114,7 +141,7 @@
     </div>
     <div id="graph_tooltip"></div>
     <div id="colWrapper" class="col-graph-wrapper">
-        <span id="enlarger" class="close">&#9974;</span><div id="col-graph-parent"></div>
+        <span id="enlarger" class="close">ENLARGE</span><div id="col-graph-parent"></div>
     </div>
 
 {% endblock %}
@@ -130,6 +157,12 @@
     let modal;
     let span_close = document.getElementById('closer');
     let span_enlarge = document.getElementById('enlarger');
+    let geog_layers = {{ layers }};
+    let geog_points = {{ coords }};
+
+    createLayers();
+    mapPoints();
+    composeMap();
 
     // When the user clicks on the 'close' or 'enlarge' span...
     span_close.onclick = function() {

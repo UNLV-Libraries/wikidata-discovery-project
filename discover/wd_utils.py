@@ -29,7 +29,7 @@ def update_cache_log(msg):
     val = False
     try:
         file_loc = str(BASE_DIR / 'cache.log')
-        log = open(file_loc, 'a')
+        log = open(file_loc, 'a', newline=None)
         log.write(str(datetime.datetime.now()) + ": " + msg)
         log.close()
         val = True

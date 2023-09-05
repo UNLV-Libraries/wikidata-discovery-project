@@ -1,4 +1,4 @@
-"""The wikidata cache table for all in-scope people, corporations, collections, oral histories, and subjects."""
+"""The wikidata cache tables for all in-scope people, corporations, collections, oral histories, and subjects."""
 from django.db import models
 
 

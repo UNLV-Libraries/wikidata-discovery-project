@@ -102,6 +102,6 @@ window.onload = function () {
     window.addEventListener('mousemove', function (event) {
         mouse_x = event.clientX;
         mouse_y = event.clientY;
-    })
+    });
 
 }

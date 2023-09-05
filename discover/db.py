@@ -27,11 +27,11 @@ def cache_people():
 
     try:
         people_json = sparql.build_wd_query('people')
-        n = write_people(people_json)
-        return n
+        msg = write_people(people_json)
+        return msg
     except Exception as e:
         catch_err(e, 'cache_people')
-        return 0
+        return "people: load error \n"
 
 
 def write_people(people_json):
@@ -93,18 +93,18 @@ def write_people(people_json):
 
     c = Person.objects.count()
 
-    return [c, n]
+    return "{0} of {1} people records cached".format(c, n) + "\n"
 
 
 def cache_corp_bodies():
     """Queries SPARQL endpoint and writes results to db with the CorpBody object."""
     try:
         corp_json = sparql.build_wd_query('corp_bodies')
-        n = write_corp_bodies(corp_json)
-        return n
+        msg = write_corp_bodies(corp_json)
+        return msg
     except Exception as e:
         catch_err(e, 'cache_corp_bodies')
-        return 0
+        return "corp bodies: load error \n"
 
 
 def write_corp_bodies(corp_json):
@@ -180,17 +180,17 @@ def write_corp_bodies(corp_json):
 
     c = CorpBody.objects.count()  # get total records actually cached
 
-    return [c, n]
+    return "{0} of {1} corporate bodies records cached".format(c, n) + '\n'
 
 
 def cache_collections():
     try:
         coll_json = sparql.build_wd_query('collections')
-        n = write_collections(coll_json)
-        return n
+        msg = write_collections(coll_json)
+        return msg
     except Exception as e:
         catch_err(e, 'cache_collections')
-        return 0
+        return "collections: load error" + '\n'
 
 
 def write_collections(collections_json):
@@ -201,47 +201,51 @@ def write_collections(collections_json):
     # Delete existing table records
     Collection.objects.all().delete()
 
-    n = 0
-    for r in collections_json["results"]["bindings"]:
-        c = Collection()  # construct empty object
-        n += 1
-        item = r.get("item", {}).get("value")
-        c.item_id = re.split(r'/', item).pop()
-        c.itemlabel = r.get('itemLabel', {}).get('value')[:99]
-        c.itemdesc = r.get('itemDescription', {}).get('value')
-        subject = r.get('subject', {}).get('value')
-        if subject:
-            c.subject_id = re.split(r'/', subject).pop()
-            c.subjectlabel = r.get('subjectLabel', {}).get('value')[:99]
-        donor = r.get('donatedBy', {}).get('value')
-        if donor:
-            c.donatedby_id = re.split(r'/', donor).pop()
-            c.donatedbylabel = r.get('donatedByLabel', {}).get('value')[:99]
-        colltype = r.get('instanceOf', {}).get('value')
-        if colltype:
-            c.colltypelabel = r.get('instanceOfLabel', {}).get('value')
-        invnum = r.get('inventoryNum', {}).get('value')
-        if invnum:
-            c.inventorynum = r.get('inventoryNum', {}).get('value')
+    try:
+        n = 0
+        for r in collections_json["results"]["bindings"]:
+            c = Collection()  # construct empty object
+            n += 1
+            item = r.get("item", {}).get("value")
+            c.item_id = re.split(r'/', item).pop()
+            c.itemlabel = r.get('itemLabel', {}).get('value')[:99]
+            c.itemdesc = r.get('itemDescription', {}).get('value')
+            subject = r.get('subject', {}).get('value')
+            if subject:
+                c.subject_id = re.split(r'/', subject).pop()
+                c.subjectlabel = r.get('subjectLabel', {}).get('value')[:99]
+            donor = r.get('donatedBy', {}).get('value')
+            if donor:
+                c.donatedby_id = re.split(r'/', donor).pop()
+                c.donatedbylabel = r.get('donatedByLabel', {}).get('value')[:99]
+            colltype = r.get('instanceOf', {}).get('value')
+            if colltype:
+                c.colltypelabel = r.get('instanceOfLabel', {}).get('value')
+            invnum = r.get('inventoryNum', {}).get('value')
+            if invnum:
+                c.inventorynum = r.get('inventoryNum', {}).get('value')
 
-        da = r.get('describedAt', {}).get('value')
-        if da:
-            c.describedat = mark_safe(r.get('describedAt', {}).get('value'))
+            da = r.get('describedAt', {}).get('value')
+            if da:
+                c.describedat = mark_safe(r.get('describedAt', {}).get('value'))
 
-        c.save()
-    c = Collection.objects.count()
+            c.save()
+        count = Collection.objects.count()
 
-    return [c, n]
+        return "{0} of {1} collections records cached".format(count, n) + '\n'
+    except Exception as e:
+        catch_err(e, 'db.write_collections')
+        return 'collections: load error \n'
 
 
 def cache_subjects():
     try:
         subject_json = sparql.build_wd_query('subjects')
-        n = write_subjects(subject_json)
-        return n
+        msg = write_subjects(subject_json)
+        return msg
     except Exception as e:
         catch_err(e, 'cache_subjects')
-        return 0
+        return "subjects: load error" + '\n'
 
 
 def write_subjects(json_dict):
@@ -263,17 +267,17 @@ def write_subjects(json_dict):
 
     c = Subject.objects.count()
 
-    return [c, n]
+    return "{0} of {1} subject records cached".format(c, n) + '\n'
 
 
 def cache_oral_histories():
     try:
         oralh_json = sparql.build_wd_query('oralhistories')
-        n = write_oral_histories(oralh_json)
-        return n
+        msg = write_oral_histories(oralh_json)
+        return msg
     except Exception as e:
         catch_err(e, 'cache_oral_histories')
-        return 0
+        return 'oral histories: load error' + '\n'
 
 
 def write_oral_histories(json_dict):
@@ -294,7 +298,7 @@ def write_oral_histories(json_dict):
                 o.itemdesc = oh[:200]  # if data sourced from oral hist entry, use 'oralHistory' value
             else:
                 o.itemdesc = r.get('itemDescription', {}).get('value')[:200]  # use in case oral hist text not present.
-            subj = supply_val(r.get('subject', {}).get('value'))
+            subj = r.get('subject', {}).get('value')
             if subj:
                 o.subject_id = re.split(r'/', subj).pop()
                 o.subjectlabel = r.get('subjectLabel', {}).get('value')
@@ -305,18 +309,7 @@ def write_oral_histories(json_dict):
 
         c = OralHistory.objects.count()
 
-        return [c, n]
+        return "{0} of {1} oral history records cached".format(c, n) + '\n'
     except Exception as err:
         catch_err(err, 'db.write_oral_histories')
-        return [c, n]
-
-
-def supply_val(val):
-    """
-    Internal function to supply 'None' value when JSON element
-    is not present.
-    """
-    if val:
-        return val
-    else:
-        return None
+        return 'oral histories: load error' + '\n'

@@ -139,7 +139,7 @@ def process_search(request):
         facet_vals = mappings.get_facet_queryset(curr_class)
 
         # create lat/lon coordinate queryset for relevant app classes
-        coords = get_geo_properties(results['filtered'], curr_class)
+        geo = get_geo_properties(results['filtered'], curr_class)
 
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
@@ -159,7 +159,8 @@ def process_search(request):
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
                    'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks,
-                   'prop_labels': prop_labels, 'coords': coords, 'errors': error_msg}
+                   'prop_labels': prop_labels, 'coords': geo['coords'], 'layers': geo['layers'],
+                   'layer_objects': geo['layer_objects'], 'errors': error_msg}
 
         return render(request, final_path, context)
 
@@ -313,31 +314,21 @@ def utilities(request):
         val = cf.cleaned_data['run_it']
         try:
             if val == '1':
-                n = db.cache_collections()
-                msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
-                n = db.cache_corp_bodies()
-                msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
-                n = db.cache_oral_histories()
-                msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
-                n = db.cache_people()
-                msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
-                n = db.cache_subjects()
-                msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+                msgs += db.cache_collections()
+                msgs += db.cache_corp_bodies()
+                msgs += db.cache_oral_histories()
+                msgs += db.cache_people()
+                msgs += db.cache_subjects()
             elif val == '2':
-                n = db.cache_people()
-                msgs += str(n[0]) + " of " + str(n[1]) + " people records cached." + '\n'
+                msgs = db.cache_people()
             elif val == '3':
-                n = db.cache_corp_bodies()
-                msgs += str(n[0]) + " of " + str(n[1]) + " corp bodies records cached." + '\n'
+                msgs = db.cache_corp_bodies()
             elif val == '4':
-                n = db.cache_collections()
-                msgs += str(n[0]) + " of " + str(n[1]) + " collection records cached." + '\n'
+                msgs = db.cache_collections()
             elif val == '5':
-                n = db.cache_oral_histories()
-                msgs += str(n[0]) + " of " + str(n[1]) + " oral histories records cached." + '\n'
+                msgs = db.cache_oral_histories()
             elif val == '6':
-                n = db.cache_subjects()
-                msgs += str(n[0]) + " of " + str(n[1]) + " subject records cached." + '\n'
+                msgs = db.cache_subjects()
 
             # add any messages to issue log
             update_cache_log(msgs)

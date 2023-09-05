@@ -262,11 +262,3 @@ function showProperties(pitem_id) {
         alert(err.message + err.code);
     }
 }
-
-function changeNodeFormState(){
-    nodeFormButton.disabled = dirtyField.value !== true;
-}
-
-function changeQueueFormState() {
-    queueFormButton.disabled = q_list.value === 'none';
-}
