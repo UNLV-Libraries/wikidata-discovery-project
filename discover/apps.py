@@ -5,7 +5,9 @@ class DiscoverConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'discover'
 
-    def ready(self):  # overrides AppConfig.ready method
-        from . import scheduler
-        scheduler.run_monitor()
+    def ready(self):  # method of AppConfig
+        from .wf_sched import WfScheduler
+        wfs = WfScheduler()
+        wfs.load_scheduler()
+        wfs.start_scheduler()
 

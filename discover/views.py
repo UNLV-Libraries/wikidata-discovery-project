@@ -26,7 +26,7 @@ def process_search(request):
     from .geog import get_geo_properties
     import json
     from django.utils.safestring import mark_safe
-
+    import time
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
     file_path = url_path.split('/')

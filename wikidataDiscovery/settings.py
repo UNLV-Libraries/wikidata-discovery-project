@@ -14,7 +14,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.18'
+APP_VERSION = 'dev.18.1'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -38,13 +38,13 @@ mimetypes.add_type('text/css', '.css', True)
 
 # Application definitions
 INSTALLED_APPS = [
-    'discover.apps.DiscoverConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'discover.apps.DiscoverConfig',
 ]
 
 MIDDLEWARE = [
