@@ -19,5 +19,4 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('utils/', views.utilities, name='utils'),
     path('app_error/', views.error_message, name='app_error'),
-    path('test_map', views.test_map, name='test_map'),
 ]

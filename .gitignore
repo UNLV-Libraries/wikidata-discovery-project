@@ -5,5 +5,5 @@
 /my.cnf
 /rebuild_venv_commands.txt
 /issue.log
-*.log.*
+*.log*
 /.htaccess

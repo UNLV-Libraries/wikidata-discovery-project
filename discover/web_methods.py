@@ -2,7 +2,7 @@
 web_methods handles all on-the-fly queries to Wikidata. Returned JSON entries are
 instantiated as python objects for processing and rendering in templates.
 """
-from .wd_utils import catch_err
+from .wf_utils import catch_err
 from . import sparql
 
 

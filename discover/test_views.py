@@ -1,7 +1,7 @@
 from django.test import TestCase
 import unittest
 from django.test import Client
-from .forms import SearchForm, NodeSelectForm, RestrictSubjectForm, QueueForm
+from .forms import SearchForm, NodeSelectForm, QueueForm
 
 
 class PeopleTest(unittest.TestCase):

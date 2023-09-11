@@ -1,4 +1,4 @@
-from .wd_utils import catch_err
+from .wf_utils import catch_err
 from .enums import AppClass
 from django.utils.safestring import mark_safe
 import json

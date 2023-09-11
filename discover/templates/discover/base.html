@@ -58,6 +58,7 @@
     <div id="wikidata_stamp">
         <img src="{% static 'discover/wikidata_stamp.png' %}"
      alt="powered-by-Wikidata graphic" width="160" height="40" title="powered by Wikidata">
+        {% block server_type %}{% endblock %}
     </div>
 </footer>
 <script>{% block page-script %}{% endblock %}</script>

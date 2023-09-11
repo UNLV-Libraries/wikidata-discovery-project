@@ -385,6 +385,12 @@ input.rel-row {
 	width: 15%;
 }
 
+/* FOOTER FORMATS */
+.server_type {
+	margin: 2px;
+	padding: 2px;
+	font-style: italic;
+}
 /*===NAVIGATION MENU===*/
 .site-menu ul {
 	display: flex;

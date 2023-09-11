@@ -22,7 +22,7 @@ APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = False
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +30,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
 
 ALLOWED_HOSTS = ['localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
-                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe']
+                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
+                 'wikiback.library.unlv.edu', 'wikidev.library.unlv.edu']
 
 # Establish MIME types
 mimetypes.add_type('text/javascript', '.js', True)

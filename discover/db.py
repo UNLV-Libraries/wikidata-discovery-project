@@ -1,8 +1,8 @@
 """
-This module handles all CREATE/UPDATE/DELETE transactions with the database tables,
-at least for version 1 of the prototype.
+This module handles all CREATE/UPDATE/DELETE transactions with the database tables used for
+caching wikidata.
 """
-from discover.wd_utils import catch_err
+from discover.wf_utils import catch_err
 from discover import sparql
 
 
@@ -24,7 +24,6 @@ def cache_all():
 
 
 def cache_people():
-
     try:
         people_json = sparql.build_wd_query('people')
         msg = write_people(people_json)
@@ -43,8 +42,9 @@ def write_people(people_json):
     # Delete existing table records
     Person.objects.all().delete()
 
+    bindings_len = len(people_json["results"]["bindings"])
     n = 0
-
+    item_id = 'item_id: none'
     for r in people_json["results"]["bindings"]:
         p = Person()  # construct empty object
         n += 1
@@ -88,12 +88,16 @@ def write_people(people_json):
             p.relativelabel = r.get('relativeLabel', {}).get('value')
 
             p.save()
+            # force exit from loop if bindings list has been traversed.
+            if n == bindings_len:
+                break
+
         except Exception as e:
             catch_err(e, 'write_people: ' + item_id)
 
     c = Person.objects.count()
 
-    return "{0} of {1} people records cached".format(c, n) + "\n"
+    return "{0} of {1} people records cached".format(c, bindings_len) + "\n"
 
 
 def cache_corp_bodies():
@@ -114,7 +118,9 @@ def write_corp_bodies(corp_json):
 
     # clear yesterday's cache
     CorpBody.objects.all().delete()
+    bindings_len = len(corp_json["results"]["bindings"])
     n = 0
+    item_id = 'item_id: none'
 
     for r in corp_json["results"]["bindings"]:
         c = CorpBody()  # construct empty object
@@ -175,12 +181,16 @@ def write_corp_bodies(corp_json):
             c.describedat = r.get('describedAt', {}).get('value')
 
             c.save()  # object data saved to database
+            # force exit from loop if bindings list has been traversed.
+            if n == bindings_len:
+                break
+
         except Exception as e:
             catch_err(e, 'write_corp_bodies: ' + item_id)
 
     c = CorpBody.objects.count()  # get total records actually cached
 
-    return "{0} of {1} corporate bodies records cached".format(c, n) + '\n'
+    return "{0} of {1} corporate bodies records cached".format(c, bindings_len) + '\n'
 
 
 def cache_collections():
@@ -200,9 +210,10 @@ def write_collections(collections_json):
     from django.utils.safestring import mark_safe
     # Delete existing table records
     Collection.objects.all().delete()
+    bindings_len = len(collections_json["results"]["bindings"])
+    n = 0
 
     try:
-        n = 0
         for r in collections_json["results"]["bindings"]:
             c = Collection()  # construct empty object
             n += 1
@@ -230,9 +241,12 @@ def write_collections(collections_json):
                 c.describedat = mark_safe(r.get('describedAt', {}).get('value'))
 
             c.save()
+            if n == bindings_len:
+                break
+
         count = Collection.objects.count()
 
-        return "{0} of {1} collections records cached".format(count, n) + '\n'
+        return "{0} of {1} collections records cached".format(count, bindings_len) + '\n'
     except Exception as e:
         catch_err(e, 'db.write_collections')
         return 'collections: load error \n'
@@ -253,6 +267,7 @@ def write_subjects(json_dict):
     import re
 
     Subject.objects.all().delete()
+    bindings_len = len(json_dict["results"]["bindings"])
     n = 0
 
     for r in json_dict["results"]["bindings"]:
@@ -264,10 +279,12 @@ def write_subjects(json_dict):
 
         s.save()
         n += 1
+        if n == bindings_len:
+            break
 
     c = Subject.objects.count()
 
-    return "{0} of {1} subject records cached".format(c, n) + '\n'
+    return "{0} of {1} subject records cached".format(c, bindings_len) + '\n'
 
 
 def cache_oral_histories():
@@ -284,8 +301,9 @@ def write_oral_histories(json_dict):
     from discover.models import OralHistory
     import re
 
+    bindings_len = len(json_dict["results"]["bindings"])
     n = 0
-    c = 0
+
     try:
         OralHistory.objects.all().delete()
         for r in json_dict['results']['bindings']:
@@ -306,10 +324,12 @@ def write_oral_histories(json_dict):
             o.describedat = r.get('describedAt', {}).get('value')
             o.save()
             n += 1
+            if n == bindings_len:
+                break
 
         c = OralHistory.objects.count()
 
-        return "{0} of {1} oral history records cached".format(c, n) + '\n'
+        return "{0} of {1} oral history records cached".format(c, bindings_len) + '\n'
     except Exception as err:
         catch_err(err, 'db.write_oral_histories')
         return 'oral histories: load error' + '\n'

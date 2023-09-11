@@ -2,15 +2,12 @@ import datetime
 import logging
 from wikidataDiscovery.settings import BASE_DIR
 
-# the_log = logging.getLogger(__name__)
-
 
 def catch_err(e, proc=None):
     """General function for error processing."""
     # generic handler for error messages and logging
     from django.utils.safestring import mark_safe
     dt = datetime.datetime.now()
-    # global the_log
     the_log = logging.getLogger(__name__)
     try:
         # e contains Exception
@@ -37,3 +34,15 @@ def update_cache_log(msg):
     except Exception as e:
         catch_err(e, 'wd_utils.update_cache_log')
         return val
+
+
+def get_server_type():
+    try:
+        file_loc = str(BASE_DIR / 'server_type.txt')
+        content = open(file_loc, 'rt')
+        t = content.read()
+        content.close()
+        return t
+    except Exception as e:
+        return ''
+

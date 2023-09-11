@@ -2,10 +2,12 @@ from django.shortcuts import render
 from . import graph
 from . import web_methods
 from .models import Subject
-from .wd_utils import catch_err
+from .wf_utils import catch_err, get_server_type
 from .enums import AppClass
 from . import queue_mgr
 from . import mappings
+
+CURR_SERVER = get_server_type()
 
 
 def home(request):
@@ -15,7 +17,8 @@ def home(request):
     chart_io_dict = get_chart('stats_instanceof_count')
     chart_subj_dict = get_chart('stats_subjects_count')
     context = {'chart_io_labels': chart_io_dict['labels'], 'chart_io_data': chart_io_dict['data'],
-               'chart_subj_labels': chart_subj_dict['labels'], 'chart_subj_data': chart_subj_dict['data']}
+               'chart_subj_labels': chart_subj_dict['labels'], 'chart_subj_data': chart_subj_dict['data'],
+               'server_type': CURR_SERVER}
     return render(request, 'discover/base_home.html', context)
 
 
@@ -160,7 +163,7 @@ def process_search(request):
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
                    'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks,
                    'prop_labels': prop_labels, 'coords': geo['coords'], 'layers': geo['layers'],
-                   'layer_objects': geo['layer_objects'], 'errors': error_msg}
+                   'layer_objects': geo['layer_objects'], 'errors': error_msg, 'server_type': CURR_SERVER}
 
         return render(request, final_path, context)
 
@@ -203,7 +206,7 @@ def people(request):
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     images = get_images('images_humans')
     context = {'search': sf, 'images': images, 'priors': qf,
-               'app_class': AppClass.people.value, 'facet': facet_vals}
+               'app_class': AppClass.people.value, 'facet': facet_vals, 'server_type': CURR_SERVER}
     return render(request, 'discover/base_people.html', context)
 
 
@@ -222,7 +225,7 @@ def corp_bodies(request):
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     images = get_images('images_others')  # record name in db query table
     context = {'search': sf, 'images': images, 'priors': qf, 'app_class': AppClass.corps.value,
-               'facet': facet_vals}
+               'facet': facet_vals, 'server_type': CURR_SERVER}
     return render(request, 'discover/base_corps.html', context)
 
 
@@ -239,7 +242,8 @@ def collections(request):
     qf = forms.QueueForm(initial={'app_class': AppClass.colls.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     # images = get_images('images_others')  # record name in db query table
-    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.colls.value}
+    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.colls.value,
+               'server_type': CURR_SERVER}
     return render(request, 'discover/base_collections.html', context)
 
 
@@ -255,7 +259,8 @@ def oral_histories(request):
     qf = forms.QueueForm(initial={'app_class': AppClass.orals.value},
                          dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
     # images = get_images('images_others')  # record name in db query table
-    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.orals.value}
+    context = {'search': sf, 'priors': qf, 'facet': facet_vals, 'app_class': AppClass.orals.value,
+               'server_type': CURR_SERVER}
     return render(request, 'discover/base_orals.html', context)
 
 
@@ -297,14 +302,14 @@ def item(request, item_code, app_class):
     the_class = app_class
     the_item = details[0]
     context = {'details': details, 'item': the_item.item_label, 'itemdesc': the_item.item_desc,
-               'bb_form': bb_form, 'app_class': the_class}
+               'bb_form': bb_form, 'app_class': the_class, 'server_type': CURR_SERVER}
     return render(request, 'discover/base_item.html', context)
 
 
 def utilities(request):
     from . import db
     from .forms import WikiLoadForm
-    from .wd_utils import update_cache_log
+    from .wf_utils import update_cache_log
 
     init_session(request)
     msgs = ""
@@ -338,7 +343,7 @@ def utilities(request):
     else:
         pass
 
-    context = {'form': nf, 'messages': msgs}
+    context = {'form': nf, 'messages': msgs, 'server_type': CURR_SERVER}
     return render(request, 'discover/base_utilities.html', context)
 
 
@@ -351,14 +356,9 @@ def about(request):
     email = settings.APP_EMAIL
     contact = settings.APP_CONTACT
     contact_email = settings.APP_CONTACT_EMAIL
-    context = {'version': ver, 'author': auth, 'email': email, 'contact': contact, 'contact_email': contact_email}
+    context = {'version': ver, 'author': auth, 'email': email, 'contact': contact, 'contact_email': contact_email,
+               'server_type': CURR_SERVER}
     return render(request, 'discover/base_about.html', context)
-
-
-def test_map(request):
-    path = '/home/ed/PycharmProjects/wikidataDiscovery/node_modules/ol/'
-    context = {'path': path}
-    return render(request, 'discover/base_test_map.html', context)
 
 
 def process_search_form(sform, qset, rel_type_list):

@@ -2,7 +2,7 @@
 
 from django.contrib.sessions.backends.db import SessionStore
 from django import forms
-from .wd_utils import catch_err
+from .wf_utils import catch_err
 
 
 def update_queue(form_type, form: forms.Form, session_key):

@@ -1,4 +1,4 @@
-from .wd_utils import catch_err
+from .wf_utils import catch_err
 
 
 def load_graph(dataset, relation_types, app_class):
