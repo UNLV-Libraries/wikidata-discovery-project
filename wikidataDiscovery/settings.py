@@ -33,6 +33,11 @@ ALLOWED_HOSTS = ['localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.ed
                  'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
                  'wikiback.library.unlv.edu', 'wikidev.library.unlv.edu']
 
+# CSRF SETTINGS to support valid cross-site requests from the rev. proxy servers: wikiframe, wikiback, wikidev
+CSRF_TRUSTED_ORIGINS = ['https://wikiframe.library.unlv.edu',
+                        'https://wikiback.library.unlv.edu',
+                        'https://wikidev.library.unlv.edu']
+
 # Establish MIME types
 mimetypes.add_type('text/javascript', '.js', True)
 mimetypes.add_type('text/css', '.css', True)
@@ -118,7 +123,6 @@ TIME_ZONE = 'America/Los_Angeles'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # SESSION SETTINGS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

@@ -7,3 +7,4 @@
 /issue.log
 *.log*
 /.htaccess
+/server_type.txt
