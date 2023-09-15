@@ -22,7 +22,7 @@ class Image:
 
 
 class Item:
-    item_code = ''
+    item_id = ''
     item_label = ''
     item_desc = ''
     prop_code = ''
@@ -35,11 +35,11 @@ class Item:
     qual_value_label = ''
     has_url = True
 
-    def __init__(self, item_code):
-        self.item_code = item_code
+    def __init__(self, item_id):
+        self.item_id = item_id
 
     def __str__(self):
-        return self.item_code
+        return self.item_id
 
 
 class Subject:
@@ -162,6 +162,8 @@ def load_item_details(the_dict):
             # format item authority codes or other 'https' values for web retrieval
             if prop_code == 'P8091':
                 i.value_label = 'http://n2t.net/' + r.get("psoLabel", {}).get("value")
+            elif prop_code == 'P18':  # image
+                i.value_label = r.get("psoLabel", {}).get("value")
             elif prop_code == 'P244':
                 i.value_label = 'http://id.loc.gov/authorities/names/' + r.get("psoLabel", {}).get("value")
             elif prop_code == 'P214':

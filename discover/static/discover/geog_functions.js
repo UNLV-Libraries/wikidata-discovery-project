@@ -37,6 +37,7 @@ class AppLayer {
                     color: 'white',
                     width: 1
                 }),
+                scale: [0, 0],
                 offsetY: 15
             }),
         });
@@ -53,7 +54,7 @@ class AppLayer {
             }),
         });
 
-        point_feature.setStyle([point_style, text_style]);
+        point_feature.setStyle([text_style, point_style]);
         this.layer_source.addFeature(point_feature);
 
     }
@@ -104,15 +105,32 @@ function composeMap() {
     });
     map_obj.setTarget('results_map');
 
-    map_obj.on('moveend', function (evt) {
-        let m = evt.map;
-        let v = m.getView();
-        if (v.getZoom() > 14) {
-
-        } else {
-
-        }
+    map_view.on('change:resolution', function (evt) {
+		let v = map_obj.getView();
+		if (v.getZoom() > 14) {
+			toggleLabels(true);
+		} else {
+			toggleLabels(false);
+		}
     });
+}
+
+function toggleLabels(show) {
+    let lyrs = map_obj.getAllLayers();
+    for (let l in lyrs) {
+        if (lyrs[l].get('layer_id') !== 'tiles') {
+            let source = lyrs[l].getSource();
+            let features = source.getFeaturesCollection();
+            features.forEach(function (feat) {
+                let s = feat.getStyle()[0];  //works
+                if (show) {
+                    s.getText().setScale([1, 1]);
+                } else {
+                    s.getText().setScale([0, 0]);
+                }
+            });
+        }
+    }
 }
 
 function handleLegendCheck(layer_id) {
@@ -123,12 +141,23 @@ function handleLegendCheck(layer_id) {
             let vis = layer.isVisible();
             //alert(chk);
             if (vis === true) {
-                //alert('is checked');
                 layer.setVisible(false);
             } else {
-                //alert('is not checked');
                 layer.setVisible(true);
             }
+        }
+    });
+}
+
+function toggleMapChecks() {
+    let checker = document.getElementById('check_uncheck');
+    //alert(checker.checked);
+    $(".layer_check").prop('checked', checker.checked);
+
+    let layers = map_obj.getLayers();
+    layers.forEach(function (layer) {
+        if (layer.getProperties()['layer_id'] !== 'tiles') {
+            layer.setVisible(checker.checked);
         }
     });
 }

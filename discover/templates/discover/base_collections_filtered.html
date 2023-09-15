@@ -38,7 +38,7 @@
       </div>
     </div>
 
-
+    <!-- SEARCH FORMS -->
     <form id='search_form' action="/discover/collections_filtered/" method="post">
         {% csrf_token %}
         <span id="search_submit_span">
@@ -68,6 +68,7 @@
             <button id="q_submit" type="submit" value="RERUN">RERUN</button>
     </form>
 
+    <!-- RESULTS LIST, etc. -->
     <p>{{ errors }}</p>
     <p>Collections Returned: <b>{{ num }}</b></p><br>
     {% if unique_list %}

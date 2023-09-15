@@ -301,7 +301,8 @@ def item(request, item_code, app_class):
     details = web_methods.get_item_details(item_code)
     the_class = app_class
     the_item = details[0]
-    context = {'details': details, 'item': the_item.item_label, 'itemdesc': the_item.item_desc,
+    full_label = the_item.item_label + " (" + the_item.item_id + ")"
+    context = {'details': details, 'item': full_label, 'itemdesc': the_item.item_desc,
                'bb_form': bb_form, 'app_class': the_class, 'server_type': CURR_SERVER}
     return render(request, 'discover/base_item.html', context)
 

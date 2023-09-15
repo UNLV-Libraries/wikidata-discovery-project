@@ -33,13 +33,14 @@
         <p><b>About:</b> {{ itemdesc }}</p>
         <table id="item_table">
               <tr>
-                  <td>code</td>
+                  <td><strong>code</strong></td>
                   <td><strong>CATEGORY</strong></td>
                   <td><strong>VALUE</strong></td>
             </tr>
             {% for d in details %}
+                {% ifchanged d.prop_code %}
                 <tr>
-                    <td id="{{ d.prop_code }}">{{ d.prop_code }}</td>
+                    <td id="{{ d.prop_code }}">ps:{{ d.prop_code }}</td>
                     <td><strong>{{ d.prop_label }}</strong></td>
                     {% if d.has_url == True %}
                         <td><a href="{{ d.value_label }}" target="_blank">{{ d.value_code }}</a></td>
@@ -47,10 +48,11 @@
                         <td>{{ d.value_label|format_date }}</td>
                     {% endif %}
                 </tr>
+                {% endifchanged %}
                 {% if d.qual_code %}
                     <tr>
                         <td><i></i></td>
-                        <td><i>qual: {{ d.qual_label }}</i></td>
+                        <td><i>     {{ d.qual_label }}</i></td>
                         {% if d.qual_code == 'P973' %}
                             <td><a href="{{ d.qual_value_label }}" target="_blank">{{ d.qual_value_label }}</a></td>
                         {% else %}
@@ -63,6 +65,18 @@
     {% else %}
         <p>No details for this selection.</p>
     {% endif %}
+{% endblock %}
+
+{% block side-content %}
+    {% for i in details %}
+        {% if i.prop_code == 'P18' %}
+            {% ifchanged i.value_label %}
+                <img src="{{ i.value_code }}" alt="{{ i.value_label }}" width="250" height="250"
+                 loading="lazy" title="{{ i.item_label }}: {{ i.item_desc }}">
+                <div><i>[image: Wikimedia Commons]</i></div>
+            {% endifchanged %}
+        {% endif %}
+    {% endfor %}
 {% endblock %}
 
 {% block server_type %}<span class="server_type">({{ server_type }})</span>{% endblock %}

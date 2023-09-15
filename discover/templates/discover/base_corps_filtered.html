@@ -37,7 +37,8 @@
             <div id="mod-graph-parent"><div id="graph_canvas"></div></div>
         </div>
     </div>
-        <!-- Modal for GIS map -->
+
+    <!-- Modal for GIS map -->
     <div id="map_wrapper">
     <div id="results_map"></div>
     <div id="legend"><span id="map_closer" class="map_btn" onclick="toggleMapView(false)">&times;</span>
@@ -45,10 +46,14 @@
         <tr>
             <td><strong>Legend</strong></td>
         </tr>
+        <tr>
+            <td><input type="checkbox" id="check_uncheck" onchange="toggleMapChecks()" checked /></td>
+            <td><label for="check_uncheck">all/none</label></td>
+        </tr>
         {% for l in layer_objects %}
             <tr>
-                <td class="l_col1"><input type="checkbox" id="{{ l.instanceoflabel }}"
-                               onchange="handleLegendCheck('{{ l.instanceof_id }}')" checked /></td>
+                <td class="l_col1"><input type="checkbox" class="layer_check" id="{{ l.instanceoflabel }}"
+                               oninput="handleLegendCheck('{{ l.instanceof_id }}')" checked /></td>
                 <td class="l_col2"><span class="legend_span"
                                          style="background-color: {{ l.color_code }};">__</span></td>
                 <td class="l_col3">{{ l.instanceoflabel }}</td>

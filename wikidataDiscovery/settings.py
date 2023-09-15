@@ -14,7 +14,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.18.4'
+APP_VERSION = 'dev.18.5'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
