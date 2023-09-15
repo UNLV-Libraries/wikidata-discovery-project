@@ -28,7 +28,8 @@ def get_geo_properties(dataset: mappings.QuerySet, app_class):
 
     if app_class == AppClass.corps.value:  # currently only corp bodies have location data
         try:
-            for r in dataset:
+            d_sorted = dataset.order_by('instanceoflabel')
+            for r in d_sorted:
                 # force uniqueness of results
                 if r.coordinates:
                     long_lat = r.coordinates[6:r.coordinates.__len__() - 1]  # extract points from 'Point(...)' pattern.
