@@ -14,7 +14,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.18.6'
+APP_VERSION = 'dev.18.7'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -127,7 +127,7 @@ USE_TZ = True
 # SESSION SETTINGS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_AGE = 604800  # 7 days, in seconds
+# SESSION_COOKIE_AGE = 604800  # 7 days, in seconds
 
 # STATIC FILES (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
@@ -136,13 +136,6 @@ STATIC_ROOT = '/data/www/wd_static/'
 STATICFILES_DIRS = [
     str(BASE_DIR / 'discover/static/discover'),
     str(BASE_DIR / 'discover/static/external'),
-    # '/data/www/wd_static',
-    # str(BASE_DIR / 'node_modules/vis-network/standalone/umd/'),
-    # str(BASE_DIR / 'node_modules/vis-network/dist/dist/'),
-    # str(BASE_DIR / 'node_modules/underscore/'),
-    # str(BASE_DIR / 'node_modules/jquery/dist/'),
-    # str(BASE_DIR / 'node_modules/chart.js/dist/'),
-    # str(BASE_DIR / 'node_modules/ol/')
 ]
 
 STATICFILES_FINDERS = [

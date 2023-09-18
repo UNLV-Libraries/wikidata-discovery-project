@@ -1,55 +1,60 @@
+"""Keeps track of time and executes defined jobs on a daily schedule. Clock runs on a separate thread and checks
+schedule queue every minute for jobs to run. All jobs are defined as functions in the wf_sched module."""
 import sched
 import threading
 from discover import db
 from wikidataDiscovery import logs
-from .wf_utils import update_cache_log
+from .wf_utils import update_cache_log, catch_err
 from datetime import datetime, time
 import time as just_time
 
 
 class WfScheduler:
-    _initialized = False
-    _started = False
+    initialized = False
+    started = False
 
     def __init__(self, reload_hour, reload_min):
-        if not self._initialized:
-            self.reload_hour = reload_hour
-            self.reload_min = reload_min
-            print('initializing scheduler')
-            self.s = sched.scheduler(just_time.time, just_time.sleep)
-            self.thread1 = threading.Thread(name='background scheduler', target=self.s.run)
-            self.thread2 = threading.Thread(name='reload clock', target=self.check_for_reload)
-            self.jobs = {
-                'cache_corp_bodies': (self.cache_corp_bodies, 5, 55),  # tuples contain action to run, hour, minute
-                'cache_oral_histories': (self.cache_oral_histories, 5, 56),
-                'cache_people': (self.cache_people, 5, 57),
-                'cache_collections': (self.cache_collections, 5, 58),
-                'rotate_logs': (self.rotate_logs, 5, 59),
-            }
-            self.thread1.start()
-            self.thread2.start()
-            self._started = True
-            self._initialized = True
+        if not self.initialized:
+            try:
+                self.reload_hour = reload_hour
+                self.reload_min = reload_min
+                print('initializing scheduler')
+                self.s = sched.scheduler(just_time.time, just_time.sleep)
+                self.thread2 = threading.Thread(name='scheduler clock', target=self.run_clock)
+                # All jobs data is stored in self.jobs.
+                self.jobs = {
+                    'cache_corp_bodies': (cache_corp_bodies, 23, 55),  # tuples contain action to run, hour, & minute
+                    'cache_oral_histories': (cache_oral_histories, 23, 56),
+                    'cache_people': (cache_people, 23, 57),
+                    'cache_collections': (cache_collections, 23, 58),
+                    'rotate_logs': (rotate_logs, 0, 1),
+                }
 
-    def check_for_reload(self):
-        # print('checking')
+                self.thread2.start()
+                self.started = True
+                self.initialized = True
+            except Exception as e:
+                catch_err(e, 'WfScheduler.__init__')
+
+    def run_clock(self):
+        # check to see if queue needs to be reloaded
         d = datetime.now()
         hr = d.hour
         mn = d.minute
         if self.reload_hour == hr and self.reload_min == mn:
             self.s.empty()
             self.load_scheduler()
-            # print('reloaded')
 
-        just_time.sleep(60)  # 1 second less than Clock period=60
-        self.check_for_reload()
+        # run anything in the queue for the current minute
+        self.s.run()
+        just_time.sleep(60)  # Clock period=60 secs
+        self.run_clock()  # continue running clock
 
     def load_scheduler(self):
         for k, v in self.jobs.items():
             self.add_to_queue(k)
 
-        update_cache_log(str(self.s.queue))
-        print(self.s.queue)
+        # print(self.s.queue)
 
     def add_to_queue(self, job_name):
         # create a future time for the incoming job
@@ -62,31 +67,37 @@ class WfScheduler:
         # add job to queue
         self.s.enterabs(new_dt.timestamp(), 1, job_data[0])
 
-    @staticmethod
-    def cache_collections(self):
-        msg = db.cache_collections()
-        update_cache_log(msg)
-
-    @staticmethod
-    def cache_corp_bodies(self):
-        msg = db.cache_corp_bodies()
-        update_cache_log(msg)
-
-    @staticmethod
-    def cache_oral_histories(self):
-        msg = db.cache_oral_histories()
-        update_cache_log(msg)
-
-    @staticmethod
-    def cache_people(self):
-        msg = db.cache_people()
-        update_cache_log(msg)
-
-    # Job: rotate logs, making issue.log & issue.log.1 - .6
-    @staticmethod
-    def rotate_logs(self):
-        logs.rotate_logs()
-
     def print_queue(self):
         print(self.s.queue)
+
+
+# All functions below are run by the scheduler.
+def cache_collections():
+    msg = db.cache_collections()
+    update_cache_log(msg)
+    print('collections {}'.format(datetime.now()))
+
+
+def cache_corp_bodies():
+    msg = db.cache_corp_bodies()
+    update_cache_log(msg)
+    print('corp bodies {}'.format(datetime.now()))
+
+
+def cache_oral_histories():
+    msg = db.cache_oral_histories()
+    update_cache_log(msg)
+    print('orals {}'.format(datetime.now()))
+
+
+def cache_people():
+    msg = db.cache_people()
+    update_cache_log(msg)
+    print('people {}'.format(datetime.now()))
+
+
+def rotate_logs():
+    logs.rotate_logs()
+    print('rotate logs {}'.format(datetime.now()))
+
 

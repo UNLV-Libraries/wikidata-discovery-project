@@ -2,6 +2,8 @@ let layer_cln = new Map();
 let layer_cln_keys = [];
 let map_obj, map_view;
 
+/* AppLayer class manages application data and OpenLayers objects
+* needed for dynamic map construction based on user searches. */
 class AppLayer {
     constructor(id, label, color_code) {
         this.instanceof_id = id;
@@ -13,10 +15,12 @@ class AppLayer {
         );
     }
     configLayer() {
+        //called for each generated layer.
         this.layer_map.setSource(this.layer_source);
     }
 
     addPoint(long_lat, item_id, itemlabel) {
+        //Adds point geometry and style. todo: refactor to apply style by layer, not by feature.
         let point_strings = long_lat.split(',');
         let long = Number.parseFloat(point_strings[0]);
         let lat = Number.parseFloat(point_strings[1]);
@@ -61,6 +65,7 @@ class AppLayer {
 }
 
 function createLayers() {
+    //uses source data in geog_layers variable to create ol layer objects within AppLayer objects.
     for (let l in geog_layers) {
         let curr_layer = new AppLayer(
             geog_layers[l].instanceof_id,
@@ -73,6 +78,7 @@ function createLayers() {
 }
 
 function mapPoints() {
+    //Adds individual point features
     let itemlabel;
     for (let p in geog_points) {
         let long_lat = geog_points[p].long_lat;
@@ -84,6 +90,7 @@ function mapPoints() {
 }
 
 function composeMap() {
+    //Builds map on _filtered page loads.
     let osm_source = new ol.source.OSM();
     let osm_layer = new ol.layer.Tile({'layer_id': 'tiles', source: osm_source});
 
@@ -116,6 +123,7 @@ function composeMap() {
 }
 
 function toggleLabels(show) {
+    //Shows or hides feature labels; driven by zoom level value captured in 'change:resolution' events.
     let lyrs = map_obj.getAllLayers();
     for (let l in lyrs) {
         if (lyrs[l].get('layer_id') !== 'tiles') {
@@ -134,7 +142,7 @@ function toggleLabels(show) {
 }
 
 function handleLegendCheck(layer_id) {
-    //alert(layer_id + " handled");
+    //turns hides or shows layers based on user action.
     let layers = map_obj.getLayers();
     layers.forEach(function (layer) {
         if (layer.getProperties()['layer_id'] === layer_id) {
@@ -150,6 +158,7 @@ function handleLegendCheck(layer_id) {
 }
 
 function toggleMapChecks() {
+    //Responds to all/none checkbox on legend control.
     let checker = document.getElementById('check_uncheck');
     //alert(checker.checked);
     $(".layer_check").prop('checked', checker.checked);
@@ -163,6 +172,7 @@ function toggleMapChecks() {
 }
 
 function toggleMapView(show) {
+    //show or hide map based on user selection.
     let m = document.getElementById('map_wrapper');
     if (show===true) {
         m.style.display = 'block';

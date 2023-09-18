@@ -7,6 +7,9 @@ class DiscoverConfig(AppConfig):
 
     def ready(self):  # method of AppConfig
         from .wf_sched import WfScheduler
-        # wfs = WfScheduler(5, 54)
+        wfs = WfScheduler(5, 46)
+        if wfs.started:
+            print('scheduler started')
+
 
 
