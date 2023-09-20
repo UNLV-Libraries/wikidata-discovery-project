@@ -22,17 +22,17 @@ def catch_err(e, proc=None):
         return "There was an error while handling an application exception. Contact your administrator."
 
 
-def update_cache_log(msg):
+def update_scheduler_log(msg):
     val = False
     try:
-        file_loc = str(BASE_DIR / 'cache.log')
-        log = open(file_loc, 'a', newline=None)
+        file_loc = str(BASE_DIR / 'scheduler.log')
+        log = open(file_loc, 'a', newline='\n')
         log.write(str(datetime.datetime.now()) + ": " + msg)
         log.close()
         val = True
         return val
     except Exception as e:
-        catch_err(e, 'wd_utils.update_cache_log')
+        catch_err(e, 'wd_utils.update_scheduler_log')
         return val
 
 
@@ -45,4 +45,3 @@ def get_server_type():
         return t
     except Exception as e:
         return ''
-

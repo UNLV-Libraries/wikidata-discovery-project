@@ -310,7 +310,7 @@ def item(request, item_code, app_class):
 def utilities(request):
     from . import db
     from .forms import WikiLoadForm
-    from .wf_utils import update_cache_log
+    from .wf_utils import update_scheduler_log
 
     init_session(request)
     msgs = ""
@@ -337,7 +337,7 @@ def utilities(request):
                 msgs = db.cache_subjects()
 
             # add any messages to issue log
-            update_cache_log(msgs)
+            update_scheduler_log(msgs)
 
         except Exception as e:
             catch_err(e, 'views.utilities')

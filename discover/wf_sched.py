@@ -4,7 +4,7 @@ import sched
 import threading
 from discover import db
 from wikidataDiscovery import logs
-from .wf_utils import update_cache_log, catch_err
+from .wf_utils import update_scheduler_log, catch_err
 from datetime import datetime, time
 import time as just_time
 
@@ -12,6 +12,7 @@ import time as just_time
 class WfScheduler:
     initialized = False
     started = False
+    thread2 = None
 
     def __init__(self, reload_hour, reload_min):
         if not self.initialized:
@@ -23,11 +24,11 @@ class WfScheduler:
                 self.thread2 = threading.Thread(name='scheduler clock', target=self.run_clock)
                 # All jobs data is stored in self.jobs.
                 self.jobs = {
-                    'cache_corp_bodies': (cache_corp_bodies, 23, 55),  # tuples contain action to run, hour, & minute
-                    'cache_oral_histories': (cache_oral_histories, 23, 56),
-                    'cache_people': (cache_people, 23, 57),
-                    'cache_collections': (cache_collections, 23, 58),
-                    'rotate_logs': (rotate_logs, 0, 1),
+                    'cache_corp_bodies': (cache_corp_bodies, 7, 31),  # tuples contain action to run, hour, & minute
+                    'cache_oral_histories': (cache_oral_histories, 7, 32),
+                    'cache_people': (cache_people, 7, 33),
+                    'cache_collections': (cache_collections, 7, 34),
+                    'rotate_logs': (rotate_logs, 7, 35),
                 }
 
                 self.thread2.start()
@@ -70,34 +71,38 @@ class WfScheduler:
     def print_queue(self):
         print(self.s.queue)
 
+    def stop_scheduler(self):
+        self.thread2.join(1)
+
 
 # All functions below are run by the scheduler.
 def cache_collections():
     msg = db.cache_collections()
-    update_cache_log(msg)
-    print('collections {}'.format(datetime.now()))
+    update_scheduler_log(msg)
+    # print('collections {}'.format(datetime.now()))
 
 
 def cache_corp_bodies():
     msg = db.cache_corp_bodies()
-    update_cache_log(msg)
-    print('corp bodies {}'.format(datetime.now()))
+    update_scheduler_log(msg)
+    # print('corp bodies {}'.format(datetime.now()))
 
 
 def cache_oral_histories():
     msg = db.cache_oral_histories()
-    update_cache_log(msg)
-    print('orals {}'.format(datetime.now()))
+    update_scheduler_log(msg)
+    # print('orals {}'.format(datetime.now()))
 
 
 def cache_people():
     msg = db.cache_people()
-    update_cache_log(msg)
-    print('people {}'.format(datetime.now()))
+    update_scheduler_log(msg)
+    # print('people {}'.format(datetime.now()))
 
 
 def rotate_logs():
     logs.rotate_logs()
-    print('rotate logs {}'.format(datetime.now()))
+    update_scheduler_log("Issue logs rotated.")
+    # print('rotate logs {}'.format(datetime.now()))
 
 
