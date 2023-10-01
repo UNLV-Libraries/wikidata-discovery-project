@@ -25,18 +25,20 @@ def home(request):
 def process_search(request):
     """Processes and renders search results for all app classes.
     Callable by search form, node-select form, subject forms, and queue form."""
-    from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm
+    from .forms import QueueForm, SearchForm, NodeSelectForm, RestrictSubjectForm, BackButtonForm, DownloadForm
     from .geog import get_geo_properties
     import json
     from django.utils.safestring import mark_safe
-    import time
+
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
-    file_path = url_path.split('/')
-    final_path = file_path[0] + '/base_' + file_path[1] + '.html'
+    file_path_parts = url_path.split('/')
+    final_path = file_path_parts[0] + '/base_' + file_path_parts[1] + '.html'
     error_msg = ''
     bypass_large_graph = 0
     bypass_queue = False
+    curr_request = request
+    fmt = None
 
     try:
         # check if queue form has been used to submit a prior search; run appropriate request setup.
@@ -48,10 +50,15 @@ def process_search(request):
             curr_class = q_item['form_vals']['app_class']
             final_path = mappings.get_prior_template_path(curr_class)
             curr_request = queue_mgr.create_request(request.session.session_key, pos, url_path)
-        else:
-            curr_request = request
 
-        # check to see if back button used on item details page; reload most recent search result.
+        rtn_dform = DownloadForm(request.POST)
+        if rtn_dform.is_valid():
+            fmt = rtn_dform.cleaned_data['file_format']
+            bypass_queue = True
+            bypass_large_graph = 1
+            curr_request = queue_mgr.create_request(request.session.session_key, 'top', url_path)
+
+        # check to see if back button used on item details or download pages; reload most recent search result.
         bbf = BackButtonForm(curr_request.POST)
         if bbf.is_valid():
             bypass_queue = True
@@ -120,7 +127,7 @@ def process_search(request):
                     prior_facet_labels = rtn_node_frm.cleaned_data['prior_facet_labels']
                     prior_show_all = rtn_node_frm.cleaned_data['prior_show_all']
             else:  # node was just clicked
-                # The prior query will now be a node query, not a keyword-facet or subject query.
+                # The prior query will now be a node query, not a keyword/facet or subject query.
                 # See graph_functions.js::selectNode.
                 prior_node_search = rtn_node_frm.cleaned_data['node_id']  # set last node search val
                 prior_node_label = rtn_node_frm.cleaned_data['node_label']  # maintain prior label
@@ -144,6 +151,20 @@ def process_search(request):
         # create lat/lon coordinate queryset for relevant app classes
         geo = get_geo_properties(results['filtered'], curr_class)
 
+        # if download has been selected, create downloadable file of search results and return download page
+        download_filename = None
+        download_filepath = None
+        if fmt:
+            download_filepath = create_download_file(fmt, results)
+            if download_filepath:
+                download_filename = download_filepath.split('/').pop()
+                d_bbf = BackButtonForm(initial={'back_value': '1'})
+                context = {'bb_form': d_bbf, 'app_class': curr_class,
+                           'download_filepath': download_filepath, 'download_filename': download_filename}
+                return render(request, final_path, context)
+            else:
+                raise Exception("There was an error processing the downloadable file.")
+
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
                                          'prior_facet_values': prior_facet_values,
@@ -158,12 +179,14 @@ def process_search(request):
         qform = QueueForm(initial={'app_class': curr_class},
                           dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
 
+        dform = DownloadForm()
         context = {'app_class': curr_class, 'unique_list': results['unique'], 'search': sform, 'priors': qform,
                    'num': results['num'], 'nodes': graph_data['nodes'], 'edges': graph_data['edges'],
                    'select': nsform, 'properties': graph_data['properties'], 'bypass_lg_graph': bypass_large_graph,
                    'string': results['search_str'], 'facet': facet_vals, 'checks': the_checks,
                    'prop_labels': prop_labels, 'coords': geo['coords'], 'layers': geo['layers'],
-                   'layer_objects': geo['layer_objects'], 'errors': error_msg, 'server_type': CURR_SERVER}
+                   'layer_objects': geo['layer_objects'], 'errors': error_msg, 'server_type': CURR_SERVER,
+                   'downloader': dform, 'download_filepath': download_filepath, 'download_filename': download_filename}
 
         return render(request, final_path, context)
 
@@ -175,6 +198,7 @@ def process_search(request):
 
 
 def error_message(request, errors):
+    # todo: need both a 404 and a 500 error response.
     context = {'errors': errors}
     req = create_error_request()
     return render(req, 'discover/base_error_message.html', context)
@@ -189,6 +213,51 @@ def create_error_request():
     request.user = AnonymousUser()
 
     return request
+
+
+def create_download_file(file_format, search_results):
+    """Takes results of search, formats them as a json or csv file, and saves it to site directory's
+    downloads subdirectory."""
+    import csv
+    import json
+    from datetime import datetime
+    from django.forms.models import model_to_dict
+    from wikidataDiscovery.settings import MEDIA_ROOT
+
+    dt = str(datetime.now())
+    stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
+    file_name = search_results['search_str'] + stamp_to_use + '.' + file_format[:3]
+    slug = file_name.replace(' ', '_')
+
+    try:
+        qr = search_results['filtered'].first()
+        if qr:
+            fields = [f.name for f in qr._meta.get_fields()]
+            json_list = []
+            for r in search_results['filtered']:
+                row_dict = model_to_dict(r)
+                json_list.append(row_dict)
+
+            if file_format == 'csv':
+                with open(MEDIA_ROOT / slug, 'wt') as f:
+                    writer = csv.DictWriter(f, fieldnames=fields, doublequote=True)
+                    writer.writeheader()
+                    for r in json_list:
+                        writer.writerow(r)
+                    f.close()
+            else:
+                file_data = json.dumps(json_list, indent=4, separators=(",", ":"))
+                with open(MEDIA_ROOT / slug, 'wt') as f:
+                    f.write(file_data)
+                    f.close()
+
+            return slug
+        else:
+            raise Exception('There was an error creating the download file.')
+
+    except Exception as e:
+        catch_err(e, 'views.create_download_file')
+        return None
 
 
 def people(request):
@@ -297,7 +366,7 @@ def subjects_filtered(request):
 def item(request, item_code, app_class):
     from .forms import BackButtonForm
 
-    bb_form = BackButtonForm()
+    bb_form = BackButtonForm(initial={'back_value': '1'})
     details = web_methods.get_item_details(item_code)
     the_class = app_class
     the_item = details[0]
@@ -324,7 +393,7 @@ def utilities(request):
                 msgs += db.cache_corp_bodies()
                 msgs += db.cache_oral_histories()
                 msgs += db.cache_people()
-                msgs += db.cache_subjects()
+                # msgs += db.cache_subjects()
             elif val == '2':
                 msgs = db.cache_people()
             elif val == '3':
@@ -535,7 +604,7 @@ def init_session(request):
 
 
 def get_list_and_string(codes, string):
-    """Needed for search form data processing."""
+    """Cleans up codes and labels lists during faceted search form data processing."""
     qcodes = codes.split(',')
     qcodes.remove('')  # remove empty member that causes trailing comma
     search_str = string.split(',')
@@ -545,6 +614,8 @@ def get_list_and_string(codes, string):
 
 
 def get_search_query(show_all, search_str, facet_list, facet_str, queryset, the_class) -> dict:
+    """Uses progressive QuerySet filtering to return the right initial search results set
+    based on user search choices."""
     from django.db.models import Q
     query_pair = get_list_and_string(facet_list, facet_str)
     kw_arg = mappings.get_facet_filter_kwarg(the_class, query_pair['codes'])

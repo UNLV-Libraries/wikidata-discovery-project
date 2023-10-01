@@ -121,6 +121,14 @@
 
 {% block server_type %}<span class="server_type">({{ server_type }})</span>{% endblock %}
 
+{% block download_form %}
+    <form id="download_form" action="/discover/download/" method="post">
+        {% csrf_token %}
+        {{ downloader }}
+        <button id="download_button" type="submit">download</button>
+    </form>
+{% endblock %}
+
 <script type="text/javascript">
 {% block page-script %}
     let inbound_nodes = {{ nodes }};

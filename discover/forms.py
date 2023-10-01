@@ -40,7 +40,8 @@ class NodeSelectForm(forms.Form):
         dynamic_choices = kwargs.pop('dynamic_choices', ())
         super().__init__(*args, **kwargs)
         self.fields['relation_types'] = forms.MultipleChoiceField(required=False, label='Show links:',
-                                                                  widget=forms.CheckboxSelectMultiple(attrs={'class': 'rel-row'}),
+                                                                  widget=forms.CheckboxSelectMultiple(
+                                                                      attrs={'class': 'rel-row'}),
                                                                   choices=dynamic_choices)
 
 
@@ -69,3 +70,7 @@ class BackButtonForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['back_value'].widget = forms.HiddenInput()
+
+
+class DownloadForm(forms.Form):
+    file_format = forms.ChoiceField(label='Download search results', choices=[('csv', 'csv'), ('json', 'json')])

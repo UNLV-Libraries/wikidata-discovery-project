@@ -1,51 +1,57 @@
-SELECT ?item ?itemLabel ?itemDescription ?subject ?subjectLabel ?donatedBy ?donatedByLabel ?inventoryNum ?describedAt
-WHERE
-{
- {?item wdt:P31 wd:Q34184051 ; # --- CHANGE Q-NUMBER HERE ---
-       wdt:P5008 wd:Q100202113 .
- OPTIONAL {?item wdt:P921 ?subject} .
- OPTIONAL {?item wdt:P1028 ?donatedBy} .
-  ?item p:P485 ?archivesAt .
-  ?archivesAt ps:P485 wd:Q73644758 .
- OPTIONAL {?archivesAt pq:P1810 ?collection } .
- OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
- OPTIONAL {?archivesAt pq:P973 ?describedAt } .
- }
- UNION
-  {
-  ?item wdt:P31 wd:Q27032363 ; # --- CHANGE Q-NUMBER HERE ---
-       wdt:P5008 wd:Q100202113 .
- OPTIONAL {?item wdt:P921 ?subject} .
- OPTIONAL {?item wdt:P1028 ?donatedBy} .
-  ?item p:P485 ?archivesAt .
-  ?archivesAt ps:P485 wd:Q73644758 .
- OPTIONAL {?archivesAt pq:P1810 ?collection } .
- OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
- OPTIONAL {?archivesAt pq:P973 ?describedAt } .
-  }
-  UNION
-  {
-  ?item wdt:P31 wd:Q42939539 ; # --- CHANGE Q-NUMBER HERE ---
-       wdt:P5008 wd:Q100202113 .
- OPTIONAL {?item wdt:P921 ?subject} .
- OPTIONAL {?item wdt:P1028 ?donatedBy} .
-  ?item p:P485 ?archivesAt .
-  ?archivesAt ps:P485 wd:Q73644758 .
- OPTIONAL {?archivesAt pq:P1810 ?collection } .
- OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
- OPTIONAL {?archivesAt pq:P973 ?describedAt } .
-  }
-UNION
-   {
-  ?item wdt:P31 wd:Q2668072 ; # --- CHANGE Q-NUMBER HERE ---
-       wdt:P5008 wd:Q100202113 .
- OPTIONAL {?item wdt:P921 ?subject} .
- OPTIONAL {?item wdt:P1028 ?donatedBy} .
- ?item p:P485 ?archivesAt .
- ?archivesAt ps:P485 wd:Q73644758 .
- OPTIONAL {?archivesAt pq:P1810 ?collection } .
- OPTIONAL {?archivesAt pq:P217 ?inventoryNum } .
- OPTIONAL {?archivesAt pq:P973 ?describedAt } .
-  }
-SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-}ORDER BY ASC (?inventoryNum)
+# Select the properties and values (and their labels) that you want returned in the template for this type of item
+SELECT ?item ?itemLabel ?itemDescription ?instanceOf ?instanceOfLabel ?subject ?subjectLabel ?donatedBy ?donatedByLabel ?inventoryNum ?describedAt 
+WHERE 
+{ 
+  { 
+    ?item wdt:P31 ?instanceOf . 
+    ?item wdt:P31 wd:Q34184051 ; # RETURN PHOTO ARCHIVES, Qcode1
+          wdt:P5008 wd:Q100202113 . 
+   OPTIONAL {?item wdt:P921 ?subject} . 
+   OPTIONAL {?item wdt:P1028 ?donatedBy} . 
+   ?item p:P485 ?archivesAt . 
+   ?archivesAt ps:P485 wd:Q73644758 . 
+   OPTIONAL {?archivesAt pq:P1810 ?collection } . # SOME NEEDED VALUES STORED AS QUALIFIERS
+   OPTIONAL {?archivesAt pq:P217 ?inventoryNum } . 
+   OPTIONAL {?archivesAt pq:P973 ?describedAt } . 
+  } 
+  UNION 
+  { 
+    ?item wdt:P31 ?instanceOf . 
+    ?item wdt:P31 wd:Q27032363 ; # RETURN PHOTO ARCHIVES, Qcode2
+          wdt:P5008 wd:Q100202113 . 
+    OPTIONAL {?item wdt:P921 ?subject} . 
+    OPTIONAL {?item wdt:P1028 ?donatedBy} . 
+    ?item p:P485 ?archivesAt . 
+    ?archivesAt ps:P485 wd:Q73644758 . 
+    OPTIONAL {?archivesAt pq:P1810 ?collection } . 
+    OPTIONAL {?archivesAt pq:P217 ?inventoryNum } . 
+    OPTIONAL {?archivesAt pq:P973 ?describedAt } . 
+  } 
+  UNION 
+  { 
+    ?item wdt:P31 ?instanceOf . 
+    ?item wdt:P31 wd:Q42939539 ; # RETURN MANUSCRIPT COLLECTIONS
+          wdt:P5008 wd:Q100202113 . 
+    OPTIONAL {?item wdt:P921 ?subject} . 
+    OPTIONAL {?item wdt:P1028 ?donatedBy} . 
+    ?item p:P485 ?archivesAt . 
+    ?archivesAt ps:P485 wd:Q73644758 . 
+    OPTIONAL {?archivesAt pq:P1810 ?collection } . 
+    OPTIONAL {?archivesAt pq:P217 ?inventoryNum } . 
+    OPTIONAL {?archivesAt pq:P973 ?describedAt } . 
+  } 
+  UNION 
+  { 
+    ?item wdt:P31 ?instanceOf . 
+    ?item wdt:P31 wd:Q2668072 ;  # --- RETURN ALL OTHER COLLECTIONS
+          wdt:P5008 wd:Q100202113 . 
+    OPTIONAL {?item wdt:P921 ?subject} . 
+    OPTIONAL {?item wdt:P1028 ?donatedBy} . 
+    ?item p:P485 ?archivesAt . 
+    ?archivesAt ps:P485 wd:Q73644758 . 
+    OPTIONAL {?archivesAt pq:P1810 ?collection } . 
+    OPTIONAL {?archivesAt pq:P217 ?inventoryNum } . 
+    OPTIONAL {?archivesAt pq:P973 ?describedAt } . 
+  } 
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } 
+} ORDER BY ASC (?inventoryNum)

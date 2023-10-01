@@ -386,11 +386,24 @@ input.rel-row {
 }
 
 /* FOOTER FORMATS */
+#wikidata_stamp {
+	float: left;
+	position: relative;
+	left: 10px;
+}
+
 .server_type {
 	margin: 2px;
 	padding: 2px;
 	font-style: italic;
 }
+
+#download_form {
+	margin: 2px;
+	padding: 2px;
+	float: left;
+}
+
 /*===NAVIGATION MENU===*/
 .site-menu ul {
 	display: flex;

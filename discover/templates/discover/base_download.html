@@ -1,0 +1,18 @@
+{% extends 'discover/base.html' %}
+
+    {% block main-content %}
+    <input type="hidden" id="app_class" value="{{ app_class }}">
+    <form id='back_button' action="/discover/{{ app_class }}_filtered/" method="post">
+        {% csrf_token %}
+        {{ bb_form }}
+        <input type="submit" value="back to results">
+    </form><br>
+
+        <a id="download_link" href="{{ MEDIA_URL }}{{ download_filename }}"
+           download="{{ download_filename }}">Download file again</a>
+
+        <script type="text/javascript">
+            window.location.href = $('#download_link').attr('href');
+        </script>
+
+    {% endblock %}

@@ -24,7 +24,14 @@ window.onload = function () {
     facetLabelsDiv = document.getElementById('facet_labels_div');
     queueFormButton = document.getElementById('q_submit');
     queueFormButton.disabled = true;
-
+    //Don't allow download action if no records returned
+    let num = document.getElementById('num_val');
+    if (num) {
+        //alert(num.innerText);
+        if (num.innerText === '0') {
+            document.getElementById("download_button").disabled = true;
+        }
+    }
     // events to handle type-ahead filtering
     typeahead.addEventListener('pointerenter', function () {
         if (typeahead.value === '[filter]') {

@@ -1,6 +1,8 @@
 
 from django.urls import path
 from discover import views
+from wikidataDiscovery import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -19,4 +21,5 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('utils/', views.utilities, name='utils'),
     path('app_error/', views.error_message, name='app_error'),
-]
+    path('download/', views.process_search, name='download'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,9 +1,6 @@
 """
 Django settings for wikidataDiscovery project.
 
-For more information on this file, see
-https://docs.djangoproject.com/en/4.1/topics/settings/
-
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
@@ -14,7 +11,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.18.8 (scheduler debug)'
+APP_VERSION = 'dev.19'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -22,7 +19,7 @@ APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = True
+DEBUG = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -85,7 +83,6 @@ WSGI_APPLICATION = 'wikidataDiscovery.wsgi.application'
 DJANGO_SETTINGS_MODULE = 'wikidataDiscovery.settings'
 
 # Database
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -117,11 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/Los_Angeles'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # SESSION SETTINGS
@@ -143,8 +137,12 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
+
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+# MEDIA settings
+MEDIA_ROOT = BASE_DIR / 'downloads/'
+MEDIA_URL = 'downloads/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -182,5 +180,3 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-

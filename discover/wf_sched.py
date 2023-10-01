@@ -37,20 +37,6 @@ class WfScheduler:
             except Exception as e:
                 catch_err(e, 'WfScheduler.__init__')
 
-    def run_clock(self):
-        # check to see if queue needs to be reloaded
-        d = datetime.now()
-        hr = d.hour
-        mn = d.minute
-        if self.reload_hour == hr and self.reload_min == mn:
-            self.s.empty()
-            self.load_scheduler()
-
-        # run anything in the queue for the current minute
-        self.s.run()
-        just_time.sleep(60)  # Clock period=60 secs
-        self.run_clock()  # continue running clock
-
     def load_scheduler(self):
         for k, v in self.jobs.items():
             self.add_to_queue(k)
@@ -77,32 +63,36 @@ class WfScheduler:
 
 # All functions below are run by the scheduler.
 def cache_collections():
-    msg = db.cache_collections()
-    update_scheduler_log(msg)
-    # print('collections {}'.format(datetime.now()))
+    # msg = db.cache_collections()
+    # update_scheduler_log(msg)
+    print('collections {}'.format(datetime.now()))
 
 
 def cache_corp_bodies():
-    msg = db.cache_corp_bodies()
-    update_scheduler_log(msg)
-    # print('corp bodies {}'.format(datetime.now()))
+    # msg = db.cache_corp_bodies()
+    # update_scheduler_log(msg)
+    print('corp bodies {}'.format(datetime.now()))
 
 
 def cache_oral_histories():
-    msg = db.cache_oral_histories()
-    update_scheduler_log(msg)
-    # print('orals {}'.format(datetime.now()))
+    # msg = db.cache_oral_histories()
+    # update_scheduler_log(msg)
+    print('orals {}'.format(datetime.now()))
 
 
 def cache_people():
-    msg = db.cache_people()
-    update_scheduler_log(msg)
-    # print('people {}'.format(datetime.now()))
+    # msg = db.cache_people()
+    # update_scheduler_log(msg)
+    print('people {}'.format(datetime.now()))
 
 
 def rotate_logs():
-    logs.rotate_logs()
-    update_scheduler_log("Issue logs rotated.")
-    # print('rotate logs {}'.format(datetime.now()))
+    # logs.rotate_logs()
+    # update_scheduler_log("Issue logs rotated.")
+    print('rotate logs {}'.format(datetime.now()))
+
+
+def scheduler_test():
+    print(f'scheduler test {datetime.now()}')
 
 

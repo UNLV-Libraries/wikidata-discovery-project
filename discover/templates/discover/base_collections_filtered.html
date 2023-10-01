@@ -70,7 +70,7 @@
 
     <!-- RESULTS LIST, etc. -->
     <p>{{ errors }}</p>
-    <p>Collections Returned: <b>{{ num }}</b></p><br>
+    <p>Collections Returned: <span id="num_val"><b>{{ num }}</b></span></p><br>
     {% if unique_list %}
           <table>
               <tr>
@@ -124,12 +124,19 @@
     </div>
     <div id="graph_tooltip"></div>
     <div id="colWrapper" class="col-graph-wrapper">
-        <!-- <span id="enlarger" class="close">&#9974;</span><div id="col-graph-parent"></div> -->
         <span id="enlarger" class="close">ENLARGE</span><div id="col-graph-parent"></div>
     </div>
 {% endblock %}
 
 {% block server_type %}<span class="server_type">({{ server_type }})</span>{% endblock %}
+
+{% block download_form %}
+    <form id="download_form" action="/discover/download/" method="post">
+        {% csrf_token %}
+        {{ downloader }}
+        <button id="download_button" type="submit">download</button>
+    </form>
+{% endblock %}
 
 <script type="text/javascript">
 {% block page-script %}

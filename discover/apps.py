@@ -11,17 +11,15 @@ class DiscoverConfig(AppConfig):
         super().__init__(app_name, app_module)
         self.wfs = None
 
-    def ready(self):  # overrides method of AppConfig
-        from .wf_sched import WfScheduler
-        self.wfs = WfScheduler(7, 30)
-        if self.wfs.started:
+    # def ready(self):  # overrides method of AppConfig
+        # from .wf_sched import WfScheduler
+         #self.wfs = WfScheduler(7, 30)
+        # if self.wfs.started:
             # print('scheduler started')
-            update_scheduler_log("scheduler started")
-        else:
-            update_scheduler_log("scheduler failed to start.")
+        #    update_scheduler_log("scheduler started")
+        #else:
+        #    update_scheduler_log("scheduler failed to start.")
         # signal.signal(signal.SIGTERM, self.stop_wf_scheduler)
 
-    def stop_wf_scheduler(self):
-        self.wfs.stop_scheduler()
-
-
+    # def stop_wf_scheduler(self):
+    #     self.wfs.stop_scheduler()
