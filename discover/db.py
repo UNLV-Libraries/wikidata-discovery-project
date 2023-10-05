@@ -333,3 +333,7 @@ def write_oral_histories(json_dict):
     except Exception as err:
         catch_err(err, 'db.write_oral_histories')
         return 'oral histories: load error' + '\n'
+
+
+def clear_session_table():
+    pass

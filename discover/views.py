@@ -364,6 +364,7 @@ def subjects_filtered(request):
 
 
 def item(request, item_code, app_class):
+    """Loads the item details page. Available through search results views."""
     from .forms import BackButtonForm
 
     bb_form = BackButtonForm(initial={'back_value': '1'})
@@ -377,6 +378,8 @@ def item(request, item_code, app_class):
 
 
 def utilities(request):
+    """Page for running basic administrative utilities, including data caching. Page not
+    available through menu; user must type 'discover/utils' at end of URL."""
     from . import db
     from .forms import WikiLoadForm
     from .wf_utils import update_scheduler_log
@@ -604,7 +607,7 @@ def init_session(request):
 
 
 def get_list_and_string(codes, string):
-    """Cleans up codes and labels lists during faceted search form data processing."""
+    """Cleans up the codes and labels lists during faceted search form data processing."""
     qcodes = codes.split(',')
     qcodes.remove('')  # remove empty member that causes trailing comma
     search_str = string.split(',')

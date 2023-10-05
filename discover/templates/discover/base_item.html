@@ -39,15 +39,27 @@
             </tr>
             {% for d in details %}
                 {% ifchanged d.prop_code %}
-                <tr>
-                    <td id="{{ d.prop_code }}">ps:{{ d.prop_code }}</td>
-                    <td><strong>{{ d.prop_label }}</strong></td>
-                    {% if d.has_url == True %}
-                        <td><a href="{{ d.value_label }}" target="_blank">{{ d.value_code }}</a></td>
-                    {% else %}
-                        <td>{{ d.value_label|format_date }}</td>
+                    <tr>
+                        <td id="{{ d.prop_code }}">ps:{{ d.prop_code }}</td>
+                        <td><strong>{{ d.prop_label }}</strong></td>
+                        {% if d.has_url == True %}
+                            <td><a href="{{ d.value_label }}" target="_blank">{{ d.value_code }}</a></td>
+                        {% else %}
+                            <td>{{ d.value_label|format_date }}</td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    {% if not d.qual_code %}
+                        <tr>
+                            <td id="{{ d.prop_code }}"></td>
+                            <td><strong></strong></td>
+                            {% if d.has_url == True %}
+                                <td><a href="{{ d.value_label }}" target="_blank">{{ d.value_code }}</a></td>
+                            {% else %}
+                                <td>{{ d.value_label|format_date }}</td>
+                            {% endif %}
+                        </tr>
                     {% endif %}
-                </tr>
                 {% endifchanged %}
                 {% if d.qual_code %}
                     <tr>
