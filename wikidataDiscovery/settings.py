@@ -11,7 +11,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.1'
+APP_VERSION = 'dev.19.2'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -19,7 +19,7 @@ APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = False
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +38,7 @@ CSRF_TRUSTED_ORIGINS = ['https://wikiframe.library.unlv.edu',
 # Establish MIME types
 mimetypes.add_type('text/javascript', '.js', True)
 mimetypes.add_type('text/css', '.css', True)
+mimetypes.add_type('application/octet-stream', '.json', True)
 
 # Application definitions
 INSTALLED_APPS = [
@@ -117,6 +118,8 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Los_Angeles'
 USE_I18N = True
 USE_TZ = True
+
+DEFAULT_CHARSET = 'utf-8'
 
 # SESSION SETTINGS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

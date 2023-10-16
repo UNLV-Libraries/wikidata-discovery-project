@@ -13,7 +13,7 @@ class RelColor(Enum):
 
 
 class AppClass(Enum):
-    """Establishes allowable names in code for application classes within the data domain. """
+    """Establishes allowable names in code for application classes within the data class. """
     people = 'people'
     corps = 'corps'
     colls = 'collections'

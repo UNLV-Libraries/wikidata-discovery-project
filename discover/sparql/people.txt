@@ -1,5 +1,7 @@
 #PEOPLE PROFILE--ABOUT
-SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel ?motherLabel ?fatherLabel ?siblingLabel ?spouseLabel ?childLabel ?relativeLabel
+SELECT DISTINCT ?image ?item ?itemLabel ?itemDescription ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath
+?placeOfDeath ?placeOfDeathLabel ?occupation ?occupationLabel ?fieldOfWork ?fieldOfWorkLabel ?motherLabel ?fatherLabel
+?siblingLabel ?spouseLabel ?childLabel ?relativeLabel
 WHERE
 {
  {

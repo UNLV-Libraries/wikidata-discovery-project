@@ -1,5 +1,6 @@
 # Select the properties and values (and their labels) that you want returned in the template for this type of item
-SELECT ?item ?itemLabel ?itemDescription ?instanceOf ?instanceOfLabel ?subject ?subjectLabel ?donatedBy ?donatedByLabel ?inventoryNum ?describedAt 
+SELECT ?item ?itemLabel ?itemDescription ?instanceOf ?instanceOfLabel ?subject ?subjectLabel ?donatedBy
+?donatedByLabel ?inventoryNum ?describedAt
 WHERE 
 { 
   { 

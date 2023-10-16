@@ -2,7 +2,7 @@ from .wf_utils import catch_err
 
 
 def load_graph(dataset, relation_types, app_class):
-    """Loads graph visualizer with item, relations, and edges for all domains.
+    """Loads graph visualizer with item, relations, and edges for all app classes.
     Properties list created for on-page graph tooltip via JavaScript. """
     from django.utils.safestring import mark_safe
     from .enums import RelColor

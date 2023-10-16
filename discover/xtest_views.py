@@ -2,9 +2,10 @@ from django.test import TestCase
 import unittest
 from django.test import Client
 from .forms import SearchForm, NodeSelectForm, QueueForm
+from django.urls import reverse
 
 
-class PeopleTest(unittest.TestCase):
+class PeopleTest(TestCase):
     def setUp(self):
         self.client = Client()
 
@@ -17,12 +18,13 @@ class PeopleTest(unittest.TestCase):
         self.assertIsInstance(response.context['priors'], QueueForm)
 
 
-class PeopleFilteredTest(unittest.TestCase):
+class PeopleFilteredTest(TestCase):
     def setUp(self):
         self.client = Client()
 
     def test_details(self):
-        # Search form input
+        url = reverse('process_search_people')
+        # keyword form input
         response = self.client.post('/discover/people_filtered/', {'search_text': 'Q12345'})
         self.assertEqual(response.status_code, 200)
         # Node form input

@@ -116,7 +116,7 @@ class Filter(models.Model):
 
 class RelationType(models.Model):
     """Stores/retrieves allowable relation types for graphing data."""
-    domain = models.CharField(max_length=20, db_index=True)  # todo: update field name to "app_class"
+    app_class = models.CharField(max_length=20, db_index=True)
     relation_type = models.CharField(max_length=20)
     relation_type_label = models.CharField(max_length=50, null=True)
     list_order = models.IntegerField(null=True)

@@ -198,7 +198,6 @@ def process_search(request):
 
 
 def error_message(request, errors):
-    # todo: need both a 404 and a 500 error response.
     context = {'errors': errors}
     req = create_error_request()
     return render(req, 'discover/base_error_message.html', context)
@@ -226,8 +225,15 @@ def create_download_file(file_format, search_results):
 
     dt = str(datetime.now())
     stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
-    file_name = search_results['search_str'] + stamp_to_use + '.' + file_format[:3]
-    slug = file_name.replace(' ', '_')
+    file_name = search_results['search_str'][:50] + stamp_to_use
+
+    # strip out unwanted filename characters
+    bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]
+    slug = ""
+    for c in file_name:
+        if c not in bad_chars:
+            slug += c
+    slug += "." + file_format
 
     try:
         qr = search_results['filtered'].first()
@@ -245,7 +251,7 @@ def create_download_file(file_format, search_results):
                     for r in json_list:
                         writer.writerow(r)
                     f.close()
-            else:
+            else:  # json
                 file_data = json.dumps(json_list, indent=4, separators=(",", ":"))
                 with open(MEDIA_ROOT / slug, 'wt') as f:
                     f.write(file_data)
@@ -555,7 +561,7 @@ def set_relation_types(app_class: str) -> list:
     """Creates list for relation type options on the node form."""
     from .models import RelationType
 
-    the_set = RelationType.objects.filter(domain=app_class)
+    the_set = RelationType.objects.filter(app_class=app_class)
     rel_types = []
     for r in the_set:
         rel_types.append((r.relation_type, r.relation_type_label))
@@ -566,8 +572,8 @@ def process_choices(choices: list, app_class) -> dict:
     """Used with returned node form to create a list of selected relationship
     types and a corresponding search string label. Called prior to process node form."""
     from .models import RelationType
-    # get checkbox select order for domain from db; gets applied on template render
-    fac = RelationType.objects.filter(domain=app_class)
+    # get checkbox select order for app_class from db; gets applied on template render
+    fac = RelationType.objects.filter(app_class=app_class)
     choice_sel = []
     alt_str = ''
     for c in choices:
@@ -583,7 +589,7 @@ def process_choices(choices: list, app_class) -> dict:
 def get_default_rel_type(app_class):
     """Returns the top-of-list relation type for a given app_class."""
     from .models import RelationType
-    check_set = RelationType.objects.get(domain=app_class, list_order=0)
+    check_set = RelationType.objects.get(app_class=app_class, list_order=0)
     return check_set.relation_type
 
 
@@ -647,7 +653,7 @@ def get_search_query(show_all, search_str, facet_list, facet_str, queryset, the_
         filtset = queryset
         the_string = "All " + the_class
     else:
-        filtset = queryset  # if all tests fail
+        filtset = queryset  # if all conditions fail
         the_string = "All " + the_class
 
     return {'query': filtset, 'search_label': the_string}
