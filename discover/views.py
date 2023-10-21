@@ -163,7 +163,7 @@ def process_search(request):
                            'download_filepath': download_filepath, 'download_filename': download_filename}
                 return render(request, final_path, context)
             else:
-                raise Exception("There was an error processing the downloadable file.")
+                raise Exception("There was an error retrieving the downloadable file.")
 
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
@@ -223,19 +223,19 @@ def create_download_file(file_format, search_results):
     from django.forms.models import model_to_dict
     from wikidataDiscovery.settings import MEDIA_ROOT
 
-    dt = str(datetime.now())
-    stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
-    file_name = search_results['search_str'][:50] + stamp_to_use
-
-    # strip out unwanted filename characters
-    bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]
-    slug = ""
-    for c in file_name:
-        if c not in bad_chars:
-            slug += c
-    slug += "." + file_format
-
     try:
+        dt = str(datetime.now())
+        stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
+        file_name = search_results['search_str'][:50] + stamp_to_use
+
+        # strip out unwanted filename characters
+        bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]
+        slug = ""
+        for c in file_name:
+            if c not in bad_chars:
+                slug += c
+        slug += "." + file_format
+
         qr = search_results['filtered'].first()
         if qr:
             fields = [f.name for f in qr._meta.get_fields()]
@@ -259,7 +259,7 @@ def create_download_file(file_format, search_results):
 
             return slug
         else:
-            raise Exception('There was an error creating the download file.')
+            raise Exception('There was an error creating the downloadable file.')
 
     except Exception as e:
         catch_err(e, 'views.create_download_file')
