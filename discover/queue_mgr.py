@@ -63,9 +63,9 @@ def update_queue(form_type, form: forms.Form, session_key):
 
 
 def create_request(session_key, queue_key, path):
-    """Places form values from queue into a new request object
-    and returns the object for use in view functions."""
-    from .enums import AppClass
+    """Places form values from queue into a new spoof request object taken from the testing framework.
+    Called in views.process_search for search data processing. Spoof request does NOT replace actual
+    request object in process_search."""
     from django.contrib.auth.models import AnonymousUser
     from django.test import RequestFactory
 
@@ -84,8 +84,8 @@ def create_request(session_key, queue_key, path):
         request = RequestFactory.post(factory, path,
                                       form_data['form_vals'], secure=True)
         request.user = AnonymousUser()
-
         return request
+
     except Exception as e:
         catch_err(e, 'queue_mgr.create_request')
 

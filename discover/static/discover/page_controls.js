@@ -27,7 +27,6 @@ window.onload = function () {
     //Don't allow download action if no records returned
     let num = document.getElementById('num_val');
     if (num) {
-        //alert(num.innerText);
         if (num.innerText === '0') {
             document.getElementById("download_button").disabled = true;
         }

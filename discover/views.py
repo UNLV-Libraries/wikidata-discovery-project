@@ -37,7 +37,8 @@ def process_search(request):
     error_msg = ''
     bypass_large_graph = 0
     bypass_queue = False
-    curr_request = request
+    # request_data is used to process present or historical search parameters. It does NOT replace the request object.
+    request_data = request
     fmt = None
 
     try:
@@ -49,31 +50,33 @@ def process_search(request):
             q_item = queue_mgr.get_queue_entry(pos, request.session.session_key)
             curr_class = q_item['form_vals']['app_class']
             final_path = mappings.get_prior_template_path(curr_class)
-            curr_request = queue_mgr.create_request(request.session.session_key, pos, url_path)
+            request_data = queue_mgr.create_request(request.session.session_key, pos, url_path)
 
+        # downloads most recent queries results to file using the "top" position in the queue.
         rtn_dform = DownloadForm(request.POST)
         if rtn_dform.is_valid():
             fmt = rtn_dform.cleaned_data['file_format']
             bypass_queue = True
             bypass_large_graph = 1
-            curr_request = queue_mgr.create_request(request.session.session_key, 'top', url_path)
+            request_data = queue_mgr.create_request(request.session.session_key, 'top', url_path)
 
-        # check to see if back button used on item details or download pages; reload most recent search result.
-        bbf = BackButtonForm(curr_request.POST)
+        # check to see if back button used on item details or download pages;
+        # reload most recent search result from queue.
+        bbf = BackButtonForm(request_data.POST)
         if bbf.is_valid():
             bypass_queue = True
             bypass_large_graph = 1
-            curr_request = queue_mgr.create_request(request.session.session_key, 'top', url_path)
+            request_data = queue_mgr.create_request(request.session.session_key, 'top', url_path)
 
         # attempt to hydrate all search forms based on POST data. Only one will be valid.
-        rtn_search_frm = SearchForm(curr_request.POST)
+        rtn_search_frm = SearchForm(request_data.POST)
         curr_class = rtn_search_frm['app_class'].value()  # grab app class val off search form pre-validation
         if curr_class == AppClass.subjs.value:  # subject form has called this process_search
             curr_class = AppClass.colls.value
         the_checks = [get_default_rel_type(curr_class)]
-        rtn_node_frm = NodeSelectForm(curr_request.POST,
+        rtn_node_frm = NodeSelectForm(request_data.POST,
                                       dynamic_choices=set_relation_types(curr_class))
-        rtn_subject_frm = RestrictSubjectForm(curr_request.POST)
+        rtn_subject_frm = RestrictSubjectForm(request_data.POST)
 
         # variables to track previous search values used on search, subject, or node forms.
         # set all to 'empty'; logic below fills fields for kw, subject, or node, depending on case.
@@ -163,7 +166,7 @@ def process_search(request):
                            'download_filepath': download_filepath, 'download_filename': download_filename}
                 return render(request, final_path, context)
             else:
-                raise Exception("There was an error retrieving the downloadable file.")
+                raise Exception("There was an error retrieving the downloadable file: " + results['search_str'])
 
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
@@ -226,7 +229,7 @@ def create_download_file(file_format, search_results):
     try:
         dt = str(datetime.now())
         stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
-        file_name = search_results['search_str'][:50] + stamp_to_use
+        file_name = "___" + search_results['search_str'][:48] + stamp_to_use
 
         # strip out unwanted filename characters
         bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]

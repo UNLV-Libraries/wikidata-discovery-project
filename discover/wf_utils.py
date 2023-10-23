@@ -16,6 +16,7 @@ def catch_err(e, proc=None):
         else:
             the_message = str(e.args)
         the_log.error(str(dt) + ": " + the_message + str(e.args[0]) + " " + proc)
+
         return "Error: " + mark_safe(the_message)
     except Exception as internal_e:
         the_log.error(str(dt) + ": " + str(internal_e.args) + ", " + str(internal_e.args[0]) + " " + proc)
