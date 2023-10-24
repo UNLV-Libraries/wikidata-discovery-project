@@ -8,6 +8,9 @@ The application interacts with Wikidata's [SPARQL query service](https://query.w
 
 Try out WikiframeVG at https://wikiframe.library.unlv.edu . 
 
+## Concept
+![Wikiframe Concept Poster](https://github.com/UNLV-Libraries/wikidata-discovery-project/blob/main/wikiframePoster.png)
+
 ## Project Team
 * [Darnelle Melvin](https://github.com/darnelleMelvin): Project sponsor and SPARQL developer.
 * [Cory Lampert](https://github.com/corylampert): Project sponsor and linked data advisor.
