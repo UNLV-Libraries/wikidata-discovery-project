@@ -30,7 +30,6 @@ def process_search(request):
     import json
     from django.utils.safestring import mark_safe
     from django.http import HttpResponse
-    from django.template.loader import render_to_string
 
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
@@ -231,7 +230,7 @@ def create_download_file(file_format, search_results):
     from datetime import datetime
     from django.forms.models import model_to_dict
     from wikidataDiscovery.settings import MEDIA_ROOT
-
+    slug = ""
     try:
         dt = str(datetime.now())
         stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
@@ -239,7 +238,7 @@ def create_download_file(file_format, search_results):
 
         # strip out unwanted filename characters
         bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]
-        slug = ""
+
         for c in file_name:
             if c not in bad_chars:
                 slug += c
@@ -272,7 +271,7 @@ def create_download_file(file_format, search_results):
 
     except Exception as e:
         catch_err(e, 'views.create_download_file')
-        return None
+        return str(MEDIA_ROOT / slug)
 
 
 def people(request):
