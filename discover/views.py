@@ -29,6 +29,8 @@ def process_search(request):
     from .geog import get_geo_properties
     import json
     from django.utils.safestring import mark_safe
+    from django.http import HttpResponse
+    from django.template.loader import render_to_string
 
     # construct file path for rendering result template
     url_path = request.path[1:request.path.__len__() - 1]
@@ -154,17 +156,21 @@ def process_search(request):
         # create lat/lon coordinate queryset for relevant app classes
         geo = get_geo_properties(results['filtered'], curr_class)
 
-        # if download has been selected, create downloadable file of search results and return download page
+        # if download has been selected, create downloadable file of search results and return file as attachment
         download_filename = None
         download_filepath = None
         if fmt:
             download_filepath = create_download_file(fmt, results)
             if download_filepath:
                 download_filename = download_filepath.split('/').pop()
-                d_bbf = BackButtonForm(initial={'back_value': '1'})
-                context = {'bb_form': d_bbf, 'app_class': curr_class,
-                           'download_filepath': download_filepath, 'download_filename': download_filename}
-                return render(request, final_path, context)
+                # d_bbf = BackButtonForm(initial={'back_value': '1'})
+                # context = {'bb_form': d_bbf, 'app_class': curr_class,
+                #           'download_filepath': download_filepath, 'download_filename': download_filename}
+                # rendered = render_to_string(final_path, context)
+                with open(download_filepath, 'r') as f:
+                    response = HttpResponse(f)
+                    response['Content-Disposition'] = 'attachment; filename=' + download_filename
+                    return response
             else:
                 raise Exception("There was an error retrieving the downloadable file: " + results['search_str'])
 
@@ -229,7 +235,7 @@ def create_download_file(file_format, search_results):
     try:
         dt = str(datetime.now())
         stamp_to_use = dt[:dt.__len__() - 7]  # remove milliseconds
-        file_name = "___" + search_results['search_str'][:48] + stamp_to_use
+        file_name = search_results['search_str'][:50] + stamp_to_use
 
         # strip out unwanted filename characters
         bad_chars = [" ", ".", "=", "[", "]", "'", ":", ",", "|"]
@@ -260,7 +266,7 @@ def create_download_file(file_format, search_results):
                     f.write(file_data)
                     f.close()
 
-            return slug
+            return str(MEDIA_ROOT / slug)
         else:
             raise Exception('There was an error creating the downloadable file.')
 

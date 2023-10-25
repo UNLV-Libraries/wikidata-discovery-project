@@ -2,6 +2,7 @@
 /discover/old_migrations/
 /node_modules/
 /wd_venv/
+/downloads/
 /my.cnf
 /rebuild_venv_commands.txt
 /issue.log
