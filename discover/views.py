@@ -160,18 +160,11 @@ def process_search(request):
         download_filepath = None
         if fmt:
             download_filepath = create_download_file(fmt, results)
-            # if download_filepath:
             download_filename = download_filepath.split('/').pop()
-            # d_bbf = BackButtonForm(initial={'back_value': '1'})
-            # context = {'bb_form': d_bbf, 'app_class': curr_class,
-            #           'download_filepath': download_filepath, 'download_filename': download_filename}
-            # rendered = render_to_string(final_path, context)
             with open(download_filepath, 'r') as f:
                 response = HttpResponse(f)
                 response['Content-Disposition'] = 'attachment; filename=' + download_filename
                 return response
-            # else:
-                # raise Exception("There was an error retrieving the downloadable file: " + results['search_str'])
 
         # new forms to pass to people_filtered
         nsform = NodeSelectForm(initial={'app_class': curr_class, 'prior_kw_search': prior_kw_search,
