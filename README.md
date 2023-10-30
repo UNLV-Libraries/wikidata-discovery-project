@@ -10,6 +10,8 @@ Try out WikiframeVG at https://wikiframe.library.unlv.edu .
 
 ## Concept
 ![Wikiframe Concept Poster](https://github.com/UNLV-Libraries/wikidata-discovery-project/blob/main/wikiframePoster.png)
+## Design Goals
+![Wikiframe Design Goal](https://github.com/UNLV-Libraries/wikidata-discovery-project/blob/main/wikiframe_designGoals.png)
 
 ## Project Team
 * [Darnelle Melvin](https://github.com/darnelleMelvin): Project sponsor and SPARQL developer.
