@@ -49,6 +49,7 @@ class Clock(object):
         d = datetime.now()
         hr = d.hour
         mn = d.minute
+        # print('tick...')
         if self.__hour == hr and self.__min == mn:
             self.alarm()
         just_time.sleep(60)  # Clock period=60 secs
@@ -87,7 +88,7 @@ class WfScheduler:
 
     def run_scheduler(self):
         self.s = sched.scheduler(just_time.time, just_time.sleep)
-        print('scheduler is running...')
+        # print('scheduler is running...')
 
     def load_scheduler(self):
         for k, v in self.jobs.items():
@@ -100,6 +101,10 @@ class WfScheduler:
             # add job to queue
             self.s.enterabs(new_dt.timestamp(), 1, job_data[0])
         self.s.run()
+        # create new clock object for next day
+        self.the_clock = None  # destroy old clock plus the thread it runs on
+        self.the_clock = Clock(23, 50)
+        self.the_clock.subscribe_to_alarm(self.load_scheduler)
 
     def print_queue(self):
         print(self.s.queue)

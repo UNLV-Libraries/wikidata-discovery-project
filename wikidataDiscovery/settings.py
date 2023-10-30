@@ -1,8 +1,5 @@
 """
 Django settings for wikidataDiscovery project.
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
@@ -11,7 +8,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.7'
+APP_VERSION = 'dev.19.8'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
