@@ -28,7 +28,7 @@ def update_queue(form_type, form: forms.Form, session_key):
                 sess['top']['form_vals']['search_dirty_flag'] = form.cleaned_data['search_dirty_flag']
                 sess['top']['form_vals']['show_all'] = form.cleaned_data['show_all']
             elif form_type == 'node':
-                form_choices = '|'.join(form.cleaned_data['relation_types'])
+                form_choices = '|'.join(form.cleaned_data['relation_types'])  # serialize form choices
                 sess['top'] = {}
                 sess['top']['form_type'] = form_type
                 sess['top']['form_vals'] = {}
@@ -70,7 +70,6 @@ def create_request(session_key, queue_key, path):
     from django.test import RequestFactory
 
     try:
-
         factory = RequestFactory()
         sess = SessionStore(session_key=session_key)
         form_data = sess[queue_key]
@@ -78,7 +77,10 @@ def create_request(session_key, queue_key, path):
         # perform any mods needed to the form data, esp. deserializing list values
         if form_data['form_type'] == 'node':
             choices = form_data['form_vals']['relation_types']
-            form_data['form_vals']['relation_types'] = choices.split('|')
+            if choices == '':
+                form_data['form_vals']['relation_types'] = []
+            else:
+                form_data['form_vals']['relation_types'] = choices.split('|')
 
         # create request
         request = RequestFactory.post(factory, path,

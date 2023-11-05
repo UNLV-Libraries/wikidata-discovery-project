@@ -8,13 +8,14 @@ from wikidataDiscovery import logs
 from .wf_utils import update_scheduler_log, catch_err
 from datetime import datetime, time
 import time as just_time
+from .mappings import SCHEDULER_ALARM_TIME
 
 # Process:
 # 1. Scheduler instantiates clock class
 # 2. scheduler registers its own reload event with clock - self.load_scheduler
 # 3. scheduler runs clock
 # 4. clock ticks every minute
-# 5. at appointed minute, it runs the scheduler's method.
+# 5. at appointed minute, it runs the scheduler's method, load_scheduler; creates new clock at end.
 
 
 class Event(object):
@@ -36,9 +37,9 @@ class Event(object):
 
 class Clock(object):
     def __init__(self, alarm_hour, alarm_min):
-        self.__hour = alarm_hour
-        self.__min = alarm_min
-        self.__next_time = 0
+        self.hour = alarm_hour
+        self.min = alarm_min
+        self.next_time = 0
         self.alarm_time = False
         self.onAlarm = Event()
         self.clock_thread = threading.Thread(name='scheduler clock', target=self.run_clock, daemon=True)
@@ -46,11 +47,12 @@ class Clock(object):
 
     def run_clock(self):
         # check to see if queue needs to be reloaded
+        # todo: prevent new clock from loading new scheduler while scheduler is running
         d = datetime.now()
         hr = d.hour
         mn = d.minute
         # print('tick...')
-        if self.__hour == hr and self.__min == mn:
+        if self.hour == hr and self.min == mn:
             self.alarm()
         just_time.sleep(60)  # Clock period=60 secs
         self.alarm_time = False
@@ -73,14 +75,14 @@ class WfScheduler:
         if not self.initialized:
             try:
                 # All jobs data is stored in self.jobs.
-                self.the_clock = Clock(23, 50)
+                self.the_clock = Clock(SCHEDULER_ALARM_TIME[0], SCHEDULER_ALARM_TIME[1])
                 self.the_clock.subscribe_to_alarm(self.load_scheduler)
                 self.jobs = {
-                    'cache_corp_bodies': (cache_corp_bodies, 23, 51),  # tuples contain action to run, hour, & minute
-                    'cache_oral_histories': (cache_oral_histories, 23, 52),
-                    'cache_people': (cache_people, 23, 53),
-                    'cache_collections': (cache_collections, 23, 54),
-                    'rotate_logs': (rotate_logs, 23, 55),
+                    'cache_corp_bodies': (cache_corp_bodies, 23, 52),  # tuples contain action to run, hour, & minute
+                    'cache_oral_histories': (cache_oral_histories, 23, 53),
+                    'cache_people': (cache_people, 23, 54),
+                    'cache_collections': (cache_collections, 23, 55),
+                    'rotate_logs': (rotate_logs, 23, 56),
                 }
                 self.initialized = True
             except Exception as e:
@@ -88,23 +90,26 @@ class WfScheduler:
 
     def run_scheduler(self):
         self.s = sched.scheduler(just_time.time, just_time.sleep)
-        # print('scheduler is running...')
 
     def load_scheduler(self):
-        for k, v in self.jobs.items():
-            # create a future time for the incoming job
-            job_data = self.jobs[k]
-            d1 = datetime.date(datetime.today())
-            new_date = d1
-            new_time = time(hour=job_data[1], minute=job_data[2])
-            new_dt = datetime.combine(new_date, new_time)
-            # add job to queue
-            self.s.enterabs(new_dt.timestamp(), 1, job_data[0])
-        self.s.run()
-        # create new clock object for next day
-        self.the_clock = None  # destroy old clock plus the thread it runs on
-        self.the_clock = Clock(23, 50)
-        self.the_clock.subscribe_to_alarm(self.load_scheduler)
+        if self.s.queue.__len__() == 0:  # avoid reload if queue isn't empty
+            for k, v in self.jobs.items():
+                # create a future time for the incoming job
+                job_data = self.jobs[k]
+                d1 = datetime.date(datetime.today())
+                new_date = d1
+                new_time = time(hour=job_data[1], minute=job_data[2])
+                new_dt = datetime.combine(new_date, new_time)
+                # add job to queue
+                self.s.enterabs(new_dt.timestamp(), 1, job_data[0])
+            self.s.run()  # start queue processing
+
+            # create new clock object w/ the standard alarm time.
+            h = self.the_clock.hour
+            m = self.the_clock.min
+            self.the_clock = None  # destroy old clock plus the thread it runs on
+            self.the_clock = Clock(h, m)  # create new clock
+            self.the_clock.subscribe_to_alarm(self.load_scheduler)  # re-subscribe to event
 
     def print_queue(self):
         print(self.s.queue)

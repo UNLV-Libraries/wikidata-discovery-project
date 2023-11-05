@@ -143,8 +143,7 @@ def process_search(request):
             the_checks = results['choices']
             graph_data = graph.load_graph(results['filtered'], the_checks, curr_class)
         else:  # edge case in which no forms are valid
-            results = process_invalid_form()  # pass empty set
-            graph_data = graph.load_graph(results, the_checks, curr_class)
+            raise Exception("No valid form data was submitted. views.process_search.")
 
         # obtain property label dict and render as JSON for property tooltip labels.
         prop_labels = mark_safe(json.dumps(mappings.PROP_LABEL_DICT, separators=(",", ":")))
@@ -544,18 +543,6 @@ def process_restrictsubj_form(rsform, qset):
     choice = get_default_rel_type(AppClass.colls.value)  # subject form only supports collection results.
     return {'filtered': filtset, 'unique': uniqueset, 'num': num,
             'choices': [choice], 'search_str': query_pair['string'] + '. link= ' + choice}
-
-
-def process_invalid_form() -> dict:
-    """Used for edge case in which all incoming forms in process_search are invalid. Returns
-     dict with empty values that mimic processed forms data."""
-    filtset = mappings.QuerySet()
-    uniqueset = mappings.QuerySet()
-    search_str = "error in search"
-    choices = []
-    num = 0
-    return {'filtered': filtset, 'unique': uniqueset, 'num': num,
-            'choices': choices, 'search_str': search_str}
 
 
 def set_relation_types(app_class: str) -> list:
