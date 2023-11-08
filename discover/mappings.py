@@ -32,8 +32,13 @@ FACETS = {AppClass.colls.value: 'subject_id',
           AppClass.orals.value: 'subject_id',
           AppClass.people.value: 'occupation_id'}
 
-# set alarm time used in wf_sched.py.
-SCHEDULER_ALARM_TIME = [23, 50]
+# set alarm time and job times used in wf_sched.py. Hours = 0-23; Minutes = 0-59
+SCHED_ALARM_TIME = [23, 50]
+COLLS_JOB_TIME = [23, 51]
+CORPS_JOB_TIME = [23, 52]
+ORALS_JOB_TIME = [23, 53]
+PEOPLE_JOB_TIME = [23, 54]
+LOGS_JOB_TIME = [23, 55]
 
 
 # CLASSES
