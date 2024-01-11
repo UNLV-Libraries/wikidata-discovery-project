@@ -8,7 +8,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.10'
+APP_VERSION = 'dev.19.11'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -122,6 +122,7 @@ DEFAULT_CHARSET = 'utf-8'
 # SESSION SETTINGS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True
 # SESSION_COOKIE_AGE = 604800  # 7 days, in seconds
 
 # STATIC FILES (CSS, JavaScript, Images)

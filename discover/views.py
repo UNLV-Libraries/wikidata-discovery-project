@@ -12,7 +12,7 @@ CURR_SERVER = get_server_type()
 
 def home(request):
     from .web_methods import get_chart
-    init_session(request)
+    verify_session(request)
 
     chart_io_dict = get_chart('stats_instanceof_count')
     chart_subj_dict = get_chart('stats_subjects_count')
@@ -43,6 +43,7 @@ def process_search(request):
     fmt = None
 
     try:
+        verify_session(request)  # edge-case: double-check for deletion of session data in the back end
         # check if queue form has been used to submit a prior search; run appropriate request setup.
         rtn_qform = QueueForm(request.POST,
                               dynamic_choices=queue_mgr.get_queue_list(request.session.session_key))
@@ -271,7 +272,7 @@ def people(request):
     from .web_methods import get_images
 
     # initialize session for queue management
-    init_session(request)
+    verify_session(request)
 
     relation = get_default_rel_type(AppClass.people.value)
     facet_vals = mappings.get_facet_queryset(AppClass.people.value)
@@ -290,7 +291,7 @@ def corp_bodies(request):
     from .web_methods import get_images
 
     # initialize session for queue management
-    init_session(request)
+    verify_session(request)
 
     relation = get_default_rel_type(AppClass.corps.value)
     facet_vals = mappings.get_facet_queryset(AppClass.corps.value)
@@ -308,7 +309,7 @@ def collections(request):
     from . import forms
 
     # initialize session for queue management
-    init_session(request)
+    verify_session(request)
 
     relation = get_default_rel_type(AppClass.colls.value)
     facet_vals = mappings.get_facet_queryset(AppClass.colls.value)
@@ -326,7 +327,7 @@ def oral_histories(request):
     from . import forms
 
     # initialize session for queue management
-    init_session(request)
+    verify_session(request)
 
     relation = get_default_rel_type(AppClass.orals.value)
     facet_vals = mappings.get_facet_queryset(AppClass.orals.value)
@@ -342,7 +343,7 @@ def oral_histories(request):
 def subjects(request):
     from . import forms
 
-    init_session(request)
+    verify_session(request)
 
     sf = forms.SearchForm(initial={'app_class': AppClass.subjs.value, 'relation_type': 'none'})
     context = {'search': sf}
@@ -390,7 +391,7 @@ def utilities(request):
     from .forms import WikiLoadForm
     from .wf_utils import update_scheduler_log
 
-    init_session(request)
+    verify_session(request)
     msgs = ""
     nf = WikiLoadForm()
     cf = WikiLoadForm(request.POST)
@@ -429,7 +430,7 @@ def utilities(request):
 def about(request):
     from wikidataDiscovery import settings
 
-    init_session(request)
+    verify_session(request)
     ver = settings.APP_VERSION
     auth = settings.APP_AUTHOR
     email = settings.APP_EMAIL
@@ -581,7 +582,7 @@ def get_default_rel_type(app_class):
     return check_set.relation_type
 
 
-def init_session(request):
+def verify_session(request):
     """Initializes browser session for storing prior search terms."""
     iterate = ['top', 'middle', 'bottom']
 
