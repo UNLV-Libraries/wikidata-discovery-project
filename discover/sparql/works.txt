@@ -1,6 +1,5 @@
 SELECT DISTINCT ?oclcWorkId ?work ?author ?authorLabel ?viaf_id ?workLabel ?subject ?subjectLabel ?edition ?isbn_13 ?edition_title ?edition_subTitle (YEAR(?pubDate) AS ?year) 
-                ?publisher ?publisherLabel ?placeOfPub ?placeOfPubLabel ?edition_image ?dateOfBirth ?placeOfBirth ?placeOfBirthLabel ?dateOfDeath ?placeOfDeath
-                ?placeOfDeathLabel ?occupation ?occupationLabel ?educatedAt ?educatedAtLabel
+                ?publisher ?publisherLabel ?placeOfPub ?placeOfPubLabel ?edition_image
 WHERE
 {
  #?work wdt:P5008 wd:Q100202113 . # CHANGE Q-NUMBER HERE TO CTRL PROJECT SCOPE
