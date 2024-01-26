@@ -8,7 +8,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.11'
+APP_VERSION = 'dev.19.12'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
 
-ALLOWED_HOSTS = ['localhost', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
+ALLOWED_HOSTS = ['localhost', 'wikiframe.local', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
                  'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
                  'wikiback.library.unlv.edu', 'wikidev.library.unlv.edu']
 
