@@ -5,7 +5,11 @@ Django settings for wikidataDiscovery project.
 from pathlib import Path
 import os
 import mimetypes
-from .keytrieve import get_django_key
+from .keytrieve import set_django_key
+
+from dotenv import load_dotenv
+# if set_django_key():
+load_dotenv()
 
 # App-specific values
 APP_VERSION = 'dev.19.13'
@@ -21,7 +25,8 @@ DEBUG = False
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
+# SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 ALLOWED_HOSTS = ['localhost', 'wikiframe.local', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
                  'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
