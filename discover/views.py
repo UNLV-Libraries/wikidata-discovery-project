@@ -549,37 +549,48 @@ def process_restrictsubj_form(rsform, qset):
 def set_relation_types(app_class: str) -> list:
     """Creates list for relation type options on the node form."""
     from .models import RelationType
-
-    the_set = RelationType.objects.filter(app_class=app_class)
-    rel_types = []
-    for r in the_set:
-        rel_types.append((r.relation_type, r.relation_type_label))
-    return rel_types
+    try:
+        the_set = RelationType.objects.filter(app_class=app_class)
+        rel_types = []
+        for r in the_set:
+            rel_types.append((r.relation_type, r.relation_type_label))
+        return rel_types
+    except Exception as e:
+        catch_err(e, 'views.set_relation_types')
+        return []
 
 
 def process_choices(choices: list, app_class) -> dict:
     """Used with returned node form to create a list of selected relationship
-    types and a corresponding search string label. Called prior to process node form."""
+    types and a corresponding search string label. Called prior to 'process node form'."""
     from .models import RelationType
     # get checkbox select order for app_class from db; gets applied on template render
-    fac = RelationType.objects.filter(app_class=app_class)
-    choice_sel = []
-    alt_str = ''
-    for c in choices:
-        o = fac.get(relation_type=c)
-        if o:
-            choice_sel.append(o.list_order)
-            alt_str += o.relation_type_label + ' + '
-    total_str = '' + ": " + alt_str.rstrip(' + ')
+    try:
+        fac = RelationType.objects.filter(app_class=app_class)
+        choice_sel = []
+        alt_str = ''
+        for c in choices:
+            o = fac.get(relation_type=c)
+            if o:
+                choice_sel.append(o.list_order)
+                alt_str += o.relation_type_label + ' + '
+        total_str = '' + ": " + alt_str.rstrip(' + ')
 
-    return {'checks': choice_sel, 'search_str': total_str}
+        return {'checks': choice_sel, 'search_str': total_str}
+    except Exception as e:
+        catch_err(e, 'views.process_choices')
+        return {}
 
 
 def get_default_rel_type(app_class):
     """Returns the top-of-list relation type for a given app_class."""
     from .models import RelationType
-    check_set = RelationType.objects.get(app_class=app_class, list_order=0)
-    return check_set.relation_type
+    try:
+        check_set = RelationType.objects.get(app_class=app_class, list_order=0)
+        return check_set.relation_type
+    except Exception as e:
+        catch_err(e, 'views.get_default_rel_type')
+        return None
 
 
 def verify_session(request):

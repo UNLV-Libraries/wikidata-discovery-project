@@ -5,14 +5,12 @@ Django settings for wikidataDiscovery project.
 from pathlib import Path
 import os
 import mimetypes
-from .keytrieve import set_django_key
-
 from dotenv import load_dotenv
-# if set_django_key():
+
 load_dotenv()
 
 # App-specific values
-APP_VERSION = 'dev.19.13'
+APP_VERSION = 'dev.19.15'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'

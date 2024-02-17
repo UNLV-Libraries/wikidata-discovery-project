@@ -23,5 +23,6 @@ class DiscoverConfig(AppConfig):
             else:
                 update_scheduler_log("scheduler failed to start.")
                 print('scheduler failed to start.')
+                raise Exception('scheduler failed to start.')
         except Exception as e:
             catch_err(e, 'apps.ready')
