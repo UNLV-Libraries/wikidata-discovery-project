@@ -1,16 +1,14 @@
 """
-Django settings for wikidataDiscovery project.
+Django settings for WikiframeVG site.
 """
 
 from pathlib import Path
 import os
 import mimetypes
-from dotenv import load_dotenv
-
-load_dotenv()
+from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.15'
+APP_VERSION = 'dev.19.16'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -24,7 +22,7 @@ DEBUG = False
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = get_django_key()
 
 ALLOWED_HOSTS = ['localhost', 'wikiframe.local', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
                  'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
