@@ -8,7 +8,7 @@ import mimetypes
 from .keytrieve import get_django_key
 
 # App-specific values
-APP_VERSION = 'dev.19.17'
+APP_VERSION = 'dev.19.18'
 APP_AUTHOR = 'Andre Hulet'
 APP_EMAIL = 'andre.hulet@unlv.edu'
 APP_CONTACT = 'Darnelle Melvin'
@@ -24,9 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = get_django_key()  # application-specific function to retrieve encrypted key value
 SECRET_KEY = get_django_key()
 
-ALLOWED_HOSTS = ['localhost', 'wikiframe.local', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
-                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
-                 'wikiback.library.unlv.edu', 'wikidev.library.unlv.edu']
+ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['localhost', 'wikiframe.local', 'ore.library.unlv.edu', 'wikiframe.library.unlv.edu',
+#                 'oreback.library.unlv.edu', 'oredev.library.unlv.edu', 'localwikiframe',
+#                 'wikiback.library.unlv.edu', 'wikidev.library.unlv.edu']
 
 # CSRF SETTINGS to support valid cross-site requests from the rev. proxy servers: wikiframe, wikiback, wikidev
 CSRF_TRUSTED_ORIGINS = ['https://wikiframe.library.unlv.edu',
