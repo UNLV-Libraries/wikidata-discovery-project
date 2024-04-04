@@ -29,3 +29,9 @@ For use cases, requirements, and feature descriptions, see the repository wiki.
 
 ## License
 Source code is made available under the [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). For questions, contact [Darnelle Melvin](https://github.com/darnelleMelvin). 
+
+## Citation
+
+Melvin, D., Hulet. A., & Lampert, C. K. (2023). WikiframeVG: A SPARQL template-based framework for Wikidata graph exploration and visualization.
+  In L-A Kaffee, S. Razniewski, K. Alghamdi, & H. Arnaout (Eds.), Proceedings of the Wikidata Workshop 2023 co-located with the 22nd International Semantic
+  Web Conference (ISWC2023). CEUR Workshop Proceedings. (https://ceur-ws.org/Vol-3640/paper15.pdf)
