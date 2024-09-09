@@ -1,0 +1,15 @@
+# SELECT ALL STATEMENT GROUPS INCLUDING PROPERTIES AND QUALIFIERS FROM A KNOWN ITEMS
+SELECT ?item ?property ?propertyLabel ?value ?valueLabel ?qualifierLabel ?qualifier_valueLabel 
+{
+ VALUES (?item) {( wd:Q78251101)}
+ ?item ?p ?statement .
+ ?statement ?ps ?value .
+ ?property wikibase:claim ?p.
+ ?property wikibase:statementProperty ?ps.
+ OPTIONAL {
+           ?statement ?pq ?qualifier_value .
+           ?qualifier wikibase:qualifier ?pq .
+          }
+ SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+}
+ORDER BY ?property ?statement ?value
