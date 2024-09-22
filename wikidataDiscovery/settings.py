@@ -16,7 +16,7 @@ APP_CONTACT_EMAIL = 'darnelle.melvin@unlv.edu'
 SPARQL_USER_AGENT_ID = 'WikiframeApp/0.9 (https://github.com/aehulet; andre.hulet@unlv.edu)'
 
 # DO NOT DEPLOY TO PRODUCTION with DEBUG = True!
-DEBUG = False
+DEBUG = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# todo: fix
 ROOT_URLCONF = 'wikidataDiscovery.urls'
 
 TEMPLATES = [

@@ -1,0 +1,18 @@
+# SELECT ALL STATEMENTS AND THEIR LABELS FOR ITEMS IN PROJECT, PER P5008.
+# TAKES ~ 37SEC FOR UNLV.
+SELECT ?item ?itemLabel ?itemDescription ?instanceOf ?instanceOfLabel ?property ?propertyLabel ?value ?valueLabel ?qualifierLabel ?qualifier_valueLabel
+{
+ # VALUES (?item) {( wd:Q78251101)}
+ ?item wdt:P5008 wd:Q100202113.
+  ?item wdt:P31 ?instanceOf .
+  ?item ?p ?statement .
+ ?statement ?ps ?value .
+ ?property wikibase:claim ?p.
+ ?property wikibase:statementProperty ?ps.
+ OPTIONAL {
+           ?statement ?pq ?qualifier_value .
+           ?qualifier wikibase:qualifier ?pq .
+          }
+ SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+}
+ORDER BY ?itemLabel ?propertyLabel

@@ -46,8 +46,8 @@ def load_graph(dataset, relation_types, app_class):
             props_list.append(obj2)  # add here to provide on-page label to access via javascript.
             # node_dict[k] = v
 
-        # force unique key set from node_list: this hack is currently needed because entities have been occasionally
-        # added to the data as both an item and a relation type, like "subject." This ends up
+        # force unique key set from node_list: this hack is currently needed because entities have occasionally
+        # been added to the data as both an item and a relation type, like "subject." This ends up
         # producing graph nodes with duplicate keys, which breaks the graph rendering.
         for n in node_list:
             count1 = eval_dict.keys().__len__()

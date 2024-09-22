@@ -55,5 +55,4 @@ def run_wd_query(query):
     spql.setQuery(query)
     spql.setReturnFormat(JSON)
     the_json = spql.query().convert()
-
     return the_json
